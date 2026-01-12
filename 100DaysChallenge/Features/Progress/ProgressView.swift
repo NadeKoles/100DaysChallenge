@@ -1,0 +1,256 @@
+//
+//  ProgressView.swift
+//  100DaysChallenge
+//
+//  Progress view with 100-day grid and challenge navigation
+//
+
+import SwiftUI
+
+struct ProgressView: View {
+    @EnvironmentObject var challengeStore: ChallengeStore
+    @StateObject private var viewModel = ProgressViewModel()
+    @State private var showingConfirmModal = false
+    @State private var selectedDay: Int? = nil
+    
+    var body: some View {
+        Group {
+            if challengeStore.challenges.isEmpty {
+                EmptyChallengesView()
+            } else {
+                ChallengeProgressView(
+                    challenges: challengeStore.challenges,
+                    currentIndex: $viewModel.currentIndex,
+                    onToggleDay: { challengeId, day in
+                        let challenge = challengeStore.challenges.first { $0.id == challengeId }
+                        if let challenge = challenge, !challenge.completedDaysSet.contains(day) {
+                            selectedDay = day
+                            showingConfirmModal = true
+                        } else {
+                            challengeStore.toggleDay(challengeId: challengeId, day: day)
+                        }
+                    },
+                    onCompleteToday: { challengeId, day in
+                        challengeStore.completeDay(challengeId: challengeId, day: day)
+                    }
+                )
+            }
+        }
+        .sheet(isPresented: $showingConfirmModal) {
+            if let day = selectedDay,
+               !viewModel.currentChallengeId.isEmpty,
+               let challenge = challengeStore.challenges.first(where: { $0.id == viewModel.currentChallengeId }) {
+                ConfirmCompleteDayModal(
+                    day: day,
+                    accentColor: Color(hex: challenge.accentColor),
+                    onConfirm: {
+                        challengeStore.completeDay(challengeId: challenge.id, day: day)
+                        showingConfirmModal = false
+                        selectedDay = nil
+                    },
+                    onCancel: {
+                        showingConfirmModal = false
+                        selectedDay = nil
+                    }
+                )
+            }
+        }
+        .onAppear {
+            updateCurrentChallengeId()
+        }
+        .onChange(of: viewModel.currentIndex) { _ in
+            updateCurrentChallengeId()
+        }
+        .onChange(of: challengeStore.challenges) { _ in
+            updateCurrentChallengeId()
+        }
+    }
+    
+    private func updateCurrentChallengeId() {
+        if viewModel.currentIndex < challengeStore.challenges.count {
+            viewModel.currentChallengeId = challengeStore.challenges[viewModel.currentIndex].id
+        }
+    }
+}
+
+struct EmptyChallengesView: View {
+    var body: some View {
+        VStack(spacing: Spacing.xl) {
+            ZStack {
+                RoundedRectangle(cornerRadius: CornerRadius.xxl)
+                    .fill(Color.gray100)
+                    .frame(width: 96, height: 96)
+                
+                Image(systemName: "checkmark.circle")
+                    .font(.system(size: 48, weight: .light))
+                    .foregroundColor(.gray400)
+            }
+            
+            VStack(spacing: Spacing.sm) {
+                Text("No Challenges Yet")
+                    .font(.heading2)
+                    .foregroundColor(.textPrimary)
+                
+                Text("Start your first 100-day challenge to build a lasting habit")
+                    .font(.body)
+                    .foregroundColor(.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, Spacing.xl)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+struct ChallengeProgressView: View {
+    let challenges: [Challenge]
+    @Binding var currentIndex: Int
+    let onToggleDay: (String, Int) -> Void
+    let onCompleteToday: (String, Int) -> Void
+    
+    @State private var dragOffset: CGFloat = 0
+    
+    var currentChallenge: Challenge {
+        challenges[currentIndex]
+    }
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: Spacing.xl) {
+                    // Header with navigation
+                    VStack(spacing: Spacing.lg) {
+                        // Navigation controls
+                        HStack {
+                            Button(action: {
+                                if currentIndex > 0 {
+                                    withAnimation {
+                                        currentIndex -= 1
+                                    }
+                                }
+                            }) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.textSecondary)
+                                    .frame(width: 44, height: 44)
+                                    .background(Color.gray100)
+                                    .clipShape(Circle())
+                            }
+                            .disabled(currentIndex == 0)
+                            .opacity(currentIndex == 0 ? 0.3 : 1)
+                            
+                            // Page indicators
+                            HStack(spacing: Spacing.sm) {
+                                ForEach(0..<challenges.count, id: \.self) { index in
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .fill(index == currentIndex ? 
+                                              Color(hex: currentChallenge.accentColor) : Color.gray200)
+                                        .frame(width: index == currentIndex ? 24 : 6, height: 6)
+                                        .animation(.easeInOut, value: currentIndex)
+                                }
+                            }
+                            
+                            Button(action: {
+                                if currentIndex < challenges.count - 1 {
+                                    withAnimation {
+                                        currentIndex += 1
+                                    }
+                                }
+                            }) {
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.textSecondary)
+                                    .frame(width: 44, height: 44)
+                                    .background(Color.gray100)
+                                    .clipShape(Circle())
+                            }
+                            .disabled(currentIndex == challenges.count - 1)
+                            .opacity(currentIndex == challenges.count - 1 ? 0.3 : 1)
+                        }
+                        .padding(.horizontal, Spacing.xl)
+                        .padding(.top, Spacing.xxxl)
+                        
+                        // Challenge title and stats
+                        VStack(alignment: .leading, spacing: Spacing.sm) {
+                            Text(currentChallenge.title)
+                                .font(.heading1)
+                                .foregroundColor(.textPrimary)
+                            
+                            HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
+                                Text("\(currentChallenge.completedDaysSet.count)")
+                                    .font(.displayMedium)
+                                    .foregroundColor(.textPrimary)
+                                
+                                Text("/ 100")
+                                    .font(.heading3)
+                                    .foregroundColor(.textTertiary)
+                            }
+                            
+                            Text("days completed")
+                                .font(.body)
+                                .foregroundColor(.textSecondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, Spacing.xl)
+                    }
+                    
+                    // Progress bar
+                    ProgressBarView(
+                        progress: currentChallenge.progress,
+                        accentColor: Color(hex: currentChallenge.accentColor)
+                    )
+                    .padding(.horizontal, Spacing.xl)
+                    .padding(.bottom, Spacing.lg)
+                    
+                    // 100-day grid
+                    ChallengeGridView(
+                        challenge: currentChallenge,
+                        onToggleDay: { day in
+                            onToggleDay(currentChallenge.id, day)
+                        }
+                    )
+                    .padding(.horizontal, Spacing.xl)
+                    
+                    // Mark today complete button
+                    if !currentChallenge.isTodayCompleted && currentChallenge.currentDay <= 100 {
+                        Button(action: {
+                            onCompleteToday(currentChallenge.id, currentChallenge.currentDay)
+                        }) {
+                            HStack(spacing: Spacing.sm) {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 20, weight: .semibold))
+                                
+                                Text("Mark Day \(currentChallenge.currentDay) Complete")
+                                    .font(.label)
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(Color(hex: currentChallenge.accentColor))
+                            .cornerRadius(CornerRadius.xl)
+                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                        }
+                        .padding(.horizontal, Spacing.xl)
+                        .padding(.bottom, Spacing.xl)
+                    }
+                }
+            }
+        }
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    let threshold: CGFloat = 50
+                    if value.translation.width > threshold && currentIndex > 0 {
+                        withAnimation {
+                            currentIndex -= 1
+                        }
+                    } else if value.translation.width < -threshold && currentIndex < challenges.count - 1 {
+                        withAnimation {
+                            currentIndex += 1
+                        }
+                    }
+                }
+        )
+    }
+}
+

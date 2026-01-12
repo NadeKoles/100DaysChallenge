@@ -1,0 +1,25 @@
+# Xcode
+xcuserdata/
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+build/
+DerivedData/
+*.xcscmblueprint
+*.xccheckout
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+
+# Dependency Managers
+Pods/
+Carthage/Build/
+
+# macOS
+.DS_Store
+
+# Figma Export
+figma-export/

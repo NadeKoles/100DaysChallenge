@@ -108,91 +108,47 @@ struct ChallengeProgressView: View {
     let onToggleDay: (String, Int) -> Void
     let onCompleteToday: (String, Int) -> Void
     
-    @State private var dragOffset: CGFloat = 0
-    
     var currentChallenge: Challenge {
         challenges[currentIndex]
     }
     
     var body: some View {
-        GeometryReader { geometry in
+        NavigationStack {
             ScrollView {
                 VStack(spacing: Spacing.xl) {
-                    // Header with navigation
-                    VStack(spacing: Spacing.lg) {
-                        // Navigation controls
-                        HStack {
-                            Button(action: {
-                                if currentIndex > 0 {
-                                    withAnimation {
-                                        currentIndex -= 1
-                                    }
-                                }
-                            }) {
-                                Image(systemName: "chevron.left")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(.textSecondary)
-                                    .frame(width: 44, height: 44)
-                                    .background(Color.gray100)
-                                    .clipShape(Circle())
-                            }
-                            .disabled(currentIndex == 0)
-                            .opacity(currentIndex == 0 ? 0.3 : 1)
-                            
-                            // Page indicators
-                            HStack(spacing: Spacing.sm) {
-                                ForEach(0..<challenges.count, id: \.self) { index in
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(index == currentIndex ? 
-                                              Color(hex: currentChallenge.accentColor) : Color.gray200)
-                                        .frame(width: index == currentIndex ? 24 : 6, height: 6)
-                                        .animation(.easeInOut, value: currentIndex)
-                                }
-                            }
-                            
-                            Button(action: {
-                                if currentIndex < challenges.count - 1 {
-                                    withAnimation {
-                                        currentIndex += 1
-                                    }
-                                }
-                            }) {
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(.textSecondary)
-                                    .frame(width: 44, height: 44)
-                                    .background(Color.gray100)
-                                    .clipShape(Circle())
-                            }
-                            .disabled(currentIndex == challenges.count - 1)
-                            .opacity(currentIndex == challenges.count - 1 ? 0.3 : 1)
+                    // Challenge indicator dots (leading-aligned, scrollable)
+                    HStack(spacing: Spacing.sm) {
+                        ForEach(0..<challenges.count, id: \.self) { index in
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(index == currentIndex ? 
+                                      Color(hex: currentChallenge.accentColor) : Color.gray200)
+                                .frame(width: index == currentIndex ? 24 : 6, height: 6)
+                                .animation(.easeInOut, value: currentIndex)
                         }
-                        .padding(.horizontal, Spacing.xl)
-                        .padding(.top, Spacing.xxxl)
-                        
-                        // Challenge title and stats
-                        VStack(alignment: .leading, spacing: Spacing.sm) {
-                            Text(currentChallenge.title)
-                                .font(.heading1)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, Spacing.xl)
+                    .padding(.top, Spacing.xs)
+                    
+                    // Challenge stats
+                    VStack(alignment: .leading, spacing: Spacing.sm) {
+                        HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
+                            Text("\(currentChallenge.completedDaysSet.count)")
+                                .font(.displayMedium)
                                 .foregroundColor(.textPrimary)
                             
-                            HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
-                                Text("\(currentChallenge.completedDaysSet.count)")
-                                    .font(.displayMedium)
-                                    .foregroundColor(.textPrimary)
-                                
-                                Text("/ 100")
-                                    .font(.heading3)
-                                    .foregroundColor(.textTertiary)
-                            }
-                            
-                            Text("days completed")
-                                .font(.body)
-                                .foregroundColor(.textSecondary)
+                            Text("/ 100")
+                                .font(.heading3)
+                                .foregroundColor(.textTertiary)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, Spacing.xl)
+                        
+                        Text("days completed")
+                            .font(.body)
+                            .foregroundColor(.textSecondary)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, Spacing.xl)
+                    .padding(.top, Spacing.lg)
                     
                     // Progress bar
                     ProgressBarView(
@@ -235,22 +191,25 @@ struct ChallengeProgressView: View {
                     }
                 }
             }
-        }
-        .gesture(
-            DragGesture()
-                .onEnded { value in
-                    let threshold: CGFloat = 50
-                    if value.translation.width > threshold && currentIndex > 0 {
-                        withAnimation {
-                            currentIndex -= 1
-                        }
-                    } else if value.translation.width < -threshold && currentIndex < challenges.count - 1 {
-                        withAnimation {
-                            currentIndex += 1
+            .navigationTitle(currentChallenge.title)
+            .navigationBarTitleDisplayMode(.large)
+            .gesture(
+                DragGesture()
+                    .onEnded { value in
+                        let threshold: CGFloat = 50
+                        if value.translation.width > threshold && currentIndex > 0 {
+                            withAnimation {
+                                currentIndex -= 1
+                            }
+                        } else if value.translation.width < -threshold && currentIndex < challenges.count - 1 {
+                            withAnimation {
+                                currentIndex += 1
+                            }
                         }
                     }
-                }
-        )
+            )
+        }
     }
 }
+
 

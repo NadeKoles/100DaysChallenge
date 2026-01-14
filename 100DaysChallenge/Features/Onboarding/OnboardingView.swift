@@ -17,6 +17,16 @@ struct OnboardingView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
+                // Content
+                TabView(selection: $viewModel.currentSlide) {
+                    ForEach(0..<viewModel.slides.count, id: \.self) { index in
+                        OnboardingSlideView(slide: viewModel.slides[index])
+                            .tag(index)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .indexViewStyle(.page(backgroundDisplayMode: .never))
+                
                 // Progress indicators
                 HStack(spacing: Spacing.sm) {
                     ForEach(0..<viewModel.slides.count, id: \.self) { index in
@@ -28,18 +38,8 @@ struct OnboardingView: View {
                             .animation(.easeInOut(duration: 0.3), value: viewModel.currentSlide)
                     }
                 }
-                .padding(.top, Spacing.xxxl)
+                .padding(.top, Spacing.xl)
                 .padding(.bottom, Spacing.xl)
-                
-                // Content
-                TabView(selection: $viewModel.currentSlide) {
-                    ForEach(0..<viewModel.slides.count, id: \.self) { index in
-                        OnboardingSlideView(slide: viewModel.slides[index])
-                            .tag(index)
-                    }
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .indexViewStyle(.page(backgroundDisplayMode: .never))
                 
                 Spacer()
                 

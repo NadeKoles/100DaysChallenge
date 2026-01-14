@@ -15,7 +15,7 @@ struct ChallengeGridView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.lg) {
-            Text("100 DAY GRID")
+            Text("100 DAYS GRID")
                 .font(.labelTiny)
                 .foregroundColor(.textSecondary)
                 .tracking(1)

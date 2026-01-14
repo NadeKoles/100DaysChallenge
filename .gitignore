@@ -2,6 +2,7 @@
 xcuserdata/
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
+100DaysChallenge.xcodeproj
 build/
 DerivedData/
 *.xcscmblueprint
@@ -23,3 +24,6 @@ Carthage/Build/
 
 # Figma Export
 figma-export/
+
+# PurC files
+*.pur

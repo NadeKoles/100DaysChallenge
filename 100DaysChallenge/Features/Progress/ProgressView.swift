@@ -12,6 +12,7 @@ struct ProgressView: View {
     @StateObject private var viewModel = ProgressViewModel()
     @State private var showingConfirmModal = false
     @State private var selectedDay: Int? = nil
+    @State private var isUnmarking = false
     
     var body: some View {
         Group {
@@ -23,11 +24,10 @@ struct ProgressView: View {
                     currentIndex: $viewModel.currentIndex,
                     onToggleDay: { challengeId, day in
                         let challenge = challengeStore.challenges.first { $0.id == challengeId }
-                        if let challenge = challenge, !challenge.completedDaysSet.contains(day) {
+                        if let challenge = challenge {
                             selectedDay = day
+                            isUnmarking = challenge.completedDaysSet.contains(day)
                             showingConfirmModal = true
-                        } else {
-                            challengeStore.toggleDay(challengeId: challengeId, day: day)
                         }
                     },
                     onCompleteToday: { challengeId, day in
@@ -36,21 +36,32 @@ struct ProgressView: View {
                 )
             }
         }
-        .alert("Complete Day \(selectedDay ?? 0)?", isPresented: $showingConfirmModal) {
+        .alert(
+            isUnmarking ? "Unmark Day \(selectedDay ?? 0)?" : "Complete Day \(selectedDay ?? 0)?",
+            isPresented: $showingConfirmModal
+        ) {
             Button("Cancel", role: .cancel) {
                 selectedDay = nil
+                isUnmarking = false
             }
-            Button("Complete") {
+            Button(isUnmarking ? "Unmark" : "Complete") {
                 if let day = selectedDay,
                    !viewModel.currentChallengeId.isEmpty,
                    let challenge = challengeStore.challenges.first(where: { $0.id == viewModel.currentChallengeId }) {
-                    challengeStore.completeDay(challengeId: challenge.id, day: day)
+                    if isUnmarking {
+                        challengeStore.toggleDay(challengeId: challenge.id, day: day)
+                    } else {
+                        challengeStore.completeDay(challengeId: challenge.id, day: day)
+                    }
                     selectedDay = nil
+                    isUnmarking = false
                 }
             }
         } message: {
             if let day = selectedDay {
-                Text("Great work! Mark today as completed and keep your streak going.")
+                Text(isUnmarking 
+                    ? "Are you sure you want to unmark this day? This will remove it from your completed days."
+                    : "Great work! Mark today as completed and keep your streak going.")
             }
         }
         .onAppear {

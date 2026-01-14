@@ -15,11 +15,11 @@ struct SignUpView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl) {
                 VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Text("Create Account")
+                    Text(LocalizedStrings.Auth.createAccount)
                         .font(.displaySmall)
                         .foregroundColor(.textPrimary)
                     
-                    Text("Start your journey to building lasting habits")
+                    Text(LocalizedStrings.Auth.startJourney)
                         .font(.bodyLarge)
                         .foregroundColor(.textSecondary)
                 }
@@ -27,79 +27,29 @@ struct SignUpView: View {
                 .padding(.bottom, Spacing.xxxl)
                 
                 VStack(spacing: Spacing.xl) {
-                    // Name field
-                    VStack(alignment: .leading, spacing: Spacing.sm) {
-                        Text("Name")
-                            .font(.labelSmall)
-                            .foregroundColor(.textSecondary)
-                        
-                        HStack {
-                            Image(systemName: "person")
-                                .foregroundColor(.gray400)
-                                .frame(width: 20)
-                            
-                            TextField("Your name", text: $viewModel.name)
-                                .textFieldStyle(.plain)
-                                .font(.body)
-                        }
-                        .padding(Spacing.lg)
-                        .background(Color.inputBackground)
-                        .cornerRadius(CornerRadius.xl)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: CornerRadius.xl)
-                                .stroke(Color.border, lineWidth: 1)
-                        )
-                    }
+                    InputField(
+                        label: LocalizedStrings.Auth.name,
+                        placeholder: LocalizedStrings.Auth.namePlaceholder,
+                        text: $viewModel.name,
+                        type: .text,
+                        iconName: "person"
+                    )
                     
-                    // Email field
-                    VStack(alignment: .leading, spacing: Spacing.sm) {
-                        Text("Email")
-                            .font(.labelSmall)
-                            .foregroundColor(.textSecondary)
-                        
-                        HStack {
-                            Image(systemName: "envelope")
-                                .foregroundColor(.gray400)
-                                .frame(width: 20)
-                            
-                            TextField("your@email.com", text: $viewModel.email)
-                                .textFieldStyle(.plain)
-                                .keyboardType(.emailAddress)
-                                .autocapitalization(.none)
-                                .font(.body)
-                        }
-                        .padding(Spacing.lg)
-                        .background(Color.inputBackground)
-                        .cornerRadius(CornerRadius.xl)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: CornerRadius.xl)
-                                .stroke(Color.border, lineWidth: 1)
-                        )
-                    }
+                    InputField(
+                        label: LocalizedStrings.Auth.email,
+                        placeholder: LocalizedStrings.Auth.emailPlaceholder,
+                        text: $viewModel.email,
+                        type: .email,
+                        iconName: "envelope"
+                    )
                     
-                    // Password field
-                    VStack(alignment: .leading, spacing: Spacing.sm) {
-                        Text("Password")
-                            .font(.labelSmall)
-                            .foregroundColor(.textSecondary)
-                        
-                        HStack {
-                            Image(systemName: "lock")
-                                .foregroundColor(.gray400)
-                                .frame(width: 20)
-                            
-                            SecureField("Create a password", text: $viewModel.password)
-                                .textFieldStyle(.plain)
-                                .font(.body)
-                        }
-                        .padding(Spacing.lg)
-                        .background(Color.inputBackground)
-                        .cornerRadius(CornerRadius.xl)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: CornerRadius.xl)
-                                .stroke(Color.border, lineWidth: 1)
-                        )
-                    }
+                    InputField(
+                        label: LocalizedStrings.Auth.password,
+                        placeholder: LocalizedStrings.Auth.passwordPlaceholder,
+                        text: $viewModel.password,
+                        type: .password,
+                        iconName: "lock"
+                    )
                     
                     // Sign up button
                     Button(action: {
@@ -107,7 +57,7 @@ struct SignUpView: View {
                             appState.handleSignUpComplete()
                         }
                     }) {
-                        Text("Create Account")
+                        Text(LocalizedStrings.Auth.createAccountButton)
                             .font(.label)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -128,14 +78,14 @@ struct SignUpView: View {
                 
                 // Login link
                 HStack {
-                    Text("Already have an account?")
+                    Text(LocalizedStrings.Auth.alreadyHaveAccount)
                         .font(.body)
                         .foregroundColor(.textSecondary)
                     
                     Button(action: {
                         appState.currentScreen = .login
                     }) {
-                        Text("Log in")
+                        Text(LocalizedStrings.Auth.logIn)
                             .font(.label)
                             .foregroundColor(.accentSkyBlue)
                     }

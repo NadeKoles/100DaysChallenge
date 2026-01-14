@@ -15,11 +15,11 @@ struct LoginView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl) {
                 VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Text("Welcome Back")
+                    Text(LocalizedStrings.Auth.welcomeBack)
                         .font(.displaySmall)
                         .foregroundColor(.textPrimary)
                     
-                    Text("Continue your journey")
+                    Text(LocalizedStrings.Auth.continueJourney)
                         .font(.bodyLarge)
                         .foregroundColor(.textSecondary)
                 }
@@ -27,61 +27,27 @@ struct LoginView: View {
                 .padding(.bottom, Spacing.xxxl)
                 
                 VStack(spacing: Spacing.xl) {
-                    // Email field
-                    VStack(alignment: .leading, spacing: Spacing.sm) {
-                        Text("Email")
-                            .font(.labelSmall)
-                            .foregroundColor(.textSecondary)
-                        
-                        HStack {
-                            Image(systemName: "envelope")
-                                .foregroundColor(.gray400)
-                                .frame(width: 20)
-                            
-                            TextField("your@email.com", text: $viewModel.email)
-                                .textFieldStyle(.plain)
-                                .keyboardType(.emailAddress)
-                                .autocapitalization(.none)
-                                .font(.body)
-                        }
-                        .padding(Spacing.lg)
-                        .background(Color.inputBackground)
-                        .cornerRadius(CornerRadius.xl)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: CornerRadius.xl)
-                                .stroke(Color.border, lineWidth: 1)
-                        )
-                    }
+                    InputField(
+                        label: LocalizedStrings.Auth.email,
+                        placeholder: LocalizedStrings.Auth.emailPlaceholder,
+                        text: $viewModel.email,
+                        type: .email,
+                        iconName: "envelope"
+                    )
                     
-                    // Password field
-                    VStack(alignment: .leading, spacing: Spacing.sm) {
-                        Text("Password")
-                            .font(.labelSmall)
-                            .foregroundColor(.textSecondary)
-                        
-                        HStack {
-                            Image(systemName: "lock")
-                                .foregroundColor(.gray400)
-                                .frame(width: 20)
-                            
-                            SecureField("Your password", text: $viewModel.password)
-                                .textFieldStyle(.plain)
-                                .font(.body)
-                        }
-                        .padding(Spacing.lg)
-                        .background(Color.inputBackground)
-                        .cornerRadius(CornerRadius.xl)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: CornerRadius.xl)
-                                .stroke(Color.border, lineWidth: 1)
-                        )
-                    }
+                    InputField(
+                        label: LocalizedStrings.Auth.password,
+                        placeholder: LocalizedStrings.Auth.passwordPlaceholderLogin,
+                        text: $viewModel.password,
+                        type: .password,
+                        iconName: "lock"
+                    )
                     
                     // Forgot password
                     HStack {
                         Spacer()
                         Button(action: {}) {
-                            Text("Forgot password?")
+                            Text(LocalizedStrings.Auth.forgotPassword)
                                 .font(.labelSmall)
                                 .foregroundColor(.accentSkyBlue)
                         }
@@ -93,7 +59,7 @@ struct LoginView: View {
                             appState.handleLoginComplete()
                         }
                     }) {
-                        Text("Log In")
+                        Text(LocalizedStrings.Auth.logInButton)
                             .font(.label)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -114,14 +80,14 @@ struct LoginView: View {
                 
                 // Sign up link
                 HStack {
-                    Text("Don't have an account?")
+                    Text(LocalizedStrings.Auth.dontHaveAccount)
                         .font(.body)
                         .foregroundColor(.textSecondary)
                     
                     Button(action: {
                         appState.currentScreen = .signUp
                     }) {
-                        Text("Sign up")
+                        Text(LocalizedStrings.Auth.signUp)
                             .font(.label)
                             .foregroundColor(.accentSkyBlue)
                     }

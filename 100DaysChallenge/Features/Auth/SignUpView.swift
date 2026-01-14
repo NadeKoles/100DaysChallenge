@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SignUpView: View {
     @EnvironmentObject var appState: AppState
-    @StateObject private var viewModel = SignUpViewModel()
+    @EnvironmentObject var authViewModel: AuthViewModel
     
     var body: some View {
         ScrollView {
@@ -30,7 +30,7 @@ struct SignUpView: View {
                     InputField(
                         label: LocalizedStrings.Auth.name,
                         placeholder: LocalizedStrings.Auth.namePlaceholder,
-                        text: $viewModel.name,
+                        text: $authViewModel.name,
                         type: .text,
                         iconName: "person"
                     )
@@ -38,7 +38,7 @@ struct SignUpView: View {
                     InputField(
                         label: LocalizedStrings.Auth.email,
                         placeholder: LocalizedStrings.Auth.emailPlaceholder,
-                        text: $viewModel.email,
+                        text: $authViewModel.email,
                         type: .email,
                         iconName: "envelope"
                     )
@@ -46,14 +46,14 @@ struct SignUpView: View {
                     InputField(
                         label: LocalizedStrings.Auth.password,
                         placeholder: LocalizedStrings.Auth.passwordPlaceholder,
-                        text: $viewModel.password,
+                        text: $authViewModel.password,
                         type: .password,
                         iconName: "lock"
                     )
                     
                     // Sign up button
                     Button(action: {
-                        viewModel.signUp {
+                        authViewModel.signUp {
                             appState.handleSignUpComplete()
                         }
                     }) {
@@ -72,8 +72,8 @@ struct SignUpView: View {
                             .cornerRadius(CornerRadius.xl)
                             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
                     }
-                    .disabled(!viewModel.isValid)
-                    .opacity(viewModel.isValid ? 1 : 0.5)
+                    .disabled(!authViewModel.isValidForSignUp)
+                    .opacity(authViewModel.isValidForSignUp ? 1 : 0.5)
                 }
                 
                 // Login link
@@ -97,11 +97,13 @@ struct SignUpView: View {
             .padding(.bottom, Spacing.xxxl)
         }
         .background(Color.background)
+        .errorAlert($authViewModel.errorMessage)
     }
 }
 
 #Preview {
     SignUpView()
         .environmentObject(AppState())
+        .environmentObject(AuthViewModel())
 }
 

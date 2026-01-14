@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject var appState: AppState
-    @StateObject private var viewModel = LoginViewModel()
+    @EnvironmentObject var authViewModel: AuthViewModel
     
     var body: some View {
         ScrollView {
@@ -30,7 +30,7 @@ struct LoginView: View {
                     InputField(
                         label: LocalizedStrings.Auth.email,
                         placeholder: LocalizedStrings.Auth.emailPlaceholder,
-                        text: $viewModel.email,
+                        text: $authViewModel.email,
                         type: .email,
                         iconName: "envelope"
                     )
@@ -38,7 +38,7 @@ struct LoginView: View {
                     InputField(
                         label: LocalizedStrings.Auth.password,
                         placeholder: LocalizedStrings.Auth.passwordPlaceholderLogin,
-                        text: $viewModel.password,
+                        text: $authViewModel.password,
                         type: .password,
                         iconName: "lock"
                     )
@@ -46,7 +46,9 @@ struct LoginView: View {
                     // Forgot password
                     HStack {
                         Spacer()
-                        Button(action: {}) {
+                        Button(action: {
+                            authViewModel.resetPassword()
+                        }) {
                             Text(LocalizedStrings.Auth.forgotPassword)
                                 .font(.labelSmall)
                                 .foregroundColor(.accentSkyBlue)
@@ -55,7 +57,7 @@ struct LoginView: View {
                     
                     // Login button
                     Button(action: {
-                        viewModel.login {
+                        authViewModel.signIn {
                             appState.handleLoginComplete()
                         }
                     }) {
@@ -74,8 +76,8 @@ struct LoginView: View {
                             .cornerRadius(CornerRadius.xl)
                             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
                     }
-                    .disabled(!viewModel.isValid)
-                    .opacity(viewModel.isValid ? 1 : 0.5)
+                    .disabled(!authViewModel.isValidForLogin)
+                    .opacity(authViewModel.isValidForLogin ? 1 : 0.5)
                 }
                 
                 // Sign up link
@@ -99,11 +101,13 @@ struct LoginView: View {
             .padding(.bottom, Spacing.xxxl)
         }
         .background(Color.background)
+        .errorAlert($authViewModel.errorMessage)
     }
 }
 
 #Preview {
     LoginView()
         .environmentObject(AppState())
+        .environmentObject(AuthViewModel())
 }
 

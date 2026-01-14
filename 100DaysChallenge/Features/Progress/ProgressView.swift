@@ -114,81 +114,85 @@ struct ChallengeProgressView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: Spacing.xl) {
-                    // Challenge indicator dots (leading-aligned, scrollable)
-                    HStack(spacing: Spacing.sm) {
-                        ForEach(0..<challenges.count, id: \.self) { index in
-                            RoundedRectangle(cornerRadius: 2)
-                                .fill(index == currentIndex ? 
-                                      Color(hex: currentChallenge.accentColor) : Color.gray200)
-                                .frame(width: index == currentIndex ? 24 : 6, height: 6)
-                                .animation(.easeInOut, value: currentIndex)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, Spacing.xl)
-                    .padding(.top, Spacing.xs)
-                    
-                    // Challenge stats
-                    VStack(alignment: .leading, spacing: Spacing.sm) {
-                        HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
-                            Text("\(currentChallenge.completedDaysSet.count)")
-                                .font(.displayMedium)
-                                .foregroundColor(.textPrimary)
-                            
-                            Text("/ 100")
-                                .font(.heading3)
-                                .foregroundColor(.textTertiary)
-                        }
-                        
-                        Text("days completed")
-                            .font(.body)
-                            .foregroundColor(.textSecondary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, Spacing.xl)
-                    .padding(.top, Spacing.lg)
-                    
-                    // Progress bar
-                    ProgressBarView(
-                        progress: currentChallenge.progress,
-                        accentColor: Color(hex: currentChallenge.accentColor)
-                    )
-                    .padding(.horizontal, Spacing.xl)
-                    .padding(.bottom, Spacing.lg)
-                    
-                    // 100-day grid
-                    ChallengeGridView(
-                        challenge: currentChallenge,
-                        onToggleDay: { day in
-                            onToggleDay(currentChallenge.id, day)
-                        }
-                    )
-                    .padding(.horizontal, Spacing.xl)
-                    
-                    // Mark today complete button
-                    if !currentChallenge.isTodayCompleted && currentChallenge.currentDay <= 100 {
-                        Button(action: {
-                            onCompleteToday(currentChallenge.id, currentChallenge.currentDay)
-                        }) {
-                            HStack(spacing: Spacing.sm) {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 20, weight: .semibold))
-                                
-                                Text("Mark Day \(currentChallenge.currentDay) Complete")
-                                    .font(.label)
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: Spacing.xl) {
+                        // Challenge indicator dots (leading-aligned, scrollable)
+                        HStack(spacing: Spacing.sm) {
+                            ForEach(0..<challenges.count, id: \.self) { index in
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(index == currentIndex ? 
+                                          Color(hex: currentChallenge.accentColor) : Color.gray200)
+                                    .frame(width: index == currentIndex ? 24 : 6, height: 6)
+                                    .animation(.easeInOut, value: currentIndex)
                             }
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(Color(hex: currentChallenge.accentColor))
-                            .cornerRadius(CornerRadius.xl)
-                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, Spacing.xl)
-                        .padding(.bottom, Spacing.xl)
+                        .padding(.top, Spacing.xs)
+                        
+                        // Challenge stats
+                        VStack(alignment: .leading, spacing: Spacing.sm) {
+                            HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
+                                Text("\(currentChallenge.completedDaysSet.count)")
+                                    .font(.displayMedium)
+                                    .foregroundColor(.textPrimary)
+                                
+                                Text("/ 100")
+                                    .font(.heading3)
+                                    .foregroundColor(.textTertiary)
+                            }
+                            
+                            Text("days completed")
+                                .font(.body)
+                                .foregroundColor(.textSecondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, Spacing.xl)
+                        .padding(.top, Spacing.lg)
+                        
+                        // Progress bar
+                        ProgressBarView(
+                            progress: currentChallenge.progress,
+                            accentColor: Color(hex: currentChallenge.accentColor)
+                        )
+                        .padding(.horizontal, Spacing.xl)
+                        .padding(.bottom, Spacing.lg)
+                        
+                        // 100-day grid
+                        ChallengeGridView(
+                            challenge: currentChallenge,
+                            onToggleDay: { day in
+                                onToggleDay(currentChallenge.id, day)
+                            }
+                        )
+                        .padding(.horizontal, Spacing.xl)
+                        .padding(.bottom, shouldShowButton ? 80 : Spacing.xl)
                     }
+                }
+                
+                // Sticky button at bottom
+                if shouldShowButton {
+                    Button(action: {
+                        onCompleteToday(currentChallenge.id, currentChallenge.currentDay)
+                    }) {
+                        HStack(spacing: Spacing.sm) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 20, weight: .semibold))
+                            
+                            Text("Mark Day \(currentChallenge.currentDay) Complete")
+                                .font(.label)
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(Color(hex: currentChallenge.accentColor))
+                        .cornerRadius(CornerRadius.xl)
+                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                    }
+                    .padding(.horizontal, Spacing.xl)
+                    .padding(.vertical, Spacing.md)
+                    .background(Color.background)
                 }
             }
             .navigationTitle(currentChallenge.title)
@@ -209,6 +213,10 @@ struct ChallengeProgressView: View {
                     }
             )
         }
+    }
+    
+    private var shouldShowButton: Bool {
+        !currentChallenge.isTodayCompleted && currentChallenge.currentDay <= 100
     }
 }
 

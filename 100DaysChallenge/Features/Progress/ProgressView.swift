@@ -36,23 +36,21 @@ struct ProgressView: View {
                 )
             }
         }
-        .sheet(isPresented: $showingConfirmModal) {
-            if let day = selectedDay,
-               !viewModel.currentChallengeId.isEmpty,
-               let challenge = challengeStore.challenges.first(where: { $0.id == viewModel.currentChallengeId }) {
-                ConfirmCompleteDayModal(
-                    day: day,
-                    accentColor: Color(hex: challenge.accentColor),
-                    onConfirm: {
-                        challengeStore.completeDay(challengeId: challenge.id, day: day)
-                        showingConfirmModal = false
-                        selectedDay = nil
-                    },
-                    onCancel: {
-                        showingConfirmModal = false
-                        selectedDay = nil
-                    }
-                )
+        .alert("Complete Day \(selectedDay ?? 0)?", isPresented: $showingConfirmModal) {
+            Button("Cancel", role: .cancel) {
+                selectedDay = nil
+            }
+            Button("Complete") {
+                if let day = selectedDay,
+                   !viewModel.currentChallengeId.isEmpty,
+                   let challenge = challengeStore.challenges.first(where: { $0.id == viewModel.currentChallengeId }) {
+                    challengeStore.completeDay(challengeId: challenge.id, day: day)
+                    selectedDay = nil
+                }
+            }
+        } message: {
+            if let day = selectedDay {
+                Text("Great work! Mark today as completed and keep your streak going.")
             }
         }
         .onAppear {

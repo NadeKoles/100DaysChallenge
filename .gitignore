@@ -2,6 +2,7 @@
 xcuserdata/
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
+100DaysChallenge.xcodeproj
 build/
 DerivedData/
 *.xcscmblueprint

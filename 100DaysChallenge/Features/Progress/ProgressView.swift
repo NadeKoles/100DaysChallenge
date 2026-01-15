@@ -58,10 +58,10 @@ struct ProgressView: View {
                 }
             }
         } message: {
-            if let day = selectedDay {
+            if selectedDay != nil {
                 Text(isUnmarking 
-                    ? "Are you sure you want to unmark this day? This will remove it from your completed days."
-                    : "Great work! Mark today as completed and keep your streak going.")
+                    ? "This will remove it from your completed days."
+                    : "Great work!")
             }
         }
         .onAppear {

@@ -166,7 +166,7 @@ private struct AuthAlertsModifier: ViewModifier {
                     }
                 }
             } message: {
-                if let prompt = resetPrompt {
+                if resetPrompt != nil {
                     if let resetEmailError = resetEmailError {
                         Text(resetEmailError)
                             .foregroundStyle(.red)

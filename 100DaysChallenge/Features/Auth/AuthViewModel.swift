@@ -73,24 +73,31 @@ final class AuthViewModel: ObservableObject {
                 guard let self = self else { return }
                 if let error = error {
                     self.isLoading = false
-                    self.errorMessage = self.mapAuthError(error)
+                    let friendlyMessage = self.mapAuthError(error)
+                    self.errorMessage = friendlyMessage
+                    self.formError = friendlyMessage
                     return
                 }
 
                 guard let user = result?.user else {
                     self.isLoading = false
-                    self.errorMessage = LocalizedStrings.Auth.failedToCreateAccount
+                    let errorMsg = LocalizedStrings.Auth.failedToCreateAccount
+                    self.errorMessage = errorMsg
+                    self.formError = errorMsg
                     return
                 }
 
                 user.sendEmailVerification { error in
                     Task { @MainActor in
                         if let error = error {
-                            self.errorMessage = LocalizedStrings.Auth.verificationEmailFailed(error.localizedDescription)
+                            let errorMsg = LocalizedStrings.Auth.verificationEmailFailed(error.localizedDescription)
+                            self.errorMessage = errorMsg
+                            self.formError = errorMsg
                             self.isLoading = false
                             return
                         } else {
                             self.errorMessage = nil
+                            self.formError = nil
                             self.isLoading = false
                             completion()
                         }
@@ -163,7 +170,7 @@ final class AuthViewModel: ObservableObject {
     func resetPassword(email: String) {
         let normalized = email.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        guard isValidEmail(normalized) else {
+        guard Self.isValidEmail(normalized) else {
             errorMessage = LocalizedStrings.Auth.invalidEmail
             return
         }
@@ -208,10 +215,6 @@ final class AuthViewModel: ObservableObject {
         let r = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
         return NSPredicate(format: "SELF MATCHES %@", r).evaluate(with: email)
     }
-    
-    func isValidEmail(_ email: String) -> Bool {
-        Self.isValidEmail(email)
-    }
 
     func isValidPassword(_ password: String) -> Bool { password.count >= 6 }
     
@@ -234,7 +237,7 @@ final class AuthViewModel: ObservableObject {
             }
         }
         
-        if !isValidEmail(email) {
+        if !Self.isValidEmail(email) {
             emailError = LocalizedStrings.Auth.invalidEmail
             isValid = false
         }

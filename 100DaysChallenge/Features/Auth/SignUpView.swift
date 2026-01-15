@@ -11,6 +11,7 @@ struct SignUpView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var authViewModel: AuthViewModel
     @State private var didSubmit = false
+    @State private var resetPrompt: ResetPasswordPrompt? = nil
     
     var body: some View {
         ScrollView {
@@ -37,6 +38,7 @@ struct SignUpView: View {
                             iconName: "person"
                         )
                         .onChange(of: authViewModel.name) { _ in
+                            authViewModel.clearFormError()
                             if didSubmit {
                                 _ = authViewModel.validateSignUpForm()
                             }
@@ -45,7 +47,7 @@ struct SignUpView: View {
                         if didSubmit, let nameError = authViewModel.nameError {
                             Text(nameError)
                                 .font(.caption)
-                                .foregroundStyle(Color.red.opacity(0.85))
+                                .foregroundStyle(Color.textError)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, Spacing.sm)
                         }
@@ -60,6 +62,7 @@ struct SignUpView: View {
                             iconName: "envelope"
                         )
                         .onChange(of: authViewModel.email) { _ in
+                            authViewModel.clearFormError()
                             if didSubmit {
                                 _ = authViewModel.validateSignUpForm()
                             }
@@ -68,7 +71,7 @@ struct SignUpView: View {
                         if didSubmit, let emailError = authViewModel.emailError {
                             Text(emailError)
                                 .font(.caption)
-                                .foregroundStyle(Color.red.opacity(0.85))
+                                .foregroundStyle(Color.textError)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, Spacing.sm)
                         }
@@ -83,6 +86,7 @@ struct SignUpView: View {
                             iconName: "lock"
                         )
                         .onChange(of: authViewModel.password) { _ in
+                            authViewModel.clearFormError()
                             if didSubmit {
                                 _ = authViewModel.validateSignUpForm()
                             }
@@ -91,7 +95,15 @@ struct SignUpView: View {
                         if didSubmit, let passwordError = authViewModel.passwordError {
                             Text(passwordError)
                                 .font(.caption)
-                                .foregroundStyle(Color.red.opacity(0.85))
+                                .foregroundStyle(Color.textError)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.leading, Spacing.sm)
+                        }
+                        
+                        if let formError = authViewModel.formError {
+                            Text(formError)
+                                .font(.caption)
+                                .foregroundStyle(Color.textError)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, Spacing.sm)
                         }
@@ -151,7 +163,11 @@ struct SignUpView: View {
             .padding(.bottom, Spacing.xxxl)
         }
         .background(Color.background)
-        .messageAlert(error: $authViewModel.errorMessage, info: $authViewModel.infoMessage)
+        .authAlerts(
+            error: $authViewModel.errorMessage,
+            info: $authViewModel.infoMessage,
+            resetPrompt: $resetPrompt
+        )
         .onAppear {
             didSubmit = false
             authViewModel.resetFormState()

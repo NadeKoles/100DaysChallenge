@@ -47,7 +47,7 @@ struct LoginView: View {
                         if didSubmit, let emailError = authViewModel.emailError {
                             Text(emailError)
                                 .font(.caption)
-                                .foregroundStyle(Color.red.opacity(0.85))
+                                .foregroundStyle(Color.textError)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, Spacing.sm)
                         }
@@ -71,7 +71,7 @@ struct LoginView: View {
                         if didSubmit, let passwordError = authViewModel.passwordError {
                             Text(passwordError)
                                 .font(.caption)
-                                .foregroundStyle(Color.red.opacity(0.85))
+                                .foregroundStyle(Color.textError)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, Spacing.sm)
                         }
@@ -79,7 +79,7 @@ struct LoginView: View {
                         if let formError = authViewModel.formError {
                             Text(formError)
                                 .font(.caption)
-                                .foregroundStyle(Color.red.opacity(0.85))
+                                .foregroundStyle(Color.textError)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, Spacing.sm)
                         }

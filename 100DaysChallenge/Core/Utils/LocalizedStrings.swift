@@ -39,6 +39,12 @@ enum LocalizedStrings {
         // Info messages
         static let passwordResetSent = NSLocalizedString("auth.passwordResetSent", value: "Password reset link has been sent", comment: "Password reset success message")
         
+        // Reset password prompt
+        static let resetPasswordTitle = NSLocalizedString("auth.resetPasswordTitle", value: "Reset Password", comment: "Reset password alert title")
+        static let resetPasswordMessage = NSLocalizedString("auth.resetPasswordMessage", value: "Enter your email and we'll send you a reset link.", comment: "Reset password alert message")
+        static let cancel = NSLocalizedString("auth.cancel", value: "Cancel", comment: "Cancel button")
+        static let send = NSLocalizedString("auth.send", value: "Send", comment: "Send button")
+        
         // Error messages
         static let missingFirebaseClientID = NSLocalizedString("auth.missingFirebaseClientID", value: "Something went wrong. Please try again.", comment: "Firebase configuration error")
         static let unableToAccessRootVC = NSLocalizedString("auth.unableToAccessRootVC", value: "Unable to continue. Please try again.", comment: "UI access error")

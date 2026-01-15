@@ -160,15 +160,16 @@ final class AuthViewModel: ObservableObject {
         }
     }
 
-    func resetPassword() {
-        emailError = nil
-        guard isValidEmail(email) else {
-            emailError = LocalizedStrings.Auth.invalidEmail
+    func resetPassword(email: String) {
+        let normalized = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard isValidEmail(normalized) else {
+            errorMessage = LocalizedStrings.Auth.invalidEmail
             return
         }
 
         isLoading = true
-        Auth.auth().sendPasswordReset(withEmail: email) { [weak self] error in
+        Auth.auth().sendPasswordReset(withEmail: normalized) { [weak self] error in
             Task { @MainActor in
                 guard let self = self else { return }
                 self.isLoading = false
@@ -203,9 +204,13 @@ final class AuthViewModel: ObservableObject {
         formError = nil
     }
 
-    func isValidEmail(_ email: String) -> Bool {
+    static func isValidEmail(_ email: String) -> Bool {
         let r = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
         return NSPredicate(format: "SELF MATCHES %@", r).evaluate(with: email)
+    }
+    
+    func isValidEmail(_ email: String) -> Bool {
+        Self.isValidEmail(email)
     }
 
     func isValidPassword(_ password: String) -> Bool { password.count >= 6 }

@@ -11,6 +11,7 @@ struct LoginView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var authViewModel: AuthViewModel
     @State private var didSubmit = false
+    @State private var resetPrompt: ResetPasswordPrompt? = nil
     
     var body: some View {
         ScrollView {
@@ -88,7 +89,12 @@ struct LoginView: View {
                     HStack {
                         Spacer()
                         Button(action: {
-                            authViewModel.resetPassword()
+                            resetPrompt = ResetPasswordPrompt(
+                                email: authViewModel.email,
+                                onSend: { email in
+                                    authViewModel.resetPassword(email: email)
+                                }
+                            )
                         }) {
                             Text(LocalizedStrings.Auth.forgotPassword)
                                 .font(.labelSmall)
@@ -144,7 +150,11 @@ struct LoginView: View {
             .padding(.bottom, Spacing.xxxl)
         }
         .background(Color.background)
-        .messageAlert(error: $authViewModel.errorMessage, info: $authViewModel.infoMessage)
+        .authAlerts(
+            error: $authViewModel.errorMessage,
+            info: $authViewModel.infoMessage,
+            resetPrompt: $resetPrompt
+        )
         .onAppear {
             didSubmit = false
             authViewModel.resetFormState()

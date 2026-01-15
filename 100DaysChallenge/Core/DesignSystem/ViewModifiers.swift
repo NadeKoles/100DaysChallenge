@@ -8,17 +8,28 @@
 import SwiftUI
 
 extension View {
-    // MARK: - Error Alert
-    func errorAlert(_ errorMessage: Binding<String?>) -> some View {
-        self.alert("Error", isPresented: Binding(
-            get: { errorMessage.wrappedValue != nil },
-            set: { if !$0 { errorMessage.wrappedValue = nil } }
-        )) {
+    // MARK: - Alert Modifiers
+    func messageAlert(error: Binding<String?>, info: Binding<String?>) -> some View {
+        let hasError = error.wrappedValue != nil
+        let hasInfo = info.wrappedValue != nil
+        let isPresented = hasError || hasInfo
+        
+        return self.alert(
+            hasError ? "Error" : "Info",
+            isPresented: Binding(
+                get: { isPresented },
+                set: { if !$0 {
+                    error.wrappedValue = nil
+                    info.wrappedValue = nil
+                }}
+            )
+        ) {
             Button("OK") {
-                errorMessage.wrappedValue = nil
+                error.wrappedValue = nil
+                info.wrappedValue = nil
             }
         } message: {
-            if let message = errorMessage.wrappedValue {
+            if let message = hasError ? error.wrappedValue : info.wrappedValue {
                 Text(message)
             }
         }

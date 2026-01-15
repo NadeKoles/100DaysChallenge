@@ -10,6 +10,7 @@ import SwiftUI
 struct SignUpView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var authViewModel: AuthViewModel
+    @State private var didSubmit = false
     
     var body: some View {
         ScrollView {
@@ -42,6 +43,17 @@ struct SignUpView: View {
                         type: .email,
                         iconName: "envelope"
                     )
+                    .onChange(of: authViewModel.email) { _ in
+                        if didSubmit {
+                            _ = authViewModel.validateSignUpForm()
+                        }
+                    }
+                    
+                    if didSubmit, let emailError = authViewModel.emailError {
+                        Text(emailError)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
                     
                     InputField(
                         label: LocalizedStrings.Auth.password,
@@ -50,9 +62,22 @@ struct SignUpView: View {
                         type: .password,
                         iconName: "lock"
                     )
+                    .onChange(of: authViewModel.password) { _ in
+                        if didSubmit {
+                            _ = authViewModel.validateSignUpForm()
+                        }
+                    }
+                    
+                    if didSubmit, let passwordError = authViewModel.passwordError {
+                        Text(passwordError)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
                     
                     // Sign up button
                     Button(action: {
+                        didSubmit = true
+                        guard authViewModel.validateSignUpForm() else { return }
                         authViewModel.signUp {
                             appState.handleSignUpComplete()
                         }
@@ -72,8 +97,12 @@ struct SignUpView: View {
                             .cornerRadius(CornerRadius.xl)
                             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
                     }
-                    .disabled(!authViewModel.isValidForSignUp)
-                    .opacity(authViewModel.isValidForSignUp ? 1 : 0.5)
+                    .disabled(authViewModel.name.isEmpty ||
+                             authViewModel.email.isEmpty ||
+                             authViewModel.password.isEmpty)
+                    .opacity(authViewModel.name.isEmpty ||
+                            authViewModel.email.isEmpty ||
+                            authViewModel.password.isEmpty ? 0.5 : 1)
                 }
                 
                 // Login link
@@ -97,7 +126,7 @@ struct SignUpView: View {
             .padding(.bottom, Spacing.xxxl)
         }
         .background(Color.background)
-        .errorAlert($authViewModel.errorMessage)
+        .messageAlert(error: $authViewModel.errorMessage, info: $authViewModel.infoMessage)
     }
 }
 

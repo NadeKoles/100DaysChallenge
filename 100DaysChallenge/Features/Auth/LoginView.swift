@@ -101,7 +101,7 @@ struct LoginView: View {
             .padding(.bottom, Spacing.xxxl)
         }
         .background(Color.background)
-        .errorAlert($authViewModel.errorMessage)
+        .messageAlert(error: $authViewModel.errorMessage, info: $authViewModel.infoMessage)
     }
 }
 

@@ -41,18 +41,6 @@ final class AuthViewModel: ObservableObject {
     }
 
     var isAuthenticated: Bool { user != nil }
-    
-    // Validation for login form
-    var isValidForLogin: Bool {
-        isValidEmail(email) && password.count >= 6
-    }
-    
-    // Validation for sign up form
-    var isValidForSignUp: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty &&
-        isValidEmail(email) &&
-        password.count >= 6
-    }
 
     func signIn(completion: @escaping () -> Void) {
         guard validateForm(.login) else { return }
@@ -85,7 +73,13 @@ final class AuthViewModel: ObservableObject {
                     return
                 }
 
-                result?.user.sendEmailVerification { error in
+                guard let user = result?.user else {
+                    self.isLoading = false
+                    self.errorMessage = "Failed to create user account"
+                    return
+                }
+
+                user.sendEmailVerification { error in
                     Task { @MainActor in
                         self.isLoading = false
                         if let error = error {
@@ -102,6 +96,7 @@ final class AuthViewModel: ObservableObject {
     func signInWithGoogle(completion: @escaping () -> Void) {
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             errorMessage = "Missing Firebase clientID"
+            isLoading = false
             return
         }
 
@@ -112,6 +107,7 @@ final class AuthViewModel: ObservableObject {
             let rootVC = windowScene.windows.first?.rootViewController
         else {
             errorMessage = "Unable to access root view controller"
+            isLoading = false
             return
         }
 
@@ -179,6 +175,7 @@ final class AuthViewModel: ObservableObject {
     }
 
     func signOut() {
+        isLoading = false
         do { try Auth.auth().signOut() }
         catch { errorMessage = error.localizedDescription }
     }

@@ -14,8 +14,12 @@ extension View {
         let hasInfo = info.wrappedValue != nil
         let isPresented = hasError || hasInfo
         
+        // Error takes priority over info
+        let title = hasError ? "Error" : "Info"
+        let message = hasError ? error.wrappedValue : info.wrappedValue
+        
         return self.alert(
-            hasError ? "Error" : "Info",
+            title,
             isPresented: Binding(
                 get: { isPresented },
                 set: { if !$0 {
@@ -29,7 +33,7 @@ extension View {
                 info.wrappedValue = nil
             }
         } message: {
-            if let message = hasError ? error.wrappedValue : info.wrappedValue {
+            if let message = message {
                 Text(message)
             }
         }

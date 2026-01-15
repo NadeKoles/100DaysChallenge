@@ -28,13 +28,28 @@ struct SignUpView: View {
                 .padding(.bottom, Spacing.xxxl)
                 
                 VStack(spacing: Spacing.xl) {
-                    InputField(
-                        label: LocalizedStrings.Auth.name,
-                        placeholder: LocalizedStrings.Auth.namePlaceholder,
-                        text: $authViewModel.name,
-                        type: .text,
-                        iconName: "person"
-                    )
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        InputField(
+                            label: LocalizedStrings.Auth.name,
+                            placeholder: LocalizedStrings.Auth.namePlaceholder,
+                            text: $authViewModel.name,
+                            type: .text,
+                            iconName: "person"
+                        )
+                        .onChange(of: authViewModel.name) { _ in
+                            if didSubmit {
+                                _ = authViewModel.validateSignUpForm()
+                            }
+                        }
+                        
+                        if didSubmit, let nameError = authViewModel.nameError {
+                            Text(nameError)
+                                .font(.caption)
+                                .foregroundStyle(Color.red.opacity(0.85))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.leading, Spacing.sm)
+                        }
+                    }
                     
                     VStack(alignment: .leading, spacing: Spacing.xs) {
                         InputField(
@@ -107,10 +122,12 @@ struct SignUpView: View {
                     }
                     .disabled(authViewModel.name.isEmpty ||
                              authViewModel.email.isEmpty ||
-                             authViewModel.password.isEmpty)
+                             authViewModel.password.isEmpty ||
+                             authViewModel.isLoading)
                     .opacity(authViewModel.name.isEmpty ||
                             authViewModel.email.isEmpty ||
-                            authViewModel.password.isEmpty ? 0.5 : 1)
+                            authViewModel.password.isEmpty ||
+                            authViewModel.isLoading ? 0.5 : 1)
                 }
                 
                 // Login link
@@ -136,6 +153,7 @@ struct SignUpView: View {
         .background(Color.background)
         .messageAlert(error: $authViewModel.errorMessage, info: $authViewModel.infoMessage)
         .onAppear {
+            didSubmit = false
             authViewModel.resetFormState()
         }
     }

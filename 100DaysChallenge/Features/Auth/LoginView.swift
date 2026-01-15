@@ -109,8 +109,8 @@ struct LoginView: View {
                             .cornerRadius(CornerRadius.xl)
                             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
                     }
-                    .disabled(authViewModel.email.isEmpty || authViewModel.password.isEmpty)
-                    .opacity(authViewModel.email.isEmpty || authViewModel.password.isEmpty ? 0.5 : 1)
+                    .disabled(authViewModel.email.isEmpty || authViewModel.password.isEmpty || authViewModel.isLoading)
+                    .opacity(authViewModel.email.isEmpty || authViewModel.password.isEmpty || authViewModel.isLoading ? 0.5 : 1)
                 }
                 
                 // Sign up link
@@ -136,6 +136,7 @@ struct LoginView: View {
         .background(Color.background)
         .messageAlert(error: $authViewModel.errorMessage, info: $authViewModel.infoMessage)
         .onAppear {
+            didSubmit = false
             authViewModel.resetFormState()
         }
     }

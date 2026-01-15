@@ -20,7 +20,9 @@ final class AuthViewModel: ObservableObject {
     @Published var infoMessage: String?
     @Published var emailError: String?
     @Published var passwordError: String?
+    @Published var nameError: String?
     @Published var isPasswordVisible = false
+    @Published var isLoading = false
     @Published private(set) var user: FirebaseAuth.User?
 
     private var authHandle: AuthStateDidChangeListenerHandle?
@@ -53,12 +55,13 @@ final class AuthViewModel: ObservableObject {
     }
 
     func signIn(completion: @escaping () -> Void) {
-        guard isValidEmail(email) else { errorMessage = "Please enter a valid email"; return }
-        guard isValidPassword(password) else { errorMessage = "Password must be at least 6 characters"; return }
-
+        guard validateForm(.login) else { return }
+        
+        isLoading = true
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] _, error in
             Task { @MainActor in
                 guard let self = self else { return }
+                self.isLoading = false
                 if let error = error {
                     self.errorMessage = self.mapAuthError(error)
                 } else {
@@ -70,20 +73,28 @@ final class AuthViewModel: ObservableObject {
     }
 
     func signUp(completion: @escaping () -> Void) {
-        guard isValidEmail(email) else { errorMessage = "Please enter a valid email"; return }
-        guard isValidPassword(password) else { errorMessage = "Password must be at least 6 characters"; return }
-
+        guard validateForm(.signUp) else { return }
+        
+        isLoading = true
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
             Task { @MainActor in
                 guard let self = self else { return }
                 if let error = error {
+                    self.isLoading = false
                     self.errorMessage = self.mapAuthError(error)
                     return
                 }
 
-                result?.user.sendEmailVerification(completion: nil)
-                self.errorMessage = nil
-                completion()
+                result?.user.sendEmailVerification { error in
+                    Task { @MainActor in
+                        self.isLoading = false
+                        if let error = error {
+                            self.errorMessage = "Failed to send verification email: \(error.localizedDescription)"
+                        }
+                        self.errorMessage = nil
+                        completion()
+                    }
+                }
             }
         }
     }
@@ -104,10 +115,12 @@ final class AuthViewModel: ObservableObject {
             return
         }
 
+        isLoading = true
         GIDSignIn.sharedInstance.signIn(withPresenting: rootVC) { [weak self] result, error in
             Task { @MainActor in
                 guard let self = self else { return }
                 if let error = error {
+                    self.isLoading = false
                     if (error as NSError).code != GIDSignInError.canceled.rawValue {
                         self.errorMessage = error.localizedDescription
                     }
@@ -118,6 +131,7 @@ final class AuthViewModel: ObservableObject {
                     let user = result?.user,
                     let idToken = user.idToken?.tokenString
                 else {
+                    self.isLoading = false
                     self.errorMessage = "Failed to get Google token"
                     return
                 }
@@ -130,6 +144,7 @@ final class AuthViewModel: ObservableObject {
                 Auth.auth().signIn(with: credential) { [weak self] _, error in
                     Task { @MainActor in
                         guard let self = self else { return }
+                        self.isLoading = false
                         if let error = error {
                             self.errorMessage = self.mapAuthError(error)
                         } else {
@@ -143,11 +158,17 @@ final class AuthViewModel: ObservableObject {
     }
 
     func resetPassword() {
-        guard isValidEmail(email) else { errorMessage = "Please enter a valid email"; return }
+        emailError = nil
+        guard isValidEmail(email) else {
+            emailError = "Please enter a valid email"
+            return
+        }
 
+        isLoading = true
         Auth.auth().sendPasswordReset(withEmail: email) { [weak self] error in
             Task { @MainActor in
                 guard let self = self else { return }
+                self.isLoading = false
                 if let error = error {
                     self.errorMessage = self.mapAuthError(error)
                 } else {
@@ -168,6 +189,7 @@ final class AuthViewModel: ObservableObject {
         name = ""
         emailError = nil
         passwordError = nil
+        nameError = nil
         errorMessage = nil
         infoMessage = nil
     }
@@ -180,37 +202,43 @@ final class AuthViewModel: ObservableObject {
     func isValidPassword(_ password: String) -> Bool { password.count >= 6 }
     
     // MARK: - Form Validation
-    func validateLoginForm() -> Bool {
+    enum FormType {
+        case login
+        case signUp
+    }
+    
+    func validateForm(_ type: FormType) -> Bool {
         emailError = nil
         passwordError = nil
-        var ok = true
+        nameError = nil
+        var isValid = true
+        
+        if type == .signUp {
+            if name.trimmingCharacters(in: .whitespaces).isEmpty {
+                nameError = "Please enter your name"
+                isValid = false
+            }
+        }
+        
         if !isValidEmail(email) {
             emailError = "Please enter a valid email"
-            ok = false
+            isValid = false
         }
+        
         if password.count < 6 {
             passwordError = "Password must be at least 6 characters"
-            ok = false
+            isValid = false
         }
-        return ok
+        
+        return isValid
+    }
+    
+    func validateLoginForm() -> Bool {
+        validateForm(.login)
     }
     
     func validateSignUpForm() -> Bool {
-        emailError = nil
-        passwordError = nil
-        var ok = true
-        
-        if !isValidEmail(email) {
-            emailError = "Please enter a valid email"
-            ok = false
-        }
-        
-        if password.count < 6 {
-            passwordError = "Password must be at least 6 characters"
-            ok = false
-        }
-        
-        return ok
+        validateForm(.signUp)
     }
     
     // MARK: - Error Mapping

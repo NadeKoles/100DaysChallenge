@@ -37,6 +37,7 @@ struct LoginView: View {
                             iconName: "envelope"
                         )
                         .onChange(of: authViewModel.email) { _ in
+                            authViewModel.clearFormError()
                             if didSubmit {
                                 _ = authViewModel.validateLoginForm()
                             }
@@ -60,6 +61,7 @@ struct LoginView: View {
                             iconName: "lock"
                         )
                         .onChange(of: authViewModel.password) { _ in
+                            authViewModel.clearFormError()
                             if didSubmit {
                                 _ = authViewModel.validateLoginForm()
                             }
@@ -67,6 +69,14 @@ struct LoginView: View {
                         
                         if didSubmit, let passwordError = authViewModel.passwordError {
                             Text(passwordError)
+                                .font(.caption)
+                                .foregroundStyle(Color.red.opacity(0.85))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.leading, Spacing.sm)
+                        }
+                        
+                        if let formError = authViewModel.formError {
+                            Text(formError)
                                 .font(.caption)
                                 .foregroundStyle(Color.red.opacity(0.85))
                                 .frame(maxWidth: .infinity, alignment: .leading)

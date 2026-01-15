@@ -53,10 +53,12 @@ enum LocalizedStrings {
         
         // Auth error mappings
         static let incorrectPassword = NSLocalizedString("auth.incorrectPassword", value: "Incorrect password", comment: "Wrong password error")
+        static let incorrectEmailOrPassword = NSLocalizedString("auth.incorrectEmailOrPassword", value: "Incorrect email or password", comment: "Invalid credentials error")
         static let userNotFound = NSLocalizedString("auth.userNotFound", value: "No account found with this email", comment: "User not found error")
         static let emailAlreadyInUse = NSLocalizedString("auth.emailAlreadyInUse", value: "This email is already registered", comment: "Email already registered error")
         static let networkError = NSLocalizedString("auth.networkError", value: "Network error. Please try again.", comment: "Network error message")
         static let tooManyRequests = NSLocalizedString("auth.tooManyRequests", value: "Too many attempts. Try again later.", comment: "Too many requests error")
+        static let genericError = NSLocalizedString("auth.genericError", value: "Something went wrong. Please try again.", comment: "Generic error message")
         
         // Alert titles
         static let errorTitle = NSLocalizedString("auth.errorTitle", value: "Error", comment: "Error alert title")

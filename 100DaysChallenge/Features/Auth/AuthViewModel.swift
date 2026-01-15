@@ -17,6 +17,7 @@ final class AuthViewModel: ObservableObject {
     @Published var password = ""
     @Published var name = ""             
     @Published var errorMessage: String?
+    @Published var formError: String?
     @Published var infoMessage: String?
     @Published var emailError: String?
     @Published var passwordError: String?
@@ -51,9 +52,12 @@ final class AuthViewModel: ObservableObject {
                 guard let self = self else { return }
                 self.isLoading = false
                 if let error = error {
-                    self.errorMessage = self.mapAuthError(error)
+                    let friendlyMessage = self.mapAuthError(error)
+                    self.errorMessage = friendlyMessage
+                    self.formError = friendlyMessage
                 } else {
                     self.errorMessage = nil
+                    self.formError = nil
                     completion()
                 }
             }
@@ -191,7 +195,12 @@ final class AuthViewModel: ObservableObject {
         passwordError = nil
         nameError = nil
         errorMessage = nil
+        formError = nil
         infoMessage = nil
+    }
+    
+    func clearFormError() {
+        formError = nil
     }
 
     func isValidEmail(_ email: String) -> Bool {
@@ -244,11 +253,11 @@ final class AuthViewModel: ObservableObject {
     // MARK: - Error Mapping
     private func mapAuthError(_ error: Error) -> String {
         guard let authError = error as NSError? else {
-            return error.localizedDescription
+            return LocalizedStrings.Auth.genericError
         }
         
         guard let errorCode = AuthErrorCode(rawValue: authError.code) else {
-            return error.localizedDescription
+            return LocalizedStrings.Auth.genericError
         }
         
         switch errorCode {
@@ -258,6 +267,8 @@ final class AuthViewModel: ObservableObject {
             return LocalizedStrings.Auth.incorrectPassword
         case .userNotFound:
             return LocalizedStrings.Auth.userNotFound
+        case .invalidCredential:
+            return LocalizedStrings.Auth.incorrectEmailOrPassword
         case .emailAlreadyInUse:
             return LocalizedStrings.Auth.emailAlreadyInUse
         case .weakPassword:
@@ -267,7 +278,7 @@ final class AuthViewModel: ObservableObject {
         case .tooManyRequests:
             return LocalizedStrings.Auth.tooManyRequests
         default:
-            return error.localizedDescription
+            return LocalizedStrings.Auth.genericError
         }
     }
 }

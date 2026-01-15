@@ -22,6 +22,7 @@ final class AuthViewModel: ObservableObject {
     @Published var emailError: String?
     @Published var passwordError: String?
     @Published var nameError: String?
+    // TODO: Implement password visibility toggle in InputField (eye icon) and connect to this state.
     @Published var isPasswordVisible = false
     @Published var isLoading = false
     @Published private(set) var user: FirebaseAuth.User?
@@ -87,6 +88,16 @@ final class AuthViewModel: ObservableObject {
                     return
                 }
 
+                // Persist user name to Firebase Auth profile
+                let trimmedName = self.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmedName.isEmpty {
+                    let changeRequest = user.createProfileChangeRequest()
+                    changeRequest.displayName = trimmedName
+                    changeRequest.commitChanges { error in
+                        // Profile update is non-critical; proceed with email verification even if it fails
+                    }
+                }
+
                 user.sendEmailVerification { error in
                     Task { @MainActor in
                         if let error = error {
@@ -107,6 +118,7 @@ final class AuthViewModel: ObservableObject {
         }
     }
 
+    // TODO: Wire Google Sign-In to UI (button on Login screen) and finalize UX/QA.
     func signInWithGoogle(completion: @escaping () -> Void) {
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             errorMessage = LocalizedStrings.Auth.missingFirebaseClientID

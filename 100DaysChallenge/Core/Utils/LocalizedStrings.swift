@@ -15,7 +15,7 @@ enum LocalizedStrings {
         static let name = NSLocalizedString("auth.name", value: "Name", comment: "Name field label")
         static let namePlaceholder = NSLocalizedString("auth.namePlaceholder", value: "Your name", comment: "Name field placeholder")
         static let email = NSLocalizedString("auth.email", value: "Email", comment: "Email field label")
-        static let emailPlaceholder = NSLocalizedString("auth.emailPlaceholder", value: "your@email.com", comment: "Email field placeholder")
+        static let emailPlaceholder = NSLocalizedString("auth.emailPlaceholder", value: "name@example.com", comment: "Email field placeholder")
         static let password = NSLocalizedString("auth.password", value: "Password", comment: "Password field label")
         static let passwordPlaceholder = NSLocalizedString("auth.passwordPlaceholder", value: "Create a password", comment: "Password field placeholder")
         static let createAccountButton = NSLocalizedString("auth.createAccountButton", value: "Create Account", comment: "Sign up button")
@@ -40,8 +40,8 @@ enum LocalizedStrings {
         static let passwordResetSent = NSLocalizedString("auth.passwordResetSent", value: "Password reset link has been sent", comment: "Password reset success message")
         
         // Error messages
-        static let missingFirebaseClientID = NSLocalizedString("auth.missingFirebaseClientID", value: "Missing Firebase clientID", comment: "Firebase configuration error")
-        static let unableToAccessRootVC = NSLocalizedString("auth.unableToAccessRootVC", value: "Unable to access root view controller", comment: "UI access error")
+        static let missingFirebaseClientID = NSLocalizedString("auth.missingFirebaseClientID", value: "Something went wrong. Please try again.", comment: "Firebase configuration error")
+        static let unableToAccessRootVC = NSLocalizedString("auth.unableToAccessRootVC", value: "Unable to continue. Please try again.", comment: "UI access error")
         static let failedToCreateAccount = NSLocalizedString("auth.failedToCreateAccount", value: "Failed to create user account", comment: "Account creation error")
         static let failedToGetGoogleToken = NSLocalizedString("auth.failedToGetGoogleToken", value: "Failed to get Google token", comment: "Google sign-in error")
         

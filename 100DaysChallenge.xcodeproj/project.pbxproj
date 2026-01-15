@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE64ADFE2F181BCB0087033F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CE64ADFD2F181BCB0087033F /* GoogleService-Info.plist */; };
+		CE16BD9B2F19141B00E36EAB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CE16BD9A2F19141B00E36EAB /* GoogleService-Info.plist */; };
 		CE64AE012F181D500087033F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CE64AE002F181D500087033F /* FirebaseAuth */; };
 		CE64AE032F181D500087033F /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = CE64AE022F181D500087033F /* FirebaseCore */; };
 		CE64AE062F181DBE0087033F /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = CE64AE052F181DBE0087033F /* GoogleSignIn */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		CE64ADFD2F181BCB0087033F /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		CE16BD9A2F19141B00E36EAB /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		CECE552D2F1574E5005F3B40 /* 100DaysChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = 100DaysChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -45,7 +45,7 @@
 			children = (
 				CECE552F2F1574E5005F3B40 /* 100DaysChallenge */,
 				CECE552E2F1574E5005F3B40 /* Products */,
-				CE64ADFD2F181BCB0087033F /* GoogleService-Info.plist */,
+				CE16BD9A2F19141B00E36EAB /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -128,7 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE64ADFE2F181BCB0087033F /* GoogleService-Info.plist in Resources */,
+				CE16BD9B2F19141B00E36EAB /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

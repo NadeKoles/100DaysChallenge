@@ -30,5 +30,36 @@ enum LocalizedStrings {
         static let logInButton = NSLocalizedString("auth.logInButton", value: "Log In", comment: "Login button")
         static let dontHaveAccount = NSLocalizedString("auth.dontHaveAccount", value: "Don't have an account?", comment: "Sign up link text")
         static let signUp = NSLocalizedString("auth.signUp", value: "Sign up", comment: "Sign up link button")
+        
+        // Validation messages
+        static let invalidEmail = NSLocalizedString("auth.invalidEmail", value: "Please enter a valid email", comment: "Email validation error")
+        static let passwordTooShort = NSLocalizedString("auth.passwordTooShort", value: "Password must be at least 6 characters", comment: "Password validation error")
+        static let nameRequired = NSLocalizedString("auth.nameRequired", value: "Please enter your name", comment: "Name validation error")
+        
+        // Info messages
+        static let passwordResetSent = NSLocalizedString("auth.passwordResetSent", value: "Password reset link has been sent", comment: "Password reset success message")
+        
+        // Error messages
+        static let missingFirebaseClientID = NSLocalizedString("auth.missingFirebaseClientID", value: "Missing Firebase clientID", comment: "Firebase configuration error")
+        static let unableToAccessRootVC = NSLocalizedString("auth.unableToAccessRootVC", value: "Unable to access root view controller", comment: "UI access error")
+        static let failedToCreateAccount = NSLocalizedString("auth.failedToCreateAccount", value: "Failed to create user account", comment: "Account creation error")
+        static let failedToGetGoogleToken = NSLocalizedString("auth.failedToGetGoogleToken", value: "Failed to get Google token", comment: "Google sign-in error")
+        
+        // Dynamic error messages
+        static func verificationEmailFailed(_ details: String) -> String {
+            let format = NSLocalizedString("auth.verificationEmailFailed", value: "Failed to send verification email: %@", comment: "Email verification error with details")
+            return String(format: format, details)
+        }
+        
+        // Auth error mappings
+        static let incorrectPassword = NSLocalizedString("auth.incorrectPassword", value: "Incorrect password", comment: "Wrong password error")
+        static let userNotFound = NSLocalizedString("auth.userNotFound", value: "No account found with this email", comment: "User not found error")
+        static let emailAlreadyInUse = NSLocalizedString("auth.emailAlreadyInUse", value: "This email is already registered", comment: "Email already registered error")
+        static let networkError = NSLocalizedString("auth.networkError", value: "Network error. Please try again.", comment: "Network error message")
+        static let tooManyRequests = NSLocalizedString("auth.tooManyRequests", value: "Too many attempts. Try again later.", comment: "Too many requests error")
+        
+        // Alert titles
+        static let errorTitle = NSLocalizedString("auth.errorTitle", value: "Error", comment: "Error alert title")
+        static let infoTitle = NSLocalizedString("auth.infoTitle", value: "Info", comment: "Info alert title")
     }
 }

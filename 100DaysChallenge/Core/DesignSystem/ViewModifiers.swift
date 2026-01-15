@@ -15,7 +15,7 @@ extension View {
         let isPresented = hasError || hasInfo
         
         // Error takes priority over info
-        let title = hasError ? "Error" : "Info"
+        let title = hasError ? LocalizedStrings.Auth.errorTitle : LocalizedStrings.Auth.infoTitle
         let message = hasError ? error.wrappedValue : info.wrappedValue
         
         return self.alert(

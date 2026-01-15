@@ -75,18 +75,21 @@ final class AuthViewModel: ObservableObject {
 
                 guard let user = result?.user else {
                     self.isLoading = false
-                    self.errorMessage = "Failed to create user account"
+                    self.errorMessage = LocalizedStrings.Auth.failedToCreateAccount
                     return
                 }
 
                 user.sendEmailVerification { error in
                     Task { @MainActor in
-                        self.isLoading = false
                         if let error = error {
-                            self.errorMessage = "Failed to send verification email: \(error.localizedDescription)"
+                            self.errorMessage = LocalizedStrings.Auth.verificationEmailFailed(error.localizedDescription)
+                            self.isLoading = false
+                            return
+                        } else {
+                            self.errorMessage = nil
+                            self.isLoading = false
+                            completion()
                         }
-                        self.errorMessage = nil
-                        completion()
                     }
                 }
             }
@@ -95,7 +98,7 @@ final class AuthViewModel: ObservableObject {
 
     func signInWithGoogle(completion: @escaping () -> Void) {
         guard let clientID = FirebaseApp.app()?.options.clientID else {
-            errorMessage = "Missing Firebase clientID"
+            errorMessage = LocalizedStrings.Auth.missingFirebaseClientID
             isLoading = false
             return
         }
@@ -106,7 +109,7 @@ final class AuthViewModel: ObservableObject {
             let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
             let rootVC = windowScene.windows.first?.rootViewController
         else {
-            errorMessage = "Unable to access root view controller"
+            errorMessage = LocalizedStrings.Auth.unableToAccessRootVC
             isLoading = false
             return
         }
@@ -128,7 +131,7 @@ final class AuthViewModel: ObservableObject {
                     let idToken = user.idToken?.tokenString
                 else {
                     self.isLoading = false
-                    self.errorMessage = "Failed to get Google token"
+                    self.errorMessage = LocalizedStrings.Auth.failedToGetGoogleToken
                     return
                 }
 
@@ -156,7 +159,7 @@ final class AuthViewModel: ObservableObject {
     func resetPassword() {
         emailError = nil
         guard isValidEmail(email) else {
-            emailError = "Please enter a valid email"
+            emailError = LocalizedStrings.Auth.invalidEmail
             return
         }
 
@@ -168,7 +171,7 @@ final class AuthViewModel: ObservableObject {
                 if let error = error {
                     self.errorMessage = self.mapAuthError(error)
                 } else {
-                    self.infoMessage = "Password reset link has been sent"
+                    self.infoMessage = LocalizedStrings.Auth.passwordResetSent
                 }
             }
         }
@@ -212,18 +215,18 @@ final class AuthViewModel: ObservableObject {
         
         if type == .signUp {
             if name.trimmingCharacters(in: .whitespaces).isEmpty {
-                nameError = "Please enter your name"
+                nameError = LocalizedStrings.Auth.nameRequired
                 isValid = false
             }
         }
         
         if !isValidEmail(email) {
-            emailError = "Please enter a valid email"
+            emailError = LocalizedStrings.Auth.invalidEmail
             isValid = false
         }
         
         if password.count < 6 {
-            passwordError = "Password must be at least 6 characters"
+            passwordError = LocalizedStrings.Auth.passwordTooShort
             isValid = false
         }
         
@@ -250,19 +253,19 @@ final class AuthViewModel: ObservableObject {
         
         switch errorCode {
         case .invalidEmail:
-            return "Please enter a valid email"
+            return LocalizedStrings.Auth.invalidEmail
         case .wrongPassword:
-            return "Incorrect password"
+            return LocalizedStrings.Auth.incorrectPassword
         case .userNotFound:
-            return "No account found with this email"
+            return LocalizedStrings.Auth.userNotFound
         case .emailAlreadyInUse:
-            return "This email is already registered"
+            return LocalizedStrings.Auth.emailAlreadyInUse
         case .weakPassword:
-            return "Password must be at least 6 characters"
+            return LocalizedStrings.Auth.passwordTooShort
         case .networkError:
-            return "Network error. Please try again."
+            return LocalizedStrings.Auth.networkError
         case .tooManyRequests:
-            return "Too many attempts. Try again later."
+            return LocalizedStrings.Auth.tooManyRequests
         default:
             return error.localizedDescription
         }

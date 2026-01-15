@@ -41,6 +41,7 @@ extension Color {
     static let textPrimary = Color.gray900
     static let textSecondary = Color.gray600
     static let textTertiary = Color.gray500
+    static let textError = Color.accentCoralRed
     static let border = Color.gray200
     static let inputBackground = Color.gray50
     

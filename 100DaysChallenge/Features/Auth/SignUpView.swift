@@ -36,42 +36,50 @@ struct SignUpView: View {
                         iconName: "person"
                     )
                     
-                    InputField(
-                        label: LocalizedStrings.Auth.email,
-                        placeholder: LocalizedStrings.Auth.emailPlaceholder,
-                        text: $authViewModel.email,
-                        type: .email,
-                        iconName: "envelope"
-                    )
-                    .onChange(of: authViewModel.email) { _ in
-                        if didSubmit {
-                            _ = authViewModel.validateSignUpForm()
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        InputField(
+                            label: LocalizedStrings.Auth.email,
+                            placeholder: LocalizedStrings.Auth.emailPlaceholder,
+                            text: $authViewModel.email,
+                            type: .email,
+                            iconName: "envelope"
+                        )
+                        .onChange(of: authViewModel.email) { _ in
+                            if didSubmit {
+                                _ = authViewModel.validateSignUpForm()
+                            }
+                        }
+                        
+                        if didSubmit, let emailError = authViewModel.emailError {
+                            Text(emailError)
+                                .font(.captionSmall)
+                                .foregroundColor(.textError)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.leading, Spacing.sm)
                         }
                     }
                     
-                    if didSubmit, let emailError = authViewModel.emailError {
-                        Text(emailError)
-                            .font(.caption)
-                            .foregroundStyle(.red)
-                    }
-                    
-                    InputField(
-                        label: LocalizedStrings.Auth.password,
-                        placeholder: LocalizedStrings.Auth.passwordPlaceholder,
-                        text: $authViewModel.password,
-                        type: .password,
-                        iconName: "lock"
-                    )
-                    .onChange(of: authViewModel.password) { _ in
-                        if didSubmit {
-                            _ = authViewModel.validateSignUpForm()
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        InputField(
+                            label: LocalizedStrings.Auth.password,
+                            placeholder: LocalizedStrings.Auth.passwordPlaceholder,
+                            text: $authViewModel.password,
+                            type: .password,
+                            iconName: "lock"
+                        )
+                        .onChange(of: authViewModel.password) { _ in
+                            if didSubmit {
+                                _ = authViewModel.validateSignUpForm()
+                            }
                         }
-                    }
-                    
-                    if didSubmit, let passwordError = authViewModel.passwordError {
-                        Text(passwordError)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        
+                        if didSubmit, let passwordError = authViewModel.passwordError {
+                            Text(passwordError)
+                                .font(.captionSmall)
+                                .foregroundColor(.textError)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.leading, Spacing.sm)
+                        }
                     }
                     
                     // Sign up button

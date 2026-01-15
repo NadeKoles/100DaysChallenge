@@ -135,6 +135,9 @@ struct SignUpView: View {
         }
         .background(Color.background)
         .messageAlert(error: $authViewModel.errorMessage, info: $authViewModel.infoMessage)
+        .onAppear {
+            authViewModel.resetFormState()
+        }
     }
 }
 

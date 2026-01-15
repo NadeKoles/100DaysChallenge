@@ -161,6 +161,16 @@ final class AuthViewModel: ObservableObject {
         do { try Auth.auth().signOut() }
         catch { errorMessage = error.localizedDescription }
     }
+    
+    func resetFormState() {
+        email = ""
+        password = ""
+        name = ""
+        emailError = nil
+        passwordError = nil
+        errorMessage = nil
+        infoMessage = nil
+    }
 
     func isValidEmail(_ email: String) -> Bool {
         let r = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"

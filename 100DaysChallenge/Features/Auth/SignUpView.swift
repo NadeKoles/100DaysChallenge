@@ -52,8 +52,8 @@ struct SignUpView: View {
                         
                         if didSubmit, let emailError = authViewModel.emailError {
                             Text(emailError)
-                                .font(.captionSmall)
-                                .foregroundColor(.textError)
+                                .font(.caption)
+                                .foregroundStyle(Color.red.opacity(0.85))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, Spacing.sm)
                         }
@@ -75,8 +75,8 @@ struct SignUpView: View {
                         
                         if didSubmit, let passwordError = authViewModel.passwordError {
                             Text(passwordError)
-                                .font(.captionSmall)
-                                .foregroundColor(.textError)
+                                .font(.caption)
+                                .foregroundStyle(Color.red.opacity(0.85))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, Spacing.sm)
                         }

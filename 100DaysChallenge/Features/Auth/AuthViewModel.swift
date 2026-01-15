@@ -170,6 +170,21 @@ final class AuthViewModel: ObservableObject {
     func isValidPassword(_ password: String) -> Bool { password.count >= 6 }
     
     // MARK: - Form Validation
+    func validateLoginForm() -> Bool {
+        emailError = nil
+        passwordError = nil
+        var ok = true
+        if !isValidEmail(email) {
+            emailError = "Please enter a valid email"
+            ok = false
+        }
+        if password.count < 6 {
+            passwordError = "Password must be at least 6 characters"
+            ok = false
+        }
+        return ok
+    }
+    
     func validateSignUpForm() -> Bool {
         emailError = nil
         passwordError = nil

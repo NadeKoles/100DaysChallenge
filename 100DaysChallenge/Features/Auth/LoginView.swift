@@ -83,23 +83,24 @@ struct LoginView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, Spacing.sm)
                         }
-                    }
-                    
-                    // Forgot password
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            resetPrompt = ResetPasswordPrompt(
-                                email: authViewModel.email,
-                                onSend: { email in
-                                    authViewModel.resetPassword(email: email)
-                                }
-                            )
-                        }) {
-                            Text(LocalizedStrings.Auth.forgotPassword)
-                                .font(.labelSmall)
-                                .foregroundColor(.accentSkyBlue)
+                        
+                        // Forgot password
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                resetPrompt = ResetPasswordPrompt(
+                                    email: authViewModel.email,
+                                    onSend: { email in
+                                        authViewModel.resetPassword(email: email)
+                                    }
+                                )
+                            }) {
+                                Text(LocalizedStrings.Auth.forgotPassword)
+                                    .font(.labelSmall)
+                                    .foregroundColor(.accentSkyBlue)
+                            }
                         }
+                        .padding(.top, Spacing.xxs)
                     }
                     
                     // Login button
@@ -127,24 +128,24 @@ struct LoginView: View {
                     }
                     .disabled(authViewModel.email.isEmpty || authViewModel.password.isEmpty || authViewModel.isLoading)
                     .opacity(authViewModel.email.isEmpty || authViewModel.password.isEmpty || authViewModel.isLoading ? 0.5 : 1)
-                }
-                
-                // Sign up link
-                HStack {
-                    Text(LocalizedStrings.Auth.dontHaveAccount)
-                        .font(.body)
-                        .foregroundColor(.textSecondary)
                     
-                    Button(action: {
-                        appState.currentScreen = .signUp
-                    }) {
-                        Text(LocalizedStrings.Auth.signUp)
-                            .font(.label)
-                            .foregroundColor(.accentSkyBlue)
+                    // Sign up link
+                    HStack {
+                        Text(LocalizedStrings.Auth.dontHaveAccount)
+                            .font(.body)
+                            .foregroundColor(.textSecondary)
+                        
+                        Button(action: {
+                            appState.currentScreen = .signUp
+                        }) {
+                            Text(LocalizedStrings.Auth.signUp)
+                                .font(.label)
+                                .foregroundColor(.accentSkyBlue)
+                        }
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, -Spacing.md)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.top, Spacing.xl)
             }
             .padding(.horizontal, Spacing.xl)
             .padding(.bottom, Spacing.xxxl)

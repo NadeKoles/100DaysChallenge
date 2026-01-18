@@ -22,13 +22,13 @@ class OnboardingViewModel: ObservableObject {
         OnboardingSlide(
             iconName: "target",
             title: "Set Your Goal",
-            description: "Choose a habit to focus on.\nReading, exercise — anything that\nmatters to you.",
+            description: "Choose a habit to focus on.\nAnything that trully matters to you.",
             color: .onboardingSunsetOrange
         ),
         OnboardingSlide(
             iconName: "chart.line.uptrend.xyaxis",
             title: "Track Your Progress",
-            description: "Mark each completed day and\nwatch your progress grow.",
+            description: "Mark each completed day\nand watch your progress grow.",
             color: .onboardingGreen
         ),
         OnboardingSlide(

@@ -118,6 +118,36 @@ struct LoginView: View {
                             isLoading: authViewModel.isLoading
                         )
                         
+                        // Divider with "or"
+                        HStack(spacing: Spacing.md) {
+                            Rectangle()
+                                .fill(Color.border)
+                                .frame(height: 1)
+                            
+                            Text(LocalizedStrings.Auth.or)
+                                .font(.bodySmall)
+                                .foregroundColor(.textSecondary)
+                            
+                            Rectangle()
+                                .fill(Color.border)
+                                .frame(height: 1)
+                        }
+                        .padding(.vertical, Spacing.sm)
+                        
+                        // Continue with Google button
+                        PrimaryButton(
+                            title: LocalizedStrings.Auth.continueWithGoogle,
+                            action: {
+                                authViewModel.signInWithGoogle {
+                                    appState.handleLoginComplete()
+                                }
+                            },
+                            icon: Image("GoogleIcon"),
+                            style: .outlined,
+                            isEnabled: !authViewModel.isLoading,
+                            isLoading: authViewModel.isLoading
+                        )
+                        
                         // Sign up link
                         HStack {
                             Text(LocalizedStrings.Auth.dontHaveAccount)

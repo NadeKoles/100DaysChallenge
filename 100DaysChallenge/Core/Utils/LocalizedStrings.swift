@@ -28,6 +28,8 @@ enum LocalizedStrings {
         static let passwordPlaceholderLogin = NSLocalizedString("auth.passwordPlaceholderLogin", value: "Your password", comment: "Password field placeholder for login")
         static let forgotPassword = NSLocalizedString("auth.forgotPassword", value: "Forgot password?", comment: "Forgot password link")
         static let logInButton = NSLocalizedString("auth.logInButton", value: "Log In", comment: "Login button")
+        static let or = NSLocalizedString("auth.or", value: "or", comment: "Divider text between login methods")
+        static let continueWithGoogle = NSLocalizedString("auth.continueWithGoogle", value: "Continue with Google", comment: "Google sign-in button")
         static let dontHaveAccount = NSLocalizedString("auth.dontHaveAccount", value: "Don't have an account?", comment: "Sign up link text")
         static let signUp = NSLocalizedString("auth.signUp", value: "Sign up", comment: "Sign up link button")
         

@@ -45,11 +45,11 @@ struct PrimaryButton: View {
     }
     
     private var textColor: Color {
-        style == .filled ? .white : .primary
+        style == .filled ? .white : .textPrimary
     }
     
     private var iconColor: Color {
-        style == .filled ? .white : .primary
+        style == .filled ? .white : .textPrimary
     }
     
     var body: some View {
@@ -85,7 +85,7 @@ struct PrimaryButton: View {
                 .cornerRadius(CornerRadius.xl)
                 .overlay(
                     RoundedRectangle(cornerRadius: CornerRadius.xl)
-                        .stroke(gradient, lineWidth: 1.5)
+                        .stroke(Color.border, lineWidth: 1)
                 )
         }
     }

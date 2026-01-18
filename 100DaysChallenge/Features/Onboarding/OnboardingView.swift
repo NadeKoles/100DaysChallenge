@@ -110,3 +110,7 @@ struct OnboardingSlideView: View {
     }
 }
 
+#Preview {
+    OnboardingView()
+        .environmentObject(AppState())
+}

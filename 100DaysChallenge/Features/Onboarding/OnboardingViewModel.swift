@@ -22,7 +22,7 @@ class OnboardingViewModel: ObservableObject {
         OnboardingSlide(
             iconName: "target",
             title: "Set Your Goal",
-            description: "Choose a habit to focus on.\nAnything that trully matters to you.",
+            description: "Choose a habit to focus on.\nAnything that truly matters to you.",
             color: .onboardingSunsetOrange
         ),
         OnboardingSlide(

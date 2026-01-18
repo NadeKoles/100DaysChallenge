@@ -18,7 +18,7 @@ struct OnboardingSlide {
 class OnboardingViewModel: ObservableObject {
     @Published var currentSlide: Int = 0
     
-    let slides: [OnboardingSlide] = [
+    static let allSlides: [OnboardingSlide] = [
         OnboardingSlide(
             iconName: "target",
             title: "Set Your Goal",
@@ -38,5 +38,7 @@ class OnboardingViewModel: ObservableObject {
             color: .onboardingGreen
         )
     ]
+    
+    let slides: [OnboardingSlide] = OnboardingViewModel.allSlides
 }
 

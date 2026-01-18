@@ -28,6 +28,9 @@ enum LocalizedStrings {
         static let passwordPlaceholderLogin = NSLocalizedString("auth.passwordPlaceholderLogin", value: "Your password", comment: "Password field placeholder for login")
         static let forgotPassword = NSLocalizedString("auth.forgotPassword", value: "Forgot password?", comment: "Forgot password link")
         static let logInButton = NSLocalizedString("auth.logInButton", value: "Log In", comment: "Login button")
+        static let or = NSLocalizedString("auth.or", value: "or", comment: "Divider text between login methods")
+        static let continueWithApple = NSLocalizedString("auth.continueWithApple", value: "Continue with Apple", comment: "Apple sign-in button")
+        static let continueWithGoogle = NSLocalizedString("auth.continueWithGoogle", value: "Continue with Google", comment: "Google sign-in button")
         static let dontHaveAccount = NSLocalizedString("auth.dontHaveAccount", value: "Don't have an account?", comment: "Sign up link text")
         static let signUp = NSLocalizedString("auth.signUp", value: "Sign up", comment: "Sign up link button")
         
@@ -50,6 +53,7 @@ enum LocalizedStrings {
         static let unableToAccessRootVC = NSLocalizedString("auth.unableToAccessRootVC", value: "Unable to continue. Please try again.", comment: "UI access error")
         static let failedToCreateAccount = NSLocalizedString("auth.failedToCreateAccount", value: "Failed to create user account", comment: "Account creation error")
         static let failedToGetGoogleToken = NSLocalizedString("auth.failedToGetGoogleToken", value: "Failed to get Google token", comment: "Google sign-in error")
+        static let appleSignInComingSoon = NSLocalizedString("auth.appleSignInComingSoon", value: "Sign in with Apple will be available soon.", comment: "Apple sign-in coming soon message")
         
         // Dynamic error messages
         static func verificationEmailFailed(_ details: String) -> String {

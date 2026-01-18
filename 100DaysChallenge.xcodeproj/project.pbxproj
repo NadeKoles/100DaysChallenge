@@ -18,9 +18,22 @@
 		CECE552D2F1574E5005F3B40 /* 100DaysChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = 100DaysChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CE8683512F1D28B50038EC58 /* Exceptions for "100DaysChallenge" folder in "100DaysChallenge" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"-00DaysChallenge-Info.plist",
+			);
+			target = CECE552C2F1574E5005F3B40 /* 100DaysChallenge */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CECE552F2F1574E5005F3B40 /* 100DaysChallenge */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CE8683512F1D28B50038EC58 /* Exceptions for "100DaysChallenge" folder in "100DaysChallenge" target */,
+			);
 			path = 100DaysChallenge;
 			sourceTree = "<group>";
 		};
@@ -276,6 +289,7 @@
 				DEVELOPMENT_TEAM = R4N38846NF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "-00DaysChallenge-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -305,6 +319,7 @@
 				DEVELOPMENT_TEAM = R4N38846NF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "-00DaysChallenge-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -83,68 +83,105 @@ struct LoginView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, Spacing.sm)
                         }
-                    }
-                    
-                    // Forgot password
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            resetPrompt = ResetPasswordPrompt(
-                                email: authViewModel.email,
-                                onSend: { email in
-                                    authViewModel.resetPassword(email: email)
-                                }
-                            )
-                        }) {
-                            Text(LocalizedStrings.Auth.forgotPassword)
-                                .font(.labelSmall)
-                                .foregroundColor(.accentSkyBlue)
-                        }
-                    }
-                    
-                    // Login button
-                    Button(action: {
-                        didSubmit = true
-                        guard authViewModel.validateLoginForm() else { return }
-                        authViewModel.signIn {
-                            appState.handleLoginComplete()
-                        }
-                    }) {
-                        Text(LocalizedStrings.Auth.logInButton)
-                            .font(.label)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(
-                                LinearGradient(
-                                    colors: [Color.gradientOrangePinkStart, Color.gradientOrangePinkEnd],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
+                        
+                        // Forgot password
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                resetPrompt = ResetPasswordPrompt(
+                                    email: authViewModel.email,
+                                    onSend: { email in
+                                        authViewModel.resetPassword(email: email)
+                                    }
                                 )
-                            )
-                            .cornerRadius(CornerRadius.xl)
-                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                            }) {
+                                Text(LocalizedStrings.Auth.forgotPassword)
+                                    .font(.labelSmall)
+                                    .foregroundColor(.accentSkyBlue)
+                            }
+                        }
+                        .padding(.top, Spacing.xxs)
                     }
-                    .disabled(authViewModel.email.isEmpty || authViewModel.password.isEmpty || authViewModel.isLoading)
-                    .opacity(authViewModel.email.isEmpty || authViewModel.password.isEmpty || authViewModel.isLoading ? 0.5 : 1)
-                }
-                
-                // Sign up link
-                HStack {
-                    Text(LocalizedStrings.Auth.dontHaveAccount)
-                        .font(.body)
-                        .foregroundColor(.textSecondary)
                     
-                    Button(action: {
-                        appState.currentScreen = .signUp
-                    }) {
-                        Text(LocalizedStrings.Auth.signUp)
-                            .font(.label)
-                            .foregroundColor(.accentSkyBlue)
+                    VStack(spacing: Spacing.sm) {
+                        // Login button
+                        PrimaryButton(
+                            title: LocalizedStrings.Auth.logInButton,
+                            action: {
+                                didSubmit = true
+                                guard authViewModel.validateLoginForm() else { return }
+                                authViewModel.signIn {
+                                    appState.handleLoginComplete()
+                                }
+                            },
+                            isEnabled: !authViewModel.email.isEmpty && !authViewModel.password.isEmpty,
+                            isLoading: authViewModel.isLoading
+                        )
+                        
+                        // Divider with "or"
+                        HStack(spacing: Spacing.md) {
+                            Rectangle()
+                                .fill(Color.border)
+                                .frame(height: 1)
+                            
+                            Text(LocalizedStrings.Auth.or)
+                                .font(.bodySmall)
+                                .foregroundColor(.textSecondary)
+                            
+                            Rectangle()
+                                .fill(Color.border)
+                                .frame(height: 1)
+                        }
+                        .padding(.vertical, Spacing.sm)
+                        
+                        // Continue with Apple button (hidden until feature flag is enabled)
+                        // TODO: Enable Sign in with Apple after enrolling in Apple Developer Program
+                        if AuthViewModel.isAppleSignInEnabled {
+                            PrimaryButton(
+                                title: LocalizedStrings.Auth.continueWithApple,
+                                action: {
+                                    authViewModel.signInWithApple {
+                                        appState.handleLoginComplete()
+                                    }
+                                },
+                                icon: Image("Apple"),
+                                style: .outlined,
+                                isEnabled: !authViewModel.isLoading,
+                                isLoading: authViewModel.isLoading
+                            )
+                        }
+                        
+                        // Continue with Google button
+                        PrimaryButton(
+                            title: LocalizedStrings.Auth.continueWithGoogle,
+                            action: {
+                                authViewModel.signInWithGoogle {
+                                    appState.handleLoginComplete()
+                                }
+                            },
+                            icon: Image("GoogleIcon"),
+                            style: .outlined,
+                            isEnabled: !authViewModel.isLoading,
+                            isLoading: authViewModel.isLoading
+                        )
+                        
+                        // Sign up link
+                        HStack {
+                            Text(LocalizedStrings.Auth.dontHaveAccount)
+                                .font(.body)
+                                .foregroundColor(.textSecondary)
+                            
+                            Button(action: {
+                                appState.currentScreen = .signUp
+                            }) {
+                                Text(LocalizedStrings.Auth.signUp)
+                                    .font(.label)
+                                    .foregroundColor(.accentSkyBlue)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.top, Spacing.xl)
             }
             .padding(.horizontal, Spacing.xl)
             .padding(.bottom, Spacing.xxxl)

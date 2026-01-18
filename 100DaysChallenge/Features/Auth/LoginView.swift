@@ -134,6 +134,23 @@ struct LoginView: View {
                         }
                         .padding(.vertical, Spacing.sm)
                         
+                        // Continue with Apple button (hidden until feature flag is enabled)
+                        // TODO: Enable Sign in with Apple after enrolling in Apple Developer Program
+                        if AuthViewModel.isAppleSignInEnabled {
+                            PrimaryButton(
+                                title: LocalizedStrings.Auth.continueWithApple,
+                                action: {
+                                    authViewModel.signInWithApple {
+                                        appState.handleLoginComplete()
+                                    }
+                                },
+                                icon: Image("Apple"),
+                                style: .outlined,
+                                isEnabled: !authViewModel.isLoading,
+                                isLoading: authViewModel.isLoading
+                            )
+                        }
+                        
                         // Continue with Google button
                         PrimaryButton(
                             title: LocalizedStrings.Auth.continueWithGoogle,

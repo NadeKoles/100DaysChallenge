@@ -13,6 +13,11 @@ import SwiftUI
 
 @MainActor
 final class AuthViewModel: ObservableObject {
+    // MARK: - Feature Flags
+    // TODO: Enable Sign in with Apple after enrolling in Apple Developer Program
+    // Set to true once Apple Developer Program membership is active and Sign in with Apple is configured
+    static let isAppleSignInEnabled = false
+    
     @Published var email = ""
     @Published var password = ""
     @Published var name = ""             
@@ -116,6 +121,22 @@ final class AuthViewModel: ObservableObject {
                 }
             }
         }
+    }
+
+    func signInWithApple(completion: @escaping () -> Void) {
+        // Show info message when Apple Sign In is not yet enabled
+        guard Self.isAppleSignInEnabled else {
+            infoMessage = LocalizedStrings.Auth.appleSignInComingSoon
+            return
+        }
+        
+        // TODO: Implement Apple Sign In after enrolling in Apple Developer Program
+        // This will require:
+        // 1. Enrolling in Apple Developer Program
+        // 2. Configuring Sign in with Apple capability in Xcode
+        // 3. Setting up Sign in with Apple in Firebase Console
+        // 4. Implementing ASAuthorizationControllerDelegate and ASAuthorizationControllerPresentationContextProviding
+        completion()
     }
 
     func signInWithGoogle(completion: @escaping () -> Void) {

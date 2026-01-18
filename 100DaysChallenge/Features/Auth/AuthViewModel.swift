@@ -118,11 +118,13 @@ final class AuthViewModel: ObservableObject {
         }
     }
 
-    // TODO: Wire Google Sign-In to UI (button on Login screen) and finalize UX/QA.
     func signInWithGoogle(completion: @escaping () -> Void) {
+        // Prevent multiple simultaneous sign-in attempts
+        guard !isLoading else { return }
+        
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             errorMessage = LocalizedStrings.Auth.missingFirebaseClientID
-            isLoading = false
+            formError = LocalizedStrings.Auth.missingFirebaseClientID
             return
         }
 
@@ -133,18 +135,22 @@ final class AuthViewModel: ObservableObject {
             let rootVC = windowScene.windows.first?.rootViewController
         else {
             errorMessage = LocalizedStrings.Auth.unableToAccessRootVC
-            isLoading = false
+            formError = LocalizedStrings.Auth.unableToAccessRootVC
             return
         }
 
         isLoading = true
+        errorMessage = nil
+        formError = nil
         GIDSignIn.sharedInstance.signIn(withPresenting: rootVC) { [weak self] result, error in
             Task { @MainActor in
                 guard let self = self else { return }
                 if let error = error {
                     self.isLoading = false
                     if (error as NSError).code != GIDSignInError.canceled.rawValue {
-                        self.errorMessage = error.localizedDescription
+                        let friendlyMessage = self.mapAuthError(error)
+                        self.errorMessage = friendlyMessage
+                        self.formError = friendlyMessage
                     }
                     return
                 }
@@ -155,6 +161,7 @@ final class AuthViewModel: ObservableObject {
                 else {
                     self.isLoading = false
                     self.errorMessage = LocalizedStrings.Auth.failedToGetGoogleToken
+                    self.formError = LocalizedStrings.Auth.failedToGetGoogleToken
                     return
                 }
 
@@ -168,9 +175,12 @@ final class AuthViewModel: ObservableObject {
                         guard let self = self else { return }
                         self.isLoading = false
                         if let error = error {
-                            self.errorMessage = self.mapAuthError(error)
+                            let friendlyMessage = self.mapAuthError(error)
+                            self.errorMessage = friendlyMessage
+                            self.formError = friendlyMessage
                         } else {
                             self.errorMessage = nil
+                            self.formError = nil
                             completion()
                         }
                     }

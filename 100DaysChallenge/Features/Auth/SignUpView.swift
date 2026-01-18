@@ -110,36 +110,20 @@ struct SignUpView: View {
                     }
                     
                     // Sign up button
-                    Button(action: {
-                        didSubmit = true
-                        guard authViewModel.validateSignUpForm() else { return }
-                        authViewModel.signUp {
-                            appState.handleSignUpComplete()
-                        }
-                    }) {
-                        Text(LocalizedStrings.Auth.createAccountButton)
-                            .font(.label)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(
-                                LinearGradient(
-                                    colors: [Color.gradientOrangePinkStart, Color.gradientOrangePinkEnd],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .cornerRadius(CornerRadius.xl)
-                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                    }
-                    .disabled(authViewModel.name.isEmpty ||
-                             authViewModel.email.isEmpty ||
-                             authViewModel.password.isEmpty ||
-                             authViewModel.isLoading)
-                    .opacity(authViewModel.name.isEmpty ||
-                            authViewModel.email.isEmpty ||
-                            authViewModel.password.isEmpty ||
-                            authViewModel.isLoading ? 0.5 : 1)
+                    PrimaryButton(
+                        title: LocalizedStrings.Auth.createAccountButton,
+                        action: {
+                            didSubmit = true
+                            guard authViewModel.validateSignUpForm() else { return }
+                            authViewModel.signUp {
+                                appState.handleSignUpComplete()
+                            }
+                        },
+                        isEnabled: !authViewModel.name.isEmpty &&
+                                  !authViewModel.email.isEmpty &&
+                                  !authViewModel.password.isEmpty,
+                        isLoading: authViewModel.isLoading
+                    )
                 }
                 
                 // Login link

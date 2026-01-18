@@ -109,39 +109,40 @@ struct SignUpView: View {
                         }
                     }
                     
-                    // Sign up button
-                    PrimaryButton(
-                        title: LocalizedStrings.Auth.createAccountButton,
-                        action: {
-                            didSubmit = true
-                            guard authViewModel.validateSignUpForm() else { return }
-                            authViewModel.signUp {
-                                appState.handleSignUpComplete()
+                    VStack(spacing: Spacing.sm) {
+                        // Sign up button
+                        PrimaryButton(
+                            title: LocalizedStrings.Auth.createAccountButton,
+                            action: {
+                                didSubmit = true
+                                guard authViewModel.validateSignUpForm() else { return }
+                                authViewModel.signUp {
+                                    appState.handleSignUpComplete()
+                                }
+                            },
+                            isEnabled: !authViewModel.name.isEmpty &&
+                                      !authViewModel.email.isEmpty &&
+                                      !authViewModel.password.isEmpty,
+                            isLoading: authViewModel.isLoading
+                        )
+                        
+                        // Login link
+                        HStack {
+                            Text(LocalizedStrings.Auth.alreadyHaveAccount)
+                                .font(.body)
+                                .foregroundColor(.textSecondary)
+                            
+                            Button(action: {
+                                appState.currentScreen = .login
+                            }) {
+                                Text(LocalizedStrings.Auth.logIn)
+                                    .font(.label)
+                                    .foregroundColor(.accentSkyBlue)
                             }
-                        },
-                        isEnabled: !authViewModel.name.isEmpty &&
-                                  !authViewModel.email.isEmpty &&
-                                  !authViewModel.password.isEmpty,
-                        isLoading: authViewModel.isLoading
-                    )
-                }
-                
-                // Login link
-                HStack {
-                    Text(LocalizedStrings.Auth.alreadyHaveAccount)
-                        .font(.body)
-                        .foregroundColor(.textSecondary)
-                    
-                    Button(action: {
-                        appState.currentScreen = .login
-                    }) {
-                        Text(LocalizedStrings.Auth.logIn)
-                            .font(.label)
-                            .foregroundColor(.accentSkyBlue)
+                        }
+                        .frame(maxWidth: .infinity)
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.top, Spacing.xl)
             }
             .padding(.horizontal, Spacing.xl)
             .padding(.bottom, Spacing.xxxl)

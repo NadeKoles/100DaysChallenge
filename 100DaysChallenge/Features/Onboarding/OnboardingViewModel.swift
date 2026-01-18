@@ -23,19 +23,19 @@ class OnboardingViewModel: ObservableObject {
             iconName: "target",
             title: "Set Your Goal",
             description: "Choose a habit you want to build. Reading, exercise, meditation—anything that matters to you.",
-            color: .onboardingBlue
+            color: .onboardingSunsetOrange
         ),
         OnboardingSlide(
             iconName: "chart.line.uptrend.xyaxis",
             title: "Track Your Progress",
             description: "Mark each day you complete your challenge. Watch your progress grow over 100 days.",
-            color: .onboardingRed
+            color: .onboardingGreen
         ),
         OnboardingSlide(
             iconName: "sparkles",
             title: "Build Consistency",
             description: "Small steps every day lead to lasting change. Stay motivated with visual progress.",
-            color: .onboardingGreen
+            color: .onboardingBlue
         )
     ]
     

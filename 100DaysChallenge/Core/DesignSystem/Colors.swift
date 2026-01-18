@@ -23,7 +23,7 @@ extension Color {
     
     // MARK: - Onboarding Colors
     static let onboardingBlue = Color(hex: "#5C9FFF")
-    static let onboardingRed = Color(hex: "#FF6B6B")
+    static let onboardingSunsetOrange = Color(hex: "#FF9D5C")
     static let onboardingGreen = Color(hex: "#6BCF94")
     
     // MARK: - Gray Scale
@@ -94,6 +94,83 @@ extension Color {
     }
 }
 
+// MARK: - Color Preview Data Structures
+struct ColorPreviewItem: Identifiable {
+    let name: String
+    let color: Color
+    
+    var id: String { name }
+}
+
+struct GradientPreviewItem: Identifiable {
+    let name: String
+    let gradient: LinearGradient
+    
+    var id: String { name }
+}
+
+// MARK: - Shareable Color Constants for Preview
+enum ColorPreviewData {
+    // Accent Colors - automatically derived from ChallengeAccentColor.all
+    static var accentColors: [ColorPreviewItem] {
+        ChallengeAccentColor.all.map {
+            ColorPreviewItem(name: $0.name, color: $0.color)
+        }
+    }
+    
+    // Onboarding Colors - automatically references Color extension properties
+    static var onboardingColors: [ColorPreviewItem] {
+        [
+            ColorPreviewItem(name: "Blue", color: .onboardingBlue),
+            ColorPreviewItem(name: "Sunset Orange", color: .onboardingSunsetOrange),
+            ColorPreviewItem(name: "Green", color: .onboardingGreen)
+        ]
+    }
+    
+    // Gray Scale - automatically references Color extension properties
+    static var grayScaleColors: [ColorPreviewItem] {
+        [
+            ColorPreviewItem(name: "Gray 50", color: .gray50),
+            ColorPreviewItem(name: "Gray 100", color: .gray100),
+            ColorPreviewItem(name: "Gray 200", color: .gray200),
+            ColorPreviewItem(name: "Gray 400", color: .gray400),
+            ColorPreviewItem(name: "Gray 500", color: .gray500),
+            ColorPreviewItem(name: "Gray 600", color: .gray600),
+            ColorPreviewItem(name: "Gray 700", color: .gray700),
+            ColorPreviewItem(name: "Gray 900", color: .gray900)
+        ]
+    }
+    
+    // Semantic Colors - automatically references Color extension properties
+    static var semanticColors: [ColorPreviewItem] {
+        [
+            ColorPreviewItem(name: "Background", color: .background),
+            ColorPreviewItem(name: "Text Primary", color: .textPrimary),
+            ColorPreviewItem(name: "Text Secondary", color: .textSecondary),
+            ColorPreviewItem(name: "Text Tertiary", color: .textTertiary),
+            ColorPreviewItem(name: "Text Error", color: .textError),
+            ColorPreviewItem(name: "Border", color: .border),
+            ColorPreviewItem(name: "Input Background", color: .inputBackground)
+        ]
+    }
+    
+    // Tab Bar Colors - automatically references Color extension properties
+    static var tabBarColors: [ColorPreviewItem] {
+        [
+            ColorPreviewItem(name: "Active", color: .tabBarActive),
+            ColorPreviewItem(name: "Inactive", color: .tabBarInactive)
+        ]
+    }
+    
+    // Gradients - automatically references Color extension properties
+    static var gradients: [GradientPreviewItem] {
+        [
+            GradientPreviewItem(name: "Orange Pink", gradient: Color.gradientOrangePink),
+            GradientPreviewItem(name: "Splash", gradient: Color.gradientSplash)
+        ]
+    }
+}
+
 // MARK: - Challenge Accent Color Options
 struct ChallengeAccentColor {
     let name: String
@@ -113,3 +190,141 @@ struct ChallengeAccentColor {
     ]
 }
 
+// MARK: - Color Preview
+struct ColorPreviewView: View {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.xl) {
+                // Accent Colors
+                ColorSection(
+                    title: "Accent Colors",
+                    items: ColorPreviewData.accentColors
+                )
+                
+                // Onboarding Colors
+                ColorSection(
+                    title: "Onboarding Colors",
+                    items: ColorPreviewData.onboardingColors
+                )
+                
+                // Gray Scale
+                ColorSection(
+                    title: "Gray Scale",
+                    items: ColorPreviewData.grayScaleColors
+                )
+                
+                // Semantic Colors
+                ColorSection(
+                    title: "Semantic Colors",
+                    items: ColorPreviewData.semanticColors
+                )
+                
+                // Tab Bar Colors
+                ColorSection(
+                    title: "Tab Bar Colors",
+                    items: ColorPreviewData.tabBarColors
+                )
+                
+                // Gradients
+                GradientSection(
+                    title: "Gradients",
+                    items: ColorPreviewData.gradients
+                )
+            }
+            .padding(.vertical, Spacing.xl)
+        }
+        .background(Color.background)
+    }
+}
+
+struct ColorSection: View {
+    let title: String
+    let items: [ColorPreviewItem]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            Text(title)
+                .font(.heading2)
+                .foregroundColor(.textPrimary)
+            
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: Spacing.md) {
+                ForEach(items) { item in
+                    ColorSwatch(name: item.name, color: item.color)
+                }
+            }
+        }
+        .padding(.horizontal, Spacing.xl)
+    }
+}
+
+struct GradientSection: View {
+    let title: String
+    let items: [GradientPreviewItem]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            Text(title)
+                .font(.heading2)
+                .foregroundColor(.textPrimary)
+            
+            VStack(spacing: Spacing.md) {
+                ForEach(items) { item in
+                    GradientSwatch(name: item.name, gradient: item.gradient)
+                }
+            }
+        }
+        .padding(.horizontal, Spacing.xl)
+    }
+}
+
+struct ColorSwatch: View {
+    let name: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: Spacing.xs) {
+            RoundedRectangle(cornerRadius: CornerRadius.md)
+                .fill(color)
+                .frame(height: 80)
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.md)
+                        .stroke(Color.border, lineWidth: 1)
+                )
+            
+            Text(name)
+                .font(.caption)
+                .foregroundColor(.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+        }
+    }
+}
+
+struct GradientSwatch: View {
+    let name: String
+    let gradient: LinearGradient
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            Text(name)
+                .font(.body)
+                .foregroundColor(.textPrimary)
+            
+            RoundedRectangle(cornerRadius: CornerRadius.md)
+                .fill(gradient)
+                .frame(height: 60)
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.md)
+                        .stroke(Color.border, lineWidth: 1)
+                )
+        }
+    }
+}
+
+#Preview {
+    ColorPreviewView()
+}

@@ -103,48 +103,49 @@ struct LoginView: View {
                         .padding(.top, Spacing.xxs)
                     }
                     
-                    // Login button
-                    Button(action: {
-                        didSubmit = true
-                        guard authViewModel.validateLoginForm() else { return }
-                        authViewModel.signIn {
-                            appState.handleLoginComplete()
-                        }
-                    }) {
-                        Text(LocalizedStrings.Auth.logInButton)
-                            .font(.label)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(
-                                LinearGradient(
-                                    colors: [Color.gradientOrangePinkStart, Color.gradientOrangePinkEnd],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .cornerRadius(CornerRadius.xl)
-                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                    }
-                    .disabled(authViewModel.email.isEmpty || authViewModel.password.isEmpty || authViewModel.isLoading)
-                    .opacity(authViewModel.email.isEmpty || authViewModel.password.isEmpty || authViewModel.isLoading ? 0.5 : 1)
-                    
-                    // Sign up link
-                    HStack {
-                        Text(LocalizedStrings.Auth.dontHaveAccount)
-                            .font(.body)
-                            .foregroundColor(.textSecondary)
-                        
+                    VStack(spacing: Spacing.sm) {
+                        // Login button
                         Button(action: {
-                            appState.currentScreen = .signUp
+                            didSubmit = true
+                            guard authViewModel.validateLoginForm() else { return }
+                            authViewModel.signIn {
+                                appState.handleLoginComplete()
+                            }
                         }) {
-                            Text(LocalizedStrings.Auth.signUp)
+                            Text(LocalizedStrings.Auth.logInButton)
                                 .font(.label)
-                                .foregroundColor(.accentSkyBlue)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 56)
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color.gradientOrangePinkStart, Color.gradientOrangePinkEnd],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .cornerRadius(CornerRadius.xl)
+                                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
                         }
+                        .disabled(authViewModel.email.isEmpty || authViewModel.password.isEmpty || authViewModel.isLoading)
+                        .opacity(authViewModel.email.isEmpty || authViewModel.password.isEmpty || authViewModel.isLoading ? 0.5 : 1)
+                        
+                        // Sign up link
+                        HStack {
+                            Text(LocalizedStrings.Auth.dontHaveAccount)
+                                .font(.body)
+                                .foregroundColor(.textSecondary)
+                            
+                            Button(action: {
+                                appState.currentScreen = .signUp
+                            }) {
+                                Text(LocalizedStrings.Auth.signUp)
+                                    .font(.label)
+                                    .foregroundColor(.accentSkyBlue)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, -Spacing.md)
                 }
             }
             .padding(.horizontal, Spacing.xl)

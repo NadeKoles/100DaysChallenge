@@ -13,6 +13,11 @@ import SwiftUI
 
 @MainActor
 final class AuthViewModel: ObservableObject {
+    // MARK: - Feature Flags
+    // TODO: Enable Sign in with Apple after enrolling in Apple Developer Program
+    // Set to true once Apple Developer Program membership is active and Sign in with Apple is configured
+    static let isAppleSignInEnabled = false
+    
     @Published var email = ""
     @Published var password = ""
     @Published var name = ""             
@@ -118,11 +123,29 @@ final class AuthViewModel: ObservableObject {
         }
     }
 
-    // TODO: Wire Google Sign-In to UI (button on Login screen) and finalize UX/QA.
+    func signInWithApple(completion: @escaping () -> Void) {
+        // Show info message when Apple Sign In is not yet enabled
+        guard Self.isAppleSignInEnabled else {
+            infoMessage = LocalizedStrings.Auth.appleSignInComingSoon
+            return
+        }
+        
+        // TODO: Implement Apple Sign In after enrolling in Apple Developer Program
+        // This will require:
+        // 1. Enrolling in Apple Developer Program
+        // 2. Configuring Sign in with Apple capability in Xcode
+        // 3. Setting up Sign in with Apple in Firebase Console
+        // 4. Implementing ASAuthorizationControllerDelegate and ASAuthorizationControllerPresentationContextProviding
+        completion()
+    }
+
     func signInWithGoogle(completion: @escaping () -> Void) {
+        // Prevent multiple simultaneous sign-in attempts
+        guard !isLoading else { return }
+        
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             errorMessage = LocalizedStrings.Auth.missingFirebaseClientID
-            isLoading = false
+            formError = LocalizedStrings.Auth.missingFirebaseClientID
             return
         }
 
@@ -133,18 +156,22 @@ final class AuthViewModel: ObservableObject {
             let rootVC = windowScene.windows.first?.rootViewController
         else {
             errorMessage = LocalizedStrings.Auth.unableToAccessRootVC
-            isLoading = false
+            formError = LocalizedStrings.Auth.unableToAccessRootVC
             return
         }
 
         isLoading = true
+        errorMessage = nil
+        formError = nil
         GIDSignIn.sharedInstance.signIn(withPresenting: rootVC) { [weak self] result, error in
             Task { @MainActor in
                 guard let self = self else { return }
                 if let error = error {
                     self.isLoading = false
                     if (error as NSError).code != GIDSignInError.canceled.rawValue {
-                        self.errorMessage = error.localizedDescription
+                        let friendlyMessage = self.mapAuthError(error)
+                        self.errorMessage = friendlyMessage
+                        self.formError = friendlyMessage
                     }
                     return
                 }
@@ -155,6 +182,7 @@ final class AuthViewModel: ObservableObject {
                 else {
                     self.isLoading = false
                     self.errorMessage = LocalizedStrings.Auth.failedToGetGoogleToken
+                    self.formError = LocalizedStrings.Auth.failedToGetGoogleToken
                     return
                 }
 
@@ -168,9 +196,12 @@ final class AuthViewModel: ObservableObject {
                         guard let self = self else { return }
                         self.isLoading = false
                         if let error = error {
-                            self.errorMessage = self.mapAuthError(error)
+                            let friendlyMessage = self.mapAuthError(error)
+                            self.errorMessage = friendlyMessage
+                            self.formError = friendlyMessage
                         } else {
                             self.errorMessage = nil
+                            self.formError = nil
                             completion()
                         }
                     }

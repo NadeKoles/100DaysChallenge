@@ -65,13 +65,24 @@ struct ProgressBarView: View {
         .onChange(of: progress) { newProgress in
             animationTask?.cancel()
             
+            let previousProgress = displayedProgress
+            let isIncreasing = newProgress > previousProgress
+            
             animationTask = Task {
                 try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
                 
                 guard !Task.isCancelled else { return }
                 
-                // Phase 1: Overshoot to 1.01x target
-                let overshootValue = min(newProgress * 1.01, 1.0)
+                // Phase 1: Overshoot in the direction of change
+                let overshootValue: Double
+                if isIncreasing {
+                    // Overshoot above target when increasing
+                    overshootValue = min(newProgress * 1.01, 1.0)
+                } else {
+                    // Overshoot below target when decreasing
+                    overshootValue = max(newProgress * 0.99, 0.0)
+                }
+                
                 await MainActor.run {
                     withAnimation(.easeInOut(duration: duration * 0.4)) {
                         displayedProgress = overshootValue

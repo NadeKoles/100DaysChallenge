@@ -60,8 +60,8 @@ struct ProgressView: View {
         } message: {
             if selectedDay != nil {
                 Text(isUnmarking 
-                    ? "This will remove it from your completed days."
-                    : "Great work!")
+                    ? "Remove this day from your completed list?"
+                    : "Great work! Keep the streak going.")
             }
         }
         .onAppear {
@@ -126,7 +126,7 @@ struct ChallengeProgressView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: Spacing.xl) {
-                        // Challenge indicator dots (leading-aligned, scrollable)
+                        // Challenge indicator dots 
                         HStack(spacing: Spacing.sm) {
                             ForEach(0..<challenges.count, id: \.self) { index in
                                 RoundedRectangle(cornerRadius: 2)

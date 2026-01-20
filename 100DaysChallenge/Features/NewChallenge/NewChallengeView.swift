@@ -15,11 +15,11 @@ struct NewChallengeView: View {
     
     private static let suggestedTags = [
         "Daily Reading",
-        "Morning Workout",
         "Meditation",
-        "Healthy Eating",
-        "Journaling",
         "10k Steps",
+        "Morning Workout",
+        "Journaling",
+        "Healthy Eating",
         "Learn English"
     ]
     
@@ -62,42 +62,35 @@ struct NewChallengeView: View {
                     }
                     
                     // Quick ideas
-                    VStack(alignment: .leading, spacing: Spacing.sm) {
+                    VStack(alignment: .leading, spacing: Spacing.md) {
                         Text("Quick ideas")
                             .font(.labelSmall)
                             .foregroundColor(.textSecondary)
                         
-                        VStack(alignment: .leading, spacing: Spacing.xs) {
-                            HStack(spacing: Spacing.sm) {
-                                ForEach(Array(Self.suggestedTags.prefix(4).enumerated()), id: \.offset) { _, tag in
-                                    Button(action: {
-                                        withAnimation(.easeInOut(duration: 0.15)) {
-                                            viewModel.title = tag
-                                        }
-                                    }) {
-                                        Text(tag)
-                                            .font(.labelSmall)
-                                            .foregroundColor(.accentSkyBlue)
-                                            .padding(.vertical, Spacing.xs)
+                        FlowLayout(horizontalSpacing: Spacing.sm, verticalSpacing: Spacing.sm) {
+                            ForEach(Self.suggestedTags, id: \.self) { tag in
+                                Button(action: {
+                                    withAnimation(.easeInOut(duration: 0.15)) {
+                                        viewModel.title = tag
                                     }
-                                    .accessibilityLabel("Quick idea: \(tag)")
+                                }) {
+                                    Text(tag)
+                                        .font(.labelSmall)
+                                        .foregroundColor(.textSecondary)
+                                        .lineLimit(1)
+                                        .fixedSize(horizontal: true, vertical: false)
+                                        .truncationMode(.tail)
+                                        .padding(.horizontal, Spacing.md)
+                                        .padding(.vertical, Spacing.sm)
+                                        .background(Color.clear)
+                                        .cornerRadius(CornerRadius.lg)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: CornerRadius.lg)
+                                                .stroke(Color.border, lineWidth: 1)
+                                        )
                                 }
-                            }
-                            
-                            HStack(spacing: Spacing.sm) {
-                                ForEach(Array(Self.suggestedTags.suffix(3).enumerated()), id: \.offset) { _, tag in
-                                    Button(action: {
-                                        withAnimation(.easeInOut(duration: 0.15)) {
-                                            viewModel.title = tag
-                                        }
-                                    }) {
-                                        Text(tag)
-                                            .font(.labelSmall)
-                                            .foregroundColor(.accentSkyBlue)
-                                            .padding(.vertical, Spacing.xs)
-                                    }
-                                    .accessibilityLabel("Quick idea: \(tag)")
-                                }
+                                .buttonStyle(ChipButtonStyle())
+                                .accessibilityLabel("Quick idea: \(tag)")
                             }
                         }
                     }
@@ -228,5 +221,19 @@ struct TipRow: View {
                 .foregroundColor(.textSecondary)
         }
     }
+}
+
+private struct ChipButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+#Preview {
+    NewChallengeView()
+        .environmentObject(ChallengeStore.shared)
+        .environmentObject(AppState())
 }
 

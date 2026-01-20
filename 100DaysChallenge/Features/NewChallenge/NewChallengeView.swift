@@ -17,20 +17,12 @@ struct NewChallengeView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.xl) {
-                    VStack(alignment: .leading, spacing: Spacing.sm) {
-                        Text(LocalizedStrings.NewChallenge.subtitle)
-                            .font(.body)
-                            .foregroundColor(.textSecondary)
-                    }
-                    .padding(.bottom, Spacing.xl)
-                
-                VStack(spacing: Spacing.xxxl) {
                     // Title input
                     VStack(alignment: .leading, spacing: Spacing.md) {
                         Text(LocalizedStrings.NewChallenge.whatDoYouWantToAchieve.uppercased())
                             .sectionHeaderStyle()
                         
-                        TextField(LocalizedStrings.NewChallenge.titlePlaceholder, text: $viewModel.title)
+                        TextField(LocalizedStrings.NewChallenge.placeholder, text: $viewModel.title)
                             .textFieldStyle(.plain)
                             .font(.body)
                             .padding(Spacing.lg)
@@ -40,10 +32,6 @@ struct NewChallengeView: View {
                                 RoundedRectangle(cornerRadius: CornerRadius.xl)
                                     .stroke(Color.border, lineWidth: 1)
                             )
-                        
-                        Text(LocalizedStrings.NewChallenge.helperText)
-                            .font(.caption)
-                            .foregroundColor(.textTertiary)
                     }
                     
                     // Quick ideas
@@ -123,9 +111,8 @@ struct NewChallengeView: View {
                     .background(Color.gradientTipsCard)
                     .cornerRadius(CornerRadius.xxl)
                 }
-            }
-            .padding(.horizontal, Spacing.xl)
-            .padding(.bottom, Spacing.xxxl)
+                .padding(.horizontal, Spacing.xl)
+                .padding(.bottom, Spacing.xxxl)
             }
             .background(Color.background)
             .navigationTitle(LocalizedStrings.NewChallenge.title)

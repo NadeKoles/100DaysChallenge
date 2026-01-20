@@ -105,10 +105,8 @@ enum LocalizedStrings {
     // MARK: - New Challenge
     enum NewChallenge {
         static let title = NSLocalizedString("newChallenge.title", value: "New Challenge", comment: "New challenge screen title")
-        static let subtitle = NSLocalizedString("newChallenge.subtitle", value: "Start a new 100-days habit journey", comment: "New challenge screen subtitle")
         static let whatDoYouWantToAchieve = NSLocalizedString("newChallenge.whatDoYouWantToAchieve", value: "What do you want to achieve?", comment: "Title input label")
-        static let titlePlaceholder = NSLocalizedString("newChallenge.titlePlaceholder", value: "e.g. Daily Reading, Morning Yoga", comment: "Title input placeholder")
-        static let helperText = NSLocalizedString("newChallenge.helperText", value: "Choose something meaningful you want to do every day", comment: "Title input helper text")
+        static let placeholder = NSLocalizedString("newChallenge.placeholder", value: "Enter a habit to practice every day", comment: "Title input placeholder")
         static let quickIdeas = NSLocalizedString("newChallenge.quickIdeas", value: "Quick ideas", comment: "Quick ideas section title")
         static let pickAColor = NSLocalizedString("newChallenge.pickAColor", value: "Pick a color", comment: "Color picker section title")
         static let startChallenge = NSLocalizedString("newChallenge.startChallenge", value: "Start Challenge", comment: "Start challenge button")

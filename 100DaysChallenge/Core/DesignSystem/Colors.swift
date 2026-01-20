@@ -18,8 +18,9 @@ extension Color {
     static let accentSkyBlue = Color(hex: "#5C9FFF")
     static let accentRoyalPurple = Color(hex: "#9B6BFF")
     static let accentMagenta = Color(hex: "#FF6BB5")
-    static let accentWarmBrown = Color(hex: "#C17E5D")
-    static let accentGold = Color(hex: "#E6A23C")
+    static let accentSoftLavender = Color(hex: "#C7B7FF")
+    static let accentWarmBrown = Color(hex: "#76574A")
+    static let accentDeepNavy = Color(hex: "#1F2A44")
     
     // MARK: - Onboarding Colors
     static let onboardingBlue = Color(hex: "#5C9FFF")
@@ -189,10 +190,11 @@ struct ChallengeAccentColor {
         ChallengeAccentColor(name: "Fresh Green", color: .accentFreshGreen),
         ChallengeAccentColor(name: "Ocean Teal", color: .accentOceanTeal),
         ChallengeAccentColor(name: "Sky Blue", color: .accentSkyBlue),
+        ChallengeAccentColor(name: "Soft Lavender", color: .accentSoftLavender),
         ChallengeAccentColor(name: "Royal Purple", color: .accentRoyalPurple),
         ChallengeAccentColor(name: "Magenta", color: .accentMagenta),
         ChallengeAccentColor(name: "Warm Brown", color: .accentWarmBrown),
-        ChallengeAccentColor(name: "Gold", color: .accentGold)
+        ChallengeAccentColor(name: "Deep Navy", color: .accentDeepNavy)
     ]
 }
 

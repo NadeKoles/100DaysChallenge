@@ -83,6 +83,7 @@ struct NewChallengeView: View {
                             
                             if challengeStore.addChallenge(challenge) {
                                 viewModel.reset()
+                                appState.selectedChallengeId = challenge.id
                                 appState.currentTab = .progress
                             }
                         }

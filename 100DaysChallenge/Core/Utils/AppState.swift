@@ -26,6 +26,7 @@ enum MainTab {
 class AppState: ObservableObject {
     @Published var currentScreen: AppScreen = .splash
     @Published var currentTab: MainTab = .progress
+    @Published var selectedChallengeId: String? = nil
     @Published var hasCompletedOnboarding: Bool {
         didSet {
             UserDefaults.standard.set(hasCompletedOnboarding, forKey: "hasCompletedOnboarding")

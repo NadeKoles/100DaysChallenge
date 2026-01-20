@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProgressView: View {
     @EnvironmentObject var challengeStore: ChallengeStore
+    @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = ProgressViewModel()
     @State private var showingConfirmModal = false
     @State private var selectedDay: Int? = nil
@@ -66,12 +67,17 @@ struct ProgressView: View {
         }
         .onAppear {
             updateCurrentChallengeId()
+            navigateToSelectedChallenge()
         }
         .onChange(of: viewModel.currentIndex) { _ in
             updateCurrentChallengeId()
         }
         .onChange(of: challengeStore.challenges) { _ in
             updateCurrentChallengeId()
+            navigateToSelectedChallenge()
+        }
+        .onChange(of: appState.selectedChallengeId) { _ in
+            navigateToSelectedChallenge()
         }
     }
     
@@ -79,6 +85,23 @@ struct ProgressView: View {
         if viewModel.currentIndex < challengeStore.challenges.count {
             viewModel.currentChallengeId = challengeStore.challenges[viewModel.currentIndex].id
         }
+    }
+    
+    private func navigateToSelectedChallenge() {
+        guard let selectedId = appState.selectedChallengeId,
+              let index = challengeStore.challenges.firstIndex(where: { $0.id == selectedId }) else {
+            return
+        }
+        
+        // Navigate to the selected challenge
+        if index != viewModel.currentIndex {
+            withAnimation {
+                viewModel.currentIndex = index
+            }
+        }
+        
+        // Clear the selected challenge ID after navigating
+        appState.selectedChallengeId = nil
     }
 }
 

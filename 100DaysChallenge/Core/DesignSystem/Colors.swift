@@ -11,7 +11,7 @@ extension Color {
     // MARK: - Accent Colors (Challenge-specific)
     // Warm, visually distinct palette for challenge selection
     static let accentCoralRed    = Color(hex: "#F56B6B")
-    static let accentSunsetOrange = Color(hex: "#FA9A4A")
+    static let accentSunsetOrange = Color(hex: "#FB9A45")
     static let accentFreshGreen = Color(hex: "#6BCF94")
     static let accentOceanTeal = Color(hex: "#4ECDC4")
     static let accentSkyBlue = Color(hex: "#5C9FFF")
@@ -19,7 +19,7 @@ extension Color {
     static let accentMagenta = Color(hex: "#EE7FB3")
     static let accentSoftLavender = Color(hex: "#C7B7FF")
     static let accentDarkBrown = Color(hex: "#76574A")
-    static let accentDeepNavy = Color(hex: "#1F2A44")
+    static let accentDeepNavy = Color(hex: "#24304D")
     
     // MARK: - Onboarding Colors
     static let onboardingBlue = Color(hex: "#5C9FFF")

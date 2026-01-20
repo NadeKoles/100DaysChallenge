@@ -98,9 +98,7 @@ struct SettingsSection<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             Text(title)
-                .font(.labelTiny)
-                .foregroundColor(.textTertiary)
-                .tracking(1)
+                .sectionHeaderStyle()
             
             VStack(spacing: 0) {
                 content

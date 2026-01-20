@@ -32,6 +32,21 @@ extension View {
             resetPrompt: resetPrompt
         ))
     }
+    
+    // MARK: - Section Header Style
+    func sectionHeaderStyle() -> some View {
+        self.modifier(SectionHeaderStyleModifier())
+    }
+}
+
+// MARK: - Section Header Style Modifier
+private struct SectionHeaderStyleModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.labelTiny)
+            .foregroundColor(.textTertiary)
+            .tracking(1)
+    }
 }
 
 // MARK: - Auth Alerts Modifier

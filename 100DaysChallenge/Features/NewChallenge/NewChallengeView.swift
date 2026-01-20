@@ -31,9 +31,8 @@ struct NewChallengeView: View {
                 VStack(spacing: Spacing.xxxl) {
                     // Title input
                     VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text(LocalizedStrings.NewChallenge.whatDoYouWantToAchieve)
-                            .font(.labelSmall)
-                            .foregroundColor(.textSecondary)
+                        Text(LocalizedStrings.NewChallenge.whatDoYouWantToAchieve.uppercased())
+                            .sectionHeaderStyle()
                         
                         TextField(LocalizedStrings.NewChallenge.titlePlaceholder, text: $viewModel.title)
                             .textFieldStyle(.plain)
@@ -53,9 +52,8 @@ struct NewChallengeView: View {
                     
                     // Quick ideas
                     VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text(LocalizedStrings.NewChallenge.quickIdeas)
-                            .font(.labelSmall)
-                            .foregroundColor(.textSecondary)
+                        Text(LocalizedStrings.NewChallenge.quickIdeas.uppercased())
+                            .sectionHeaderStyle()
                         
                         FlowLayout(horizontalSpacing: Spacing.sm, verticalSpacing: Spacing.sm) {
                             ForEach(LocalizedStrings.NewChallenge.Tags.all, id: \.self) { tag in
@@ -70,9 +68,8 @@ struct NewChallengeView: View {
                     
                     // Color picker
                     VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text(LocalizedStrings.NewChallenge.pickAColor)
-                            .font(.labelSmall)
-                            .foregroundColor(.textSecondary)
+                        Text(LocalizedStrings.NewChallenge.pickAColor.uppercased())
+                            .sectionHeaderStyle()
                         
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Spacing.md), count: 4), spacing: Spacing.md) {
                             ForEach(ChallengeAccentColor.all, id: \.name) { colorOption in

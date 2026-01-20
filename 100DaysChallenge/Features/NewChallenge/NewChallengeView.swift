@@ -14,19 +14,16 @@ struct NewChallengeView: View {
     @State private var showingMaxChallengesAlert = false
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.xl) {
-                VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Text(LocalizedStrings.NewChallenge.title)
-                        .font(.heading1)
-                        .foregroundColor(.textPrimary)
-                    
-                    Text(LocalizedStrings.NewChallenge.subtitle)
-                        .font(.body)
-                        .foregroundColor(.textSecondary)
-                }
-                .padding(.top, Spacing.xxxl)
-                .padding(.bottom, Spacing.xl)
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: Spacing.xl) {
+                    VStack(alignment: .leading, spacing: Spacing.sm) {
+                        Text(LocalizedStrings.NewChallenge.subtitle)
+                            .font(.body)
+                            .foregroundColor(.textSecondary)
+                    }
+                    .padding(.top, Spacing.xl)
+                    .padding(.bottom, Spacing.xl)
                 
                 VStack(spacing: Spacing.xxxl) {
                     // Title input
@@ -130,8 +127,11 @@ struct NewChallengeView: View {
             }
             .padding(.horizontal, Spacing.xl)
             .padding(.bottom, Spacing.xxxl)
+            }
+            .background(Color.background)
+            .navigationTitle(LocalizedStrings.NewChallenge.title)
+            .navigationBarTitleDisplayMode(.large)
         }
-        .background(Color.background)
         .alert(LocalizedStrings.NewChallenge.maxChallengesReached, isPresented: $showingMaxChallengesAlert) {
             Button(LocalizedStrings.NewChallenge.ok, role: .cancel) { }
         } message: {

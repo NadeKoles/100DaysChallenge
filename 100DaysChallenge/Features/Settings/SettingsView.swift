@@ -14,13 +14,9 @@ struct SettingsView: View {
     @State private var challengeToDelete: Challenge? = nil
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.xl) {
-                Text("Settings")
-                    .font(.heading1)
-                    .foregroundColor(.textPrimary)
-                    .padding(.top, Spacing.xxxl)
-                    .padding(.bottom, Spacing.xl)
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: Spacing.xl) {
                 
                 // Account section
                 SettingsSection(title: "ACCOUNT") {
@@ -68,8 +64,11 @@ struct SettingsView: View {
             }
             .padding(.horizontal, Spacing.xl)
             .padding(.bottom, Spacing.xxxl)
+            }
+            .background(Color.background)
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.large)
         }
-        .background(Color.background)
         .alert("Delete Challenge?", isPresented: Binding(
             get: { challengeToDelete != nil },
             set: { if !$0 { challengeToDelete = nil } }

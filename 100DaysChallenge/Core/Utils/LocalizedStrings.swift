@@ -101,4 +101,56 @@ enum LocalizedStrings {
             String(format: unmarkDayTitle, day)
         }
     }
+    
+    // MARK: - New Challenge
+    enum NewChallenge {
+        static let title = NSLocalizedString("newChallenge.title", value: "New Challenge", comment: "New challenge screen title")
+        static let subtitle = NSLocalizedString("newChallenge.subtitle", value: "Start a new 100-day habit journey", comment: "New challenge screen subtitle")
+        static let whatDoYouWantToAchieve = NSLocalizedString("newChallenge.whatDoYouWantToAchieve", value: "What do you want to achieve?", comment: "Title input label")
+        static let titlePlaceholder = NSLocalizedString("newChallenge.titlePlaceholder", value: "e.g. Daily Reading, Morning Yoga", comment: "Title input placeholder")
+        static let helperText = NSLocalizedString("newChallenge.helperText", value: "Choose something meaningful you want to do every day", comment: "Title input helper text")
+        static let quickIdeas = NSLocalizedString("newChallenge.quickIdeas", value: "Quick ideas", comment: "Quick ideas section title")
+        static let pickAColor = NSLocalizedString("newChallenge.pickAColor", value: "Pick a color", comment: "Color picker section title")
+        static let startChallenge = NSLocalizedString("newChallenge.startChallenge", value: "Start Challenge", comment: "Start challenge button")
+        static let tipsForSuccess = NSLocalizedString("newChallenge.tipsForSuccess", value: "💡 Tips for Success", comment: "Tips section title")
+        static let tipRealisticHabit = NSLocalizedString("newChallenge.tipRealisticHabit", value: "Choose a realistic daily habit", comment: "Tip text")
+        static let tipBeSpecific = NSLocalizedString("newChallenge.tipBeSpecific", value: "Be specific about what counts as \"done\"", comment: "Tip text")
+        static let tipPickTime = NSLocalizedString("newChallenge.tipPickTime", value: "Pick a time of day that works best", comment: "Tip text")
+        static let tipMaxChallenges = NSLocalizedString("newChallenge.tipMaxChallenges", value: "You can run up to 3 challenges at once", comment: "Tip text")
+        static let maxChallengesReached = NSLocalizedString("newChallenge.maxChallengesReached", value: "Maximum Challenges Reached", comment: "Alert title")
+        static let maxChallengesMessage = NSLocalizedString("newChallenge.maxChallengesMessage", value: "You can have up to 3 active challenges at once. Please complete or delete an existing challenge first.", comment: "Alert message")
+        static let ok = NSLocalizedString("newChallenge.ok", value: "OK", comment: "OK button")
+        static let quickIdeaAccessibility = NSLocalizedString("newChallenge.quickIdeaAccessibility", value: "Quick idea: %@", comment: "Accessibility label for quick idea tag")
+        
+        // Tags
+        enum Tags {
+            static let dailyReading = NSLocalizedString("newChallenge.tags.dailyReading", value: "Daily Reading", comment: "Suggested tag")
+            static let meditation = NSLocalizedString("newChallenge.tags.meditation", value: "Meditation", comment: "Suggested tag")
+            static let tenKSteps = NSLocalizedString("newChallenge.tags.tenKSteps", value: "10k Steps", comment: "Suggested tag")
+            static let morningWorkout = NSLocalizedString("newChallenge.tags.morningWorkout", value: "Morning Workout", comment: "Suggested tag")
+            static let journaling = NSLocalizedString("newChallenge.tags.journaling", value: "Journaling", comment: "Suggested tag")
+            static let yoga = NSLocalizedString("newChallenge.tags.yoga", value: "Yoga", comment: "Suggested tag")
+            static let wholeFoods = NSLocalizedString("newChallenge.tags.wholeFoods", value: "Whole Foods", comment: "Suggested tag")
+            static let coding = NSLocalizedString("newChallenge.tags.coding", value: "Coding", comment: "Suggested tag")
+            static let learnEnglish = NSLocalizedString("newChallenge.tags.learnEnglish", value: "Learn English", comment: "Suggested tag")
+            
+            static var all: [String] {
+                [
+                    dailyReading,
+                    meditation,
+                    tenKSteps,
+                    morningWorkout,
+                    journaling,
+                    yoga,
+                    wholeFoods,
+                    coding,
+                    learnEnglish
+                ]
+            }
+        }
+        
+        static func quickIdeaAccessibilityLabel(_ tag: String) -> String {
+            String(format: quickIdeaAccessibility, tag)
+        }
+    }
 }

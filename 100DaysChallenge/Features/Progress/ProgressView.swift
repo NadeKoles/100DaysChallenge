@@ -207,23 +207,14 @@ struct ChallengeProgressView: View {
                 
                 // Sticky button at bottom
                 if shouldShowButton {
-                    Button(action: {
-                        onCompleteToday(currentChallenge.id, currentChallenge.currentDay)
-                    }) {
-                        HStack(spacing: Spacing.sm) {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 20, weight: .semibold))
-                            
-                            Text(LocalizedStrings.Progress.markDayCompleteFormatted(currentChallenge.currentDay))
-                                .font(.label)
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(Color(hex: currentChallenge.accentColor))
-                        .cornerRadius(CornerRadius.xl)
-                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                    }
+                    PrimaryButton(
+                        title: LocalizedStrings.Progress.markDayCompleteFormatted(currentChallenge.currentDay),
+                        action: {
+                            onCompleteToday(currentChallenge.id, currentChallenge.currentDay)
+                        },
+                        iconSystemNameLeft: "checkmark",
+                        style: .solid(Color(hex: currentChallenge.accentColor))
+                    )
                     .padding(.horizontal, Spacing.xl)
                     .padding(.vertical, Spacing.md)
                     .background(Color.background)

@@ -44,31 +44,21 @@ struct OnboardingView: View {
                 Spacer()
                 
                 // Bottom button
-                Button(action: {
-                    if viewModel.currentSlide < viewModel.slides.count - 1 {
-                        withAnimation {
-                            viewModel.currentSlide += 1
+                PrimaryButton(
+                    title: viewModel.currentSlide < viewModel.slides.count - 1 ? 
+                           "Continue" : "Get Started",
+                    action: {
+                        if viewModel.currentSlide < viewModel.slides.count - 1 {
+                            withAnimation {
+                                viewModel.currentSlide += 1
+                            }
+                        } else {
+                            appState.handleOnboardingComplete()
                         }
-                    } else {
-                        appState.handleOnboardingComplete()
-                    }
-                }) {
-                    HStack(spacing: Spacing.sm) {
-                        Text(viewModel.currentSlide < viewModel.slides.count - 1 ? 
-                             "Continue" : "Get Started")
-                            .font(.label)
-                            .foregroundColor(.white)
-                        
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(viewModel.slides[viewModel.currentSlide].color)
-                    .cornerRadius(CornerRadius.xl)
-                    .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                }
+                    },
+                    iconSystemNameRight: "chevron.right",
+                    style: .solid(viewModel.slides[viewModel.currentSlide].color)
+                )
                 .padding(.horizontal, Spacing.xl)
                 .padding(.bottom, Spacing.xl)
             }

@@ -38,14 +38,16 @@ struct ProgressView: View {
             }
         }
         .alert(
-            isUnmarking ? "Unmark Day \(selectedDay ?? 0)?" : "Complete Day \(selectedDay ?? 0)?",
+            isUnmarking 
+                ? LocalizedStrings.Progress.unmarkDayTitleFormatted(selectedDay ?? 0)
+                : LocalizedStrings.Progress.completeDayTitleFormatted(selectedDay ?? 0),
             isPresented: $showingConfirmModal
         ) {
-            Button("Cancel", role: .cancel) {
+            Button(LocalizedStrings.Progress.cancel, role: .cancel) {
                 selectedDay = nil
                 isUnmarking = false
             }
-            Button(isUnmarking ? "Unmark" : "Complete") {
+            Button(isUnmarking ? LocalizedStrings.Progress.unmark : LocalizedStrings.Progress.complete) {
                 if let day = selectedDay,
                    !viewModel.currentChallengeId.isEmpty,
                    let challenge = challengeStore.challenges.first(where: { $0.id == viewModel.currentChallengeId }) {
@@ -61,8 +63,8 @@ struct ProgressView: View {
         } message: {
             if selectedDay != nil {
                 Text(isUnmarking 
-                    ? "Remove this day from your completed list?"
-                    : "Great work! Keep the streak going.")
+                    ? LocalizedStrings.Progress.unmarkDayMessage
+                    : LocalizedStrings.Progress.completeDayMessage)
             }
         }
         .onAppear {
@@ -119,11 +121,11 @@ struct EmptyChallengesView: View {
             }
             
             VStack(spacing: Spacing.sm) {
-                Text("No Challenges Yet")
+                Text(LocalizedStrings.Progress.noChallengesYet)
                     .font(.heading2)
                     .foregroundColor(.textPrimary)
                 
-                Text("Start your first 100-day challenge to build a lasting habit")
+                Text(LocalizedStrings.Progress.noChallengesDescription)
                     .font(.body)
                     .foregroundColor(.textSecondary)
                     .multilineTextAlignment(.center)
@@ -175,7 +177,7 @@ struct ChallengeProgressView: View {
                                     .foregroundColor(.textTertiary)
                             }
                             
-                            Text("days completed")
+                            Text(LocalizedStrings.Progress.daysCompleted)
                                 .font(.body)
                                 .foregroundColor(.textSecondary)
                         }
@@ -205,23 +207,14 @@ struct ChallengeProgressView: View {
                 
                 // Sticky button at bottom
                 if shouldShowButton {
-                    Button(action: {
-                        onCompleteToday(currentChallenge.id, currentChallenge.currentDay)
-                    }) {
-                        HStack(spacing: Spacing.sm) {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 20, weight: .semibold))
-                            
-                            Text("Mark Day \(currentChallenge.currentDay) Complete")
-                                .font(.label)
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(Color(hex: currentChallenge.accentColor))
-                        .cornerRadius(CornerRadius.xl)
-                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                    }
+                    PrimaryButton(
+                        title: LocalizedStrings.Progress.markDayCompleteFormatted(currentChallenge.currentDay),
+                        action: {
+                            onCompleteToday(currentChallenge.id, currentChallenge.currentDay)
+                        },
+                        iconSystemNameLeft: "checkmark",
+                        style: .solid(Color(hex: currentChallenge.accentColor))
+                    )
                     .padding(.horizontal, Spacing.xl)
                     .padding(.vertical, Spacing.md)
                     .background(Color.background)

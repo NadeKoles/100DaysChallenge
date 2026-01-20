@@ -71,39 +71,29 @@ struct NewChallengeView: View {
                     }
                     
                     // Start challenge button
-                    Button(action: {
-                        if challengeStore.challenges.count >= 3 {
-                            showingMaxChallengesAlert = true
-                        } else {
-                            let challenge = Challenge(
-                                title: viewModel.title.trimmingCharacters(in: .whitespaces),
-                                accentColor: viewModel.selectedColorHex,
-                                startDate: Date()
-                            )
-                            
-                            if challengeStore.addChallenge(challenge) {
-                                viewModel.reset()
-                                appState.selectedChallengeId = challenge.id
-                                appState.currentTab = .progress
+                    PrimaryButton(
+                        title: "Start Challenge",
+                        action: {
+                            if challengeStore.challenges.count >= 3 {
+                                showingMaxChallengesAlert = true
+                            } else {
+                                let challenge = Challenge(
+                                    title: viewModel.title.trimmingCharacters(in: .whitespaces),
+                                    accentColor: viewModel.selectedColorHex,
+                                    startDate: Date()
+                                )
+                                
+                                if challengeStore.addChallenge(challenge) {
+                                    viewModel.reset()
+                                    appState.selectedChallengeId = challenge.id
+                                    appState.currentTab = .progress
+                                }
                             }
-                        }
-                    }) {
-                        HStack(spacing: Spacing.sm) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 20, weight: .semibold))
-                            
-                            Text("Start Challenge")
-                                .font(.label)
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(viewModel.selectedColor)
-                        .cornerRadius(CornerRadius.xl)
-                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                    }
-                    .disabled(!viewModel.isValid)
-                    .opacity(viewModel.isValid ? 1 : 0.5)
+                        },
+                        iconSystemNameLeft: "plus",
+                        style: .solid(viewModel.selectedColor),
+                        isEnabled: viewModel.isValid
+                    )
                     
                     // Tips card
                     VStack(alignment: .leading, spacing: Spacing.md) {

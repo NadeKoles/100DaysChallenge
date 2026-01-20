@@ -49,22 +49,14 @@ struct SettingsView: View {
                 }
                 
                 // Logout button
-                Button(action: {
-                    appState.handleLogout()
-                }) {
-                    HStack(spacing: Spacing.sm) {
-                        Image(systemName: "arrow.right.square")
-                            .font(.system(size: 20, weight: .medium))
-                        
-                        Text("Log Out")
-                            .font(.label)
-                    }
-                    .foregroundColor(.textSecondary)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(Color.gray100)
-                    .cornerRadius(CornerRadius.xl)
-                }
+                PrimaryButton(
+                    title: "Log Out",
+                    action: {
+                        appState.handleLogout()
+                    },
+                    iconSystemNameLeft: "arrow.right.square",
+                    style: .secondary
+                )
                 .padding(.top, Spacing.xl)
                 
                 // Version

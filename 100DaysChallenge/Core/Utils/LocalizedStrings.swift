@@ -74,4 +74,31 @@ enum LocalizedStrings {
         static let errorTitle = NSLocalizedString("auth.errorTitle", value: "Error", comment: "Error alert title")
         static let infoTitle = NSLocalizedString("auth.infoTitle", value: "Info", comment: "Info alert title")
     }
+    
+    // MARK: - Progress
+    enum Progress {
+        static let noChallengesYet = NSLocalizedString("progress.noChallengesYet", value: "No Challenges Yet", comment: "Empty state title")
+        static let noChallengesDescription = NSLocalizedString("progress.noChallengesDescription", value: "Start your first 100-day challenge to build a lasting habit", comment: "Empty state description")
+        static let daysCompleted = NSLocalizedString("progress.daysCompleted", value: "days completed", comment: "Days completed label")
+        static let markDayComplete = NSLocalizedString("progress.markDayComplete", value: "Mark Day %d Complete", comment: "Mark day complete button")
+        static let completeDayTitle = NSLocalizedString("progress.completeDayTitle", value: "Complete Day %d?", comment: "Complete day alert title")
+        static let unmarkDayTitle = NSLocalizedString("progress.unmarkDayTitle", value: "Unmark Day %d?", comment: "Unmark day alert title")
+        static let completeDayMessage = NSLocalizedString("progress.completeDayMessage", value: "Great work! Keep the streak going.", comment: "Complete day alert message")
+        static let unmarkDayMessage = NSLocalizedString("progress.unmarkDayMessage", value: "Remove this day from your completed list?", comment: "Unmark day alert message")
+        static let complete = NSLocalizedString("progress.complete", value: "Complete", comment: "Complete button")
+        static let unmark = NSLocalizedString("progress.unmark", value: "Unmark", comment: "Unmark button")
+        static let cancel = NSLocalizedString("progress.cancel", value: "Cancel", comment: "Cancel button")
+        
+        static func markDayCompleteFormatted(_ day: Int) -> String {
+            String(format: markDayComplete, day)
+        }
+        
+        static func completeDayTitleFormatted(_ day: Int) -> String {
+            String(format: completeDayTitle, day)
+        }
+        
+        static func unmarkDayTitleFormatted(_ day: Int) -> String {
+            String(format: unmarkDayTitle, day)
+        }
+    }
 }

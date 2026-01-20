@@ -19,7 +19,9 @@ struct NewChallengeView: View {
         "10k Steps",
         "Morning Workout",
         "Journaling",
-        "Healthy Eating",
+        "Yoga",
+        "Whole Foods",
+        "Coding",
         "Learn English"
     ]
     

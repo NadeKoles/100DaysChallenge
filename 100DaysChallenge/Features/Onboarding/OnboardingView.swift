@@ -101,6 +101,11 @@ struct OnboardingSlideView: View {
 }
 
 #Preview {
-    OnboardingView()
-        .environmentObject(AppState())
+    Group {
+        SplashView()
+            .environmentObject(AppState())
+        
+        OnboardingView()
+            .environmentObject(AppState())
+    }
 }

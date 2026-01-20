@@ -22,10 +22,11 @@ class NewChallengeViewModel: ObservableObject {
             .accentFreshGreen: "#6BCF94",
             .accentOceanTeal: "#4ECDC4",
             .accentSkyBlue: "#5C9FFF",
+            .accentSoftLavender: "#C7B7FF",
             .accentRoyalPurple: "#9B6BFF",
             .accentMagenta: "#FF6BB5",
-            .accentWarmBrown: "#C17E5D",
-            .accentGold: "#E6A23C"
+            .accentWarmBrown: "#76574A",
+            .accentDeepNavy: "#1F2A44"
         ]
         return colorMap[selectedColor] ?? "#FF6B6B"
     }

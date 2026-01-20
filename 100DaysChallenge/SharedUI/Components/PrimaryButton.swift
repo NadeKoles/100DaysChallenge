@@ -20,8 +20,7 @@ struct PrimaryButton: View {
         static let horizontalPadding: CGFloat = Spacing.xl
         static let iconTextSpacing: CGFloat = Spacing.sm
         static let iconSize: CGFloat = 25
-        static let systemIconSizeLeft: CGFloat = 20
-        static let systemIconSizeRight: CGFloat = 16
+        static let systemIconSize: CGFloat = 18
     }
     
     let title: String
@@ -133,7 +132,7 @@ struct PrimaryButton: View {
                 .foregroundColor(textColor)
         } else if let iconSystemNameLeft = iconSystemNameLeft {
             Image(systemName: iconSystemNameLeft)
-                .font(.system(size: Metrics.systemIconSizeLeft, weight: .semibold))
+                .font(.system(size: Metrics.systemIconSize, weight: .semibold))
                 .foregroundColor(textColor)
         }
     }
@@ -142,7 +141,7 @@ struct PrimaryButton: View {
     private var rightIcon: some View {
         if let iconSystemNameRight = iconSystemNameRight {
             Image(systemName: iconSystemNameRight)
-                .font(.system(size: Metrics.systemIconSizeRight, weight: .medium))
+                .font(.system(size: Metrics.systemIconSize, weight: .medium))
                 .foregroundColor(textColor)
         }
     }

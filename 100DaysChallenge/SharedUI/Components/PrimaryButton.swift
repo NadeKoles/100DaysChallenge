@@ -67,15 +67,17 @@ struct PrimaryButton: View {
         (isEnabled && !isLoading) ? 1 : 0.5
     }
     
-    private var shadowConfig: (color: Color, radius: CGFloat, x: CGFloat, y: CGFloat) {
-        let opacity: Double
+    private var shouldHaveShadow: Bool {
         switch style {
-        case .outlined, .secondary:
-            opacity = 0.08
         case .filled, .solid:
-            opacity = 0.1
+            return true
+        case .outlined, .secondary:
+            return false
         }
-        return (color: .black.opacity(opacity), radius: 8, x: 0, y: 4)
+    }
+    
+    private var shadowConfig: (color: Color, radius: CGFloat, x: CGFloat, y: CGFloat) {
+        return (color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
     }
     
     private var hasLeftIcon: Bool {
@@ -112,10 +114,10 @@ struct PrimaryButton: View {
             .background(backgroundView)
             .cornerRadius(CornerRadius.xl)
             .shadow(
-                color: shadowConfig.color,
-                radius: shadowConfig.radius,
-                x: shadowConfig.x,
-                y: shadowConfig.y
+                color: shouldHaveShadow ? shadowConfig.color : .clear,
+                radius: shouldHaveShadow ? shadowConfig.radius : 0,
+                x: shouldHaveShadow ? shadowConfig.x : 0,
+                y: shouldHaveShadow ? shadowConfig.y : 0
             )
         }
         .disabled(!isEnabled || isLoading)
@@ -161,6 +163,10 @@ struct PrimaryButton: View {
                 )
         case .secondary:
             Color.gray100
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.xl)
+                        .stroke(Color.border, lineWidth: 1)
+                )
         }
     }
 }

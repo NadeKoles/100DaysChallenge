@@ -78,7 +78,7 @@ enum LocalizedStrings {
     // MARK: - Progress
     enum Progress {
         static let noChallengesYet = NSLocalizedString("progress.noChallengesYet", value: "No Challenges Yet", comment: "Empty state title")
-        static let noChallengesDescription = NSLocalizedString("progress.noChallengesDescription", value: "Start your first 100-day challenge to build a lasting habit", comment: "Empty state description")
+        static let noChallengesDescription = NSLocalizedString("progress.noChallengesDescription", value: "Start your first 100-days challenge to build a lasting habit", comment: "Empty state description")
         static let daysCompleted = NSLocalizedString("progress.daysCompleted", value: "days completed", comment: "Days completed label")
         static let markDayComplete = NSLocalizedString("progress.markDayComplete", value: "Mark Day %d Complete", comment: "Mark day complete button")
         static let completeDayTitle = NSLocalizedString("progress.completeDayTitle", value: "Complete Day %d?", comment: "Complete day alert title")
@@ -105,7 +105,7 @@ enum LocalizedStrings {
     // MARK: - New Challenge
     enum NewChallenge {
         static let title = NSLocalizedString("newChallenge.title", value: "New Challenge", comment: "New challenge screen title")
-        static let subtitle = NSLocalizedString("newChallenge.subtitle", value: "Start a new 100-day habit journey", comment: "New challenge screen subtitle")
+        static let subtitle = NSLocalizedString("newChallenge.subtitle", value: "Start a new 100-days habit journey", comment: "New challenge screen subtitle")
         static let whatDoYouWantToAchieve = NSLocalizedString("newChallenge.whatDoYouWantToAchieve", value: "What do you want to achieve?", comment: "Title input label")
         static let titlePlaceholder = NSLocalizedString("newChallenge.titlePlaceholder", value: "e.g. Daily Reading, Morning Yoga", comment: "Title input placeholder")
         static let helperText = NSLocalizedString("newChallenge.helperText", value: "Choose something meaningful you want to do every day", comment: "Title input helper text")

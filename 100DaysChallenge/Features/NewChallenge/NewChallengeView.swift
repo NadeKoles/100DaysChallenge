@@ -22,7 +22,6 @@ struct NewChallengeView: View {
                             .font(.body)
                             .foregroundColor(.textSecondary)
                     }
-                    .padding(.top, Spacing.xl)
                     .padding(.bottom, Spacing.xl)
                 
                 VStack(spacing: Spacing.xxxl) {

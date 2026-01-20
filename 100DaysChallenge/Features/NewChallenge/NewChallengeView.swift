@@ -13,6 +13,16 @@ struct NewChallengeView: View {
     @StateObject private var viewModel = NewChallengeViewModel()
     @State private var showingMaxChallengesAlert = false
     
+    private static let suggestedTags = [
+        "Daily Reading",
+        "Morning Workout",
+        "Meditation",
+        "Healthy Eating",
+        "Journaling",
+        "10k Steps",
+        "Learn English"
+    ]
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl) {
@@ -49,6 +59,47 @@ struct NewChallengeView: View {
                         Text("Choose something meaningful you want to do every day")
                             .font(.caption)
                             .foregroundColor(.textTertiary)
+                    }
+                    
+                    // Quick ideas
+                    VStack(alignment: .leading, spacing: Spacing.sm) {
+                        Text("Quick ideas")
+                            .font(.labelSmall)
+                            .foregroundColor(.textSecondary)
+                        
+                        VStack(alignment: .leading, spacing: Spacing.xs) {
+                            HStack(spacing: Spacing.sm) {
+                                ForEach(Array(Self.suggestedTags.prefix(4).enumerated()), id: \.offset) { _, tag in
+                                    Button(action: {
+                                        withAnimation(.easeInOut(duration: 0.15)) {
+                                            viewModel.title = tag
+                                        }
+                                    }) {
+                                        Text(tag)
+                                            .font(.labelSmall)
+                                            .foregroundColor(.accentSkyBlue)
+                                            .padding(.vertical, Spacing.xs)
+                                    }
+                                    .accessibilityLabel("Quick idea: \(tag)")
+                                }
+                            }
+                            
+                            HStack(spacing: Spacing.sm) {
+                                ForEach(Array(Self.suggestedTags.suffix(3).enumerated()), id: \.offset) { _, tag in
+                                    Button(action: {
+                                        withAnimation(.easeInOut(duration: 0.15)) {
+                                            viewModel.title = tag
+                                        }
+                                    }) {
+                                        Text(tag)
+                                            .font(.labelSmall)
+                                            .foregroundColor(.accentSkyBlue)
+                                            .padding(.vertical, Spacing.xs)
+                                    }
+                                    .accessibilityLabel("Quick idea: \(tag)")
+                                }
+                            }
+                        }
                     }
                     
                     // Color picker

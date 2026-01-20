@@ -14,28 +14,15 @@ struct NewChallengeView: View {
     @State private var showingMaxChallengesAlert = false
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.xl) {
-                VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Text("New Challenge")
-                        .font(.heading1)
-                        .foregroundColor(.textPrimary)
-                    
-                    Text("Start a new 100-day habit journey")
-                        .font(.body)
-                        .foregroundColor(.textSecondary)
-                }
-                .padding(.top, Spacing.xxxl)
-                .padding(.bottom, Spacing.xl)
-                
-                VStack(spacing: Spacing.xxxl) {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: Spacing.xl) {
                     // Title input
                     VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text("What do you want to achieve?")
-                            .font(.labelSmall)
-                            .foregroundColor(.textSecondary)
+                        Text(LocalizedStrings.NewChallenge.whatDoYouWantToAchieve.uppercased())
+                            .sectionHeaderStyle()
                         
-                        TextField("e.g. Daily Reading, Morning Yoga", text: $viewModel.title)
+                        TextField(LocalizedStrings.NewChallenge.placeholder, text: $viewModel.title)
                             .textFieldStyle(.plain)
                             .font(.body)
                             .padding(Spacing.lg)
@@ -45,17 +32,28 @@ struct NewChallengeView: View {
                                 RoundedRectangle(cornerRadius: CornerRadius.xl)
                                     .stroke(Color.border, lineWidth: 1)
                             )
+                    }
+                    
+                    // Quick ideas
+                    VStack(alignment: .leading, spacing: Spacing.md) {
+                        Text(LocalizedStrings.NewChallenge.quickIdeas.uppercased())
+                            .sectionHeaderStyle()
                         
-                        Text("Choose something meaningful you want to do every day")
-                            .font(.caption)
-                            .foregroundColor(.textTertiary)
+                        FlowLayout(horizontalSpacing: Spacing.sm, verticalSpacing: Spacing.sm) {
+                            ForEach(LocalizedStrings.NewChallenge.Tags.all, id: \.self) { tag in
+                                ChipTagView(tag: tag, onTap: {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                        viewModel.title = tag
+                                    }
+                                })
+                            }
+                        }
                     }
                     
                     // Color picker
                     VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text("Pick a color")
-                            .font(.labelSmall)
-                            .foregroundColor(.textSecondary)
+                        Text(LocalizedStrings.NewChallenge.pickAColor.uppercased())
+                            .sectionHeaderStyle()
                         
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Spacing.md), count: 4), spacing: Spacing.md) {
                             ForEach(ChallengeAccentColor.all, id: \.name) { colorOption in
@@ -71,72 +69,60 @@ struct NewChallengeView: View {
                     }
                     
                     // Start challenge button
-                    Button(action: {
-                        if challengeStore.challenges.count >= 3 {
-                            showingMaxChallengesAlert = true
-                        } else {
-                            let challenge = Challenge(
-                                title: viewModel.title.trimmingCharacters(in: .whitespaces),
-                                accentColor: viewModel.selectedColorHex,
-                                startDate: Date()
-                            )
-                            
-                            if challengeStore.addChallenge(challenge) {
-                                viewModel.reset()
-                                appState.currentTab = .progress
+                    PrimaryButton(
+                        title: LocalizedStrings.NewChallenge.startChallenge,
+                        action: {
+                            if challengeStore.challenges.count >= 3 {
+                                showingMaxChallengesAlert = true
+                            } else {
+                                let challenge = Challenge(
+                                    title: viewModel.title.trimmingCharacters(in: .whitespaces),
+                                    accentColor: viewModel.selectedColorHex,
+                                    startDate: Date()
+                                )
+                                
+                                if challengeStore.addChallenge(challenge) {
+                                    viewModel.reset()
+                                    appState.selectedChallengeId = challenge.id
+                                    appState.currentTab = .progress
+                                }
                             }
-                        }
-                    }) {
-                        HStack(spacing: Spacing.sm) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 20, weight: .semibold))
-                            
-                            Text("Start Challenge")
-                                .font(.label)
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(viewModel.selectedColor)
-                        .cornerRadius(CornerRadius.xl)
-                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                    }
-                    .disabled(!viewModel.isValid)
-                    .opacity(viewModel.isValid ? 1 : 0.5)
+                        },
+                        iconSystemNameLeft: "plus",
+                        style: .solid(viewModel.selectedColor),
+                        isEnabled: viewModel.isValid
+                    )
                     
                     // Tips card
                     VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text("💡 Tips for Success")
+                        Text(LocalizedStrings.NewChallenge.tipsForSuccess)
                             .font(.label)
                             .foregroundColor(.textPrimary)
                         
                         VStack(alignment: .leading, spacing: Spacing.sm) {
-                            TipRow(text: "Choose a realistic daily habit")
-                            TipRow(text: "Be specific about what counts as \"done\"")
-                            TipRow(text: "Pick a time of day that works best")
-                            TipRow(text: "You can run up to 3 challenges at once")
+                            TipRow(text: LocalizedStrings.NewChallenge.tipRealisticHabit)
+                            TipRow(text: LocalizedStrings.NewChallenge.tipBeSpecific)
+                            TipRow(text: LocalizedStrings.NewChallenge.tipPickTime)
+                            TipRow(text: LocalizedStrings.NewChallenge.tipMaxChallenges)
                         }
                     }
                     .padding(Spacing.xl)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        LinearGradient(
-                            colors: [Color(hex: "#FFF7ED"), Color(hex: "#FDF2F8")],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .background(Color.gradientTipsCard)
                     .cornerRadius(CornerRadius.xxl)
                 }
+                .padding(.top, Spacing.lg)
+                .padding(.horizontal, Spacing.xl)
+                .padding(.bottom, Spacing.xxxl)
             }
-            .padding(.horizontal, Spacing.xl)
-            .padding(.bottom, Spacing.xxxl)
+            .background(Color.background)
+            .navigationTitle(LocalizedStrings.NewChallenge.title)
+            .navigationBarTitleDisplayMode(.large)
         }
-        .background(Color.background)
-        .alert("Maximum Challenges Reached", isPresented: $showingMaxChallengesAlert) {
-            Button("OK", role: .cancel) { }
+        .alert(LocalizedStrings.NewChallenge.maxChallengesReached, isPresented: $showingMaxChallengesAlert) {
+            Button(LocalizedStrings.NewChallenge.ok, role: .cancel) { }
         } message: {
-            Text("You can have up to 3 active challenges at once. Please complete or delete an existing challenge first.")
+            Text(LocalizedStrings.NewChallenge.maxChallengesMessage)
         }
     }
 }
@@ -186,5 +172,52 @@ struct TipRow: View {
                 .foregroundColor(.textSecondary)
         }
     }
+}
+
+private struct ChipTagView: View {
+    let tag: String
+    let onTap: () -> Void
+    @State private var isPressed = false
+    
+    var body: some View {
+        Text(tag)
+            .font(.labelSmall)
+            .foregroundColor(.textSecondary)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
+            .truncationMode(.tail)
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
+            .background(Color.clear)
+            .cornerRadius(CornerRadius.lg)
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.lg)
+                    .stroke(Color.border, lineWidth: 1)
+            )
+            .scaleEffect(isPressed ? 0.96 : 1.0)
+            .opacity(isPressed ? 0.9 : 1.0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isPressed)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        if !isPressed {
+                            isPressed = true
+                        }
+                    }
+                    .onEnded { _ in
+                        isPressed = false
+                        onTap()
+                    }
+            )
+            .accessibilityLabel(LocalizedStrings.NewChallenge.quickIdeaAccessibilityLabel(tag))
+            .accessibilityAddTraits(.isButton)
+    }
+}
+
+#Preview {
+    NewChallengeView()
+        .environmentObject(ChallengeStore.shared)
+        .environmentObject(AppState())
 }
 

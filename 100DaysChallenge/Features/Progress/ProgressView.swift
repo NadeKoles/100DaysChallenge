@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProgressView: View {
     @EnvironmentObject var challengeStore: ChallengeStore
+    @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = ProgressViewModel()
     @State private var showingConfirmModal = false
     @State private var selectedDay: Int? = nil
@@ -37,14 +38,16 @@ struct ProgressView: View {
             }
         }
         .alert(
-            isUnmarking ? "Unmark Day \(selectedDay ?? 0)?" : "Complete Day \(selectedDay ?? 0)?",
+            isUnmarking 
+                ? LocalizedStrings.Progress.unmarkDayTitleFormatted(selectedDay ?? 0)
+                : LocalizedStrings.Progress.completeDayTitleFormatted(selectedDay ?? 0),
             isPresented: $showingConfirmModal
         ) {
-            Button("Cancel", role: .cancel) {
+            Button(LocalizedStrings.Progress.cancel, role: .cancel) {
                 selectedDay = nil
                 isUnmarking = false
             }
-            Button(isUnmarking ? "Unmark" : "Complete") {
+            Button(isUnmarking ? LocalizedStrings.Progress.unmark : LocalizedStrings.Progress.complete) {
                 if let day = selectedDay,
                    !viewModel.currentChallengeId.isEmpty,
                    let challenge = challengeStore.challenges.first(where: { $0.id == viewModel.currentChallengeId }) {
@@ -60,18 +63,23 @@ struct ProgressView: View {
         } message: {
             if selectedDay != nil {
                 Text(isUnmarking 
-                    ? "This will remove it from your completed days."
-                    : "Great work!")
+                    ? LocalizedStrings.Progress.unmarkDayMessage
+                    : LocalizedStrings.Progress.completeDayMessage)
             }
         }
         .onAppear {
             updateCurrentChallengeId()
+            navigateToSelectedChallenge()
         }
         .onChange(of: viewModel.currentIndex) { _ in
             updateCurrentChallengeId()
         }
         .onChange(of: challengeStore.challenges) { _ in
             updateCurrentChallengeId()
+            navigateToSelectedChallenge()
+        }
+        .onChange(of: appState.selectedChallengeId) { _ in
+            navigateToSelectedChallenge()
         }
     }
     
@@ -79,6 +87,23 @@ struct ProgressView: View {
         if viewModel.currentIndex < challengeStore.challenges.count {
             viewModel.currentChallengeId = challengeStore.challenges[viewModel.currentIndex].id
         }
+    }
+    
+    private func navigateToSelectedChallenge() {
+        guard let selectedId = appState.selectedChallengeId,
+              let index = challengeStore.challenges.firstIndex(where: { $0.id == selectedId }) else {
+            return
+        }
+        
+        // Navigate to the selected challenge
+        if index != viewModel.currentIndex {
+            withAnimation {
+                viewModel.currentIndex = index
+            }
+        }
+        
+        // Clear the selected challenge ID after navigating
+        appState.selectedChallengeId = nil
     }
 }
 
@@ -96,11 +121,11 @@ struct EmptyChallengesView: View {
             }
             
             VStack(spacing: Spacing.sm) {
-                Text("No Challenges Yet")
+                Text(LocalizedStrings.Progress.noChallengesYet)
                     .font(.heading2)
                     .foregroundColor(.textPrimary)
                 
-                Text("Start your first 100-day challenge to build a lasting habit")
+                Text(LocalizedStrings.Progress.noChallengesDescription)
                     .font(.body)
                     .foregroundColor(.textSecondary)
                     .multilineTextAlignment(.center)
@@ -126,7 +151,7 @@ struct ChallengeProgressView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: Spacing.xl) {
-                        // Challenge indicator dots (leading-aligned, scrollable)
+                        // Challenge indicator dots 
                         HStack(spacing: Spacing.sm) {
                             ForEach(0..<challenges.count, id: \.self) { index in
                                 RoundedRectangle(cornerRadius: 2)
@@ -152,7 +177,7 @@ struct ChallengeProgressView: View {
                                     .foregroundColor(.textTertiary)
                             }
                             
-                            Text("days completed")
+                            Text(LocalizedStrings.Progress.daysCompleted)
                                 .font(.body)
                                 .foregroundColor(.textSecondary)
                         }
@@ -182,23 +207,14 @@ struct ChallengeProgressView: View {
                 
                 // Sticky button at bottom
                 if shouldShowButton {
-                    Button(action: {
-                        onCompleteToday(currentChallenge.id, currentChallenge.currentDay)
-                    }) {
-                        HStack(spacing: Spacing.sm) {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 20, weight: .semibold))
-                            
-                            Text("Mark Day \(currentChallenge.currentDay) Complete")
-                                .font(.label)
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(Color(hex: currentChallenge.accentColor))
-                        .cornerRadius(CornerRadius.xl)
-                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                    }
+                    PrimaryButton(
+                        title: LocalizedStrings.Progress.markDayCompleteFormatted(currentChallenge.currentDay),
+                        action: {
+                            onCompleteToday(currentChallenge.id, currentChallenge.currentDay)
+                        },
+                        iconSystemNameLeft: "checkmark",
+                        style: .solid(Color(hex: currentChallenge.accentColor))
+                    )
                     .padding(.horizontal, Spacing.xl)
                     .padding(.vertical, Spacing.md)
                     .background(Color.background)

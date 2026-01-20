@@ -14,13 +14,9 @@ struct SettingsView: View {
     @State private var challengeToDelete: Challenge? = nil
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.xl) {
-                Text("Settings")
-                    .font(.heading1)
-                    .foregroundColor(.textPrimary)
-                    .padding(.top, Spacing.xxxl)
-                    .padding(.bottom, Spacing.xl)
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: Spacing.xl) {
                 
                 // Account section
                 SettingsSection(title: "ACCOUNT") {
@@ -49,22 +45,14 @@ struct SettingsView: View {
                 }
                 
                 // Logout button
-                Button(action: {
-                    appState.handleLogout()
-                }) {
-                    HStack(spacing: Spacing.sm) {
-                        Image(systemName: "arrow.right.square")
-                            .font(.system(size: 20, weight: .medium))
-                        
-                        Text("Log Out")
-                            .font(.label)
-                    }
-                    .foregroundColor(.textSecondary)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(Color.gray100)
-                    .cornerRadius(CornerRadius.xl)
-                }
+                PrimaryButton(
+                    title: "Log Out",
+                    action: {
+                        appState.handleLogout()
+                    },
+                    iconSystemNameLeft: "arrow.right.square",
+                    style: .secondary
+                )
                 .padding(.top, Spacing.xl)
                 
                 // Version
@@ -74,10 +62,14 @@ struct SettingsView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, Spacing.xl)
             }
+            .padding(.top, Spacing.lg)
             .padding(.horizontal, Spacing.xl)
             .padding(.bottom, Spacing.xxxl)
+            }
+            .background(Color.background)
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.large)
         }
-        .background(Color.background)
         .alert("Delete Challenge?", isPresented: Binding(
             get: { challengeToDelete != nil },
             set: { if !$0 { challengeToDelete = nil } }
@@ -106,9 +98,7 @@ struct SettingsSection<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             Text(title)
-                .font(.labelTiny)
-                .foregroundColor(.textTertiary)
-                .tracking(1)
+                .sectionHeaderStyle()
             
             VStack(spacing: 0) {
                 content

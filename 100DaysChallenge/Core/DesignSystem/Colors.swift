@@ -10,16 +10,16 @@ import SwiftUI
 extension Color {
     // MARK: - Accent Colors (Challenge-specific)
     // Warm, visually distinct palette for challenge selection
-    static let accentCoralRed = Color(hex: "#FF6B6B")
+    static let accentCoralRed    = Color(hex: "#F56B6B")
     static let accentSunsetOrange = Color(hex: "#FF9D5C")
-    static let accentSunnyYellow = Color(hex: "#FFD23F")
     static let accentFreshGreen = Color(hex: "#6BCF94")
     static let accentOceanTeal = Color(hex: "#4ECDC4")
     static let accentSkyBlue = Color(hex: "#5C9FFF")
     static let accentRoyalPurple = Color(hex: "#9B6BFF")
-    static let accentMagenta = Color(hex: "#FF6BB5")
-    static let accentWarmBrown = Color(hex: "#C17E5D")
-    static let accentGold = Color(hex: "#E6A23C")
+    static let accentMagenta = Color(hex: "#EE7FB3")
+    static let accentSoftLavender = Color(hex: "#C7B7FF")
+    static let accentDarkBrown = Color(hex: "#76574A")
+    static let accentDeepNavy = Color(hex: "#24304D")
     
     // MARK: - Onboarding Colors
     static let onboardingBlue = Color(hex: "#5C9FFF")
@@ -60,9 +60,15 @@ extension Color {
     static let gradientOrangePinkEnd = Color(hex: "#FF6BB5")
     
     static let gradientSplash = LinearGradient(
-        colors: [Color.white, Color(hex: "#FFF7ED")],
+        colors: [Color.white, Color(hex: "#FFFBF5")],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
+    )
+    
+    static let gradientTipsCard = LinearGradient(
+        colors: [Color(hex: "#F7F8FA"), Color(hex: "#EEF0F4")],
+        startPoint: .top,
+        endPoint: .bottom
     )
 }
 
@@ -121,9 +127,9 @@ enum ColorPreviewData {
     // Onboarding Colors - automatically references Color extension properties
     static var onboardingColors: [ColorPreviewItem] {
         [
-            ColorPreviewItem(name: "Blue", color: .onboardingBlue),
+            ColorPreviewItem(name: "Sky Blue", color: .onboardingBlue),
             ColorPreviewItem(name: "Sunset Orange", color: .onboardingSunsetOrange),
-            ColorPreviewItem(name: "Green", color: .onboardingGreen)
+            ColorPreviewItem(name: "Fresh Green", color: .onboardingGreen)
         ]
     }
     
@@ -179,14 +185,14 @@ struct ChallengeAccentColor {
     static let all: [ChallengeAccentColor] = [
         ChallengeAccentColor(name: "Coral Red", color: .accentCoralRed),
         ChallengeAccentColor(name: "Sunset Orange", color: .accentSunsetOrange),
-        ChallengeAccentColor(name: "Sunny Yellow", color: .accentSunnyYellow),
         ChallengeAccentColor(name: "Fresh Green", color: .accentFreshGreen),
         ChallengeAccentColor(name: "Ocean Teal", color: .accentOceanTeal),
         ChallengeAccentColor(name: "Sky Blue", color: .accentSkyBlue),
+        ChallengeAccentColor(name: "Soft Lavender", color: .accentSoftLavender),
         ChallengeAccentColor(name: "Royal Purple", color: .accentRoyalPurple),
         ChallengeAccentColor(name: "Magenta", color: .accentMagenta),
-        ChallengeAccentColor(name: "Warm Brown", color: .accentWarmBrown),
-        ChallengeAccentColor(name: "Gold", color: .accentGold)
+        ChallengeAccentColor(name: "Dark Brown", color: .accentDarkBrown),
+        ChallengeAccentColor(name: "Deep Navy", color: .accentDeepNavy)
     ]
 }
 

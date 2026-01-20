@@ -11,7 +11,7 @@ extension Color {
     // MARK: - Accent Colors (Challenge-specific)
     // Warm, visually distinct palette for challenge selection
     static let accentCoralRed    = Color(hex: "#F56B6B")
-    static let accentSunsetOrange = Color(hex: "#FB9A45")
+    static let accentSunsetOrange = Color(hex: "#FF9D5C")
     static let accentFreshGreen = Color(hex: "#6BCF94")
     static let accentOceanTeal = Color(hex: "#4ECDC4")
     static let accentSkyBlue = Color(hex: "#5C9FFF")
@@ -23,7 +23,7 @@ extension Color {
     
     // MARK: - Onboarding Colors
     static let onboardingBlue = Color(hex: "#5C9FFF")
-    static let onboardingMagenta = Color(hex: "#EE7FB3")
+    static let onboardingSunsetOrange = Color(hex: "#FF9D5C")
     static let onboardingGreen = Color(hex: "#6BCF94")
     
     // MARK: - Gray Scale
@@ -60,7 +60,7 @@ extension Color {
     static let gradientOrangePinkEnd = Color(hex: "#FF6BB5")
     
     static let gradientSplash = LinearGradient(
-        colors: [Color.white, Color(hex: "#FFF7ED")],
+        colors: [Color.white, Color(hex: "#FFFBF5")],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
@@ -128,7 +128,7 @@ enum ColorPreviewData {
     static var onboardingColors: [ColorPreviewItem] {
         [
             ColorPreviewItem(name: "Sky Blue", color: .onboardingBlue),
-            ColorPreviewItem(name: "Magenta", color: .onboardingMagenta),
+            ColorPreviewItem(name: "Sunset Orange", color: .onboardingSunsetOrange),
             ColorPreviewItem(name: "Fresh Green", color: .onboardingGreen)
         ]
     }

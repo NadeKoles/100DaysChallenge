@@ -69,28 +69,11 @@ struct NewChallengeView: View {
                         
                         FlowLayout(horizontalSpacing: Spacing.sm, verticalSpacing: Spacing.sm) {
                             ForEach(Self.suggestedTags, id: \.self) { tag in
-                                Button(action: {
-                                    withAnimation(.easeInOut(duration: 0.15)) {
+                                ChipTagView(tag: tag, onTap: {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                         viewModel.title = tag
                                     }
-                                }) {
-                                    Text(tag)
-                                        .font(.labelSmall)
-                                        .foregroundColor(.textSecondary)
-                                        .lineLimit(1)
-                                        .fixedSize(horizontal: true, vertical: false)
-                                        .truncationMode(.tail)
-                                        .padding(.horizontal, Spacing.md)
-                                        .padding(.vertical, Spacing.sm)
-                                        .background(Color.clear)
-                                        .cornerRadius(CornerRadius.lg)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: CornerRadius.lg)
-                                                .stroke(Color.border, lineWidth: 1)
-                                        )
-                                }
-                                .buttonStyle(ChipButtonStyle())
-                                .accessibilityLabel("Quick idea: \(tag)")
+                                })
                             }
                         }
                     }
@@ -223,11 +206,44 @@ struct TipRow: View {
     }
 }
 
-private struct ChipButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+private struct ChipTagView: View {
+    let tag: String
+    let onTap: () -> Void
+    @State private var isPressed = false
+    
+    var body: some View {
+        Text(tag)
+            .font(.labelSmall)
+            .foregroundColor(.textSecondary)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
+            .truncationMode(.tail)
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
+            .background(Color.clear)
+            .cornerRadius(CornerRadius.lg)
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.lg)
+                    .stroke(Color.border, lineWidth: 1)
+            )
+            .scaleEffect(isPressed ? 0.96 : 1.0)
+            .opacity(isPressed ? 0.9 : 1.0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isPressed)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        if !isPressed {
+                            isPressed = true
+                        }
+                    }
+                    .onEnded { _ in
+                        isPressed = false
+                        onTap()
+                    }
+            )
+            .accessibilityLabel("Quick idea: \(tag)")
+            .accessibilityAddTraits(.isButton)
     }
 }
 

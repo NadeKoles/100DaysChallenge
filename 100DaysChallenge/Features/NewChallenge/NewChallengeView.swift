@@ -127,13 +127,7 @@ struct NewChallengeView: View {
                     }
                     .padding(Spacing.xl)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        LinearGradient(
-                            colors: [Color(hex: "#FFF7ED"), Color(hex: "#FDF2F8")],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .background(Color.gradientTipsCard)
                     .cornerRadius(CornerRadius.xxl)
                 }
             }

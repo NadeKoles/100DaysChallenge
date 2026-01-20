@@ -64,6 +64,12 @@ extension Color {
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
+    
+    static let gradientTipsCard = LinearGradient(
+        colors: [Color(hex: "#FEF9F5"), Color(hex: "#FDF7F2")],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
 }
 
 // MARK: - Hex Color Initializer

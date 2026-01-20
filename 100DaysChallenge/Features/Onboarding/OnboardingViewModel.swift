@@ -23,7 +23,7 @@ class OnboardingViewModel: ObservableObject {
             iconName: "target",
             title: "Set Your Goal",
             description: "Choose a habit to focus on.\nAnything that truly matters to you.",
-            color: .onboardingMagenta
+            color: .onboardingSunsetOrange
         ),
         OnboardingSlide(
             iconName: "chart.line.uptrend.xyaxis",

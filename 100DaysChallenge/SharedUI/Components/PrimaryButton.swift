@@ -15,6 +15,15 @@ struct PrimaryButton: View {
         case secondary
     }
     
+    private enum Metrics {
+        static let height: CGFloat = 56
+        static let horizontalPadding: CGFloat = Spacing.xl
+        static let iconTextSpacing: CGFloat = Spacing.sm
+        static let iconSize: CGFloat = 25
+        static let systemIconSizeLeft: CGFloat = 20
+        static let systemIconSizeRight: CGFloat = 16
+    }
+    
     let title: String
     let action: () -> Void
     let icon: Image?
@@ -44,14 +53,6 @@ struct PrimaryButton: View {
         self.isLoading = isLoading
     }
     
-    private var gradient: LinearGradient {
-        LinearGradient(
-            colors: [Color.gradientOrangePinkStart, Color.gradientOrangePinkEnd],
-            startPoint: .leading,
-            endPoint: .trailing
-        )
-    }
-    
     private var textColor: Color {
         switch style {
         case .filled, .solid:
@@ -67,18 +68,56 @@ struct PrimaryButton: View {
         (isEnabled && !isLoading) ? 1 : 0.5
     }
     
+    private var shadowConfig: (color: Color, radius: CGFloat, x: CGFloat, y: CGFloat) {
+        let opacity: Double
+        switch style {
+        case .outlined, .secondary:
+            opacity = 0.08
+        case .filled, .solid:
+            opacity = 0.1
+        }
+        return (color: .black.opacity(opacity), radius: 8, x: 0, y: 4)
+    }
+    
+    private var hasLeftIcon: Bool {
+        icon != nil || iconSystemNameLeft != nil
+    }
+    
+    private var hasRightIcon: Bool {
+        iconSystemNameRight != nil
+    }
+    
     var body: some View {
         Button(action: action) {
-            HStack(spacing: Spacing.sm) {
+            HStack(spacing: Metrics.iconTextSpacing) {
+                if !hasLeftIcon && !hasRightIcon {
+                    // Center text when no icons
+                    Spacer()
+                }
+                
                 leftIcon
                 Text(title)
                     .font(.label)
                     .foregroundColor(textColor)
-                rightIcon
+                
+                if hasRightIcon {
+                    rightIcon
+                } else if !hasLeftIcon && !hasRightIcon {
+                    // Center text when no icons
+                    Spacer()
+                }
             }
+            .padding(.horizontal, Metrics.horizontalPadding)
             .frame(maxWidth: .infinity)
-            .frame(height: 56)
+            .frame(height: Metrics.height)
             .background(backgroundView)
+            .cornerRadius(CornerRadius.xl)
+            .shadow(
+                color: shadowConfig.color,
+                radius: shadowConfig.radius,
+                x: shadowConfig.x,
+                y: shadowConfig.y
+            )
         }
         .disabled(!isEnabled || isLoading)
         .opacity(buttonOpacity)
@@ -90,11 +129,11 @@ struct PrimaryButton: View {
             icon
                 .resizable()
                 .scaledToFit()
-                .frame(width: 25, height: 25)
+                .frame(width: Metrics.iconSize, height: Metrics.iconSize)
                 .foregroundColor(textColor)
         } else if let iconSystemNameLeft = iconSystemNameLeft {
             Image(systemName: iconSystemNameLeft)
-                .font(.system(size: 20, weight: .semibold))
+                .font(.system(size: Metrics.systemIconSizeLeft, weight: .semibold))
                 .foregroundColor(textColor)
         }
     }
@@ -103,34 +142,26 @@ struct PrimaryButton: View {
     private var rightIcon: some View {
         if let iconSystemNameRight = iconSystemNameRight {
             Image(systemName: iconSystemNameRight)
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: Metrics.systemIconSizeRight, weight: .medium))
                 .foregroundColor(textColor)
         }
-    }
-    
-    private func applyButtonStyling(to view: some View) -> some View {
-        view
-            .cornerRadius(CornerRadius.xl)
-            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
     }
     
     @ViewBuilder
     private var backgroundView: some View {
         switch style {
         case .filled:
-            applyButtonStyling(to: gradient)
+            Color.gradientOrangePink
         case .solid(let color):
-            applyButtonStyling(to: color)
+            color
         case .outlined:
             Color.clear
-                .cornerRadius(CornerRadius.xl)
                 .overlay(
                     RoundedRectangle(cornerRadius: CornerRadius.xl)
                         .stroke(Color.border, lineWidth: 1)
                 )
         case .secondary:
             Color.gray100
-                .cornerRadius(CornerRadius.xl)
         }
     }
 }

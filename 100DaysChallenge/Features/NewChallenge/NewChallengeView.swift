@@ -13,6 +13,18 @@ struct NewChallengeView: View {
     @StateObject private var viewModel = NewChallengeViewModel()
     @State private var showingMaxChallengesAlert = false
     
+    private static let suggestedTags = [
+        "Daily Reading",
+        "Meditation",
+        "10k Steps",
+        "Morning Workout",
+        "Journaling",
+        "Yoga",
+        "Whole Foods",
+        "Coding",
+        "Learn English"
+    ]
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl) {
@@ -49,6 +61,23 @@ struct NewChallengeView: View {
                         Text("Choose something meaningful you want to do every day")
                             .font(.caption)
                             .foregroundColor(.textTertiary)
+                    }
+                    
+                    // Quick ideas
+                    VStack(alignment: .leading, spacing: Spacing.md) {
+                        Text("Quick ideas")
+                            .font(.labelSmall)
+                            .foregroundColor(.textSecondary)
+                        
+                        FlowLayout(horizontalSpacing: Spacing.sm, verticalSpacing: Spacing.sm) {
+                            ForEach(Self.suggestedTags, id: \.self) { tag in
+                                ChipTagView(tag: tag, onTap: {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                        viewModel.title = tag
+                                    }
+                                })
+                            }
+                        }
                     }
                     
                     // Color picker
@@ -177,5 +206,52 @@ struct TipRow: View {
                 .foregroundColor(.textSecondary)
         }
     }
+}
+
+private struct ChipTagView: View {
+    let tag: String
+    let onTap: () -> Void
+    @State private var isPressed = false
+    
+    var body: some View {
+        Text(tag)
+            .font(.labelSmall)
+            .foregroundColor(.textSecondary)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
+            .truncationMode(.tail)
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
+            .background(Color.clear)
+            .cornerRadius(CornerRadius.lg)
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.lg)
+                    .stroke(Color.border, lineWidth: 1)
+            )
+            .scaleEffect(isPressed ? 0.96 : 1.0)
+            .opacity(isPressed ? 0.9 : 1.0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isPressed)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        if !isPressed {
+                            isPressed = true
+                        }
+                    }
+                    .onEnded { _ in
+                        isPressed = false
+                        onTap()
+                    }
+            )
+            .accessibilityLabel("Quick idea: \(tag)")
+            .accessibilityAddTraits(.isButton)
+    }
+}
+
+#Preview {
+    NewChallengeView()
+        .environmentObject(ChallengeStore.shared)
+        .environmentObject(AppState())
 }
 

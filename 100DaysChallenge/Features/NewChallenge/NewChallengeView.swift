@@ -111,6 +111,7 @@ struct NewChallengeView: View {
                     .background(Color.gradientTipsCard)
                     .cornerRadius(CornerRadius.xxl)
                 }
+                .padding(.top, Spacing.lg)
                 .padding(.horizontal, Spacing.xl)
                 .padding(.bottom, Spacing.xxxl)
             }

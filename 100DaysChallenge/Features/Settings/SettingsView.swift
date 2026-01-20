@@ -62,6 +62,7 @@ struct SettingsView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, Spacing.xl)
             }
+            .padding(.top, Spacing.lg)
             .padding(.horizontal, Spacing.xl)
             .padding(.bottom, Spacing.xxxl)
             }

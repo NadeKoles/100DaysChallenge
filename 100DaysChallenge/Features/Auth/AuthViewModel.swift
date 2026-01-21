@@ -31,8 +31,11 @@ final class AuthViewModel: ObservableObject {
     @Published var isPasswordVisible = false
     @Published var isLoading = false
     @Published private(set) var user: FirebaseAuth.User?
+    @Published var resendCooldownSeconds: Int = 0
 
     private var authHandle: AuthStateDidChangeListenerHandle?
+    private var cooldownTimer: Timer?
+    private var rateLimitBackoffCount: Int = 0
 
     init() {
         authHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
@@ -45,6 +48,7 @@ final class AuthViewModel: ObservableObject {
 
     deinit {
         if let authHandle { Auth.auth().removeStateDidChangeListener(authHandle) }
+        cooldownTimer?.invalidate()
     }
 
     var isAuthenticated: Bool { user != nil }
@@ -115,7 +119,7 @@ final class AuthViewModel: ObservableObject {
                             self.errorMessage = nil
                             self.formError = nil
                             self.isLoading = false
-                            completion()
+                            // Don't call completion - user needs to verify email first
                         }
                     }
                 }
@@ -236,6 +240,89 @@ final class AuthViewModel: ObservableObject {
         isLoading = false
         do { try Auth.auth().signOut() }
         catch { errorMessage = error.localizedDescription }
+    }
+    
+    // MARK: - Email Verification
+    
+    func sendEmailVerification() {
+        guard let user = user else {
+            errorMessage = LocalizedStrings.Auth.genericError
+            return
+        }
+        
+        guard resendCooldownSeconds == 0 else { return }
+        
+        isLoading = true
+        user.sendEmailVerification { [weak self] error in
+            Task { @MainActor in
+                guard let self = self else { return }
+                self.isLoading = false
+                if let error = error {
+                    let authError = error as NSError
+                    let errorCode = AuthErrorCode(rawValue: authError.code)
+                    
+                    // Check for rate-limit errors
+                    if errorCode == .tooManyRequests || 
+                       authError.localizedDescription.contains("TOO_MANY_ATTEMPTS_TRY_LATER") ||
+                       authError.localizedDescription.lowercased().contains("too many") {
+                        self.rateLimitBackoffCount += 1
+                        let cooldownSeconds = self.rateLimitBackoffCount >= 2 ? 900 : 300 // 15 minutes if consecutive, else 5 minutes
+                        self.errorMessage = LocalizedStrings.Auth.rateLimitExceeded
+                        self.startCooldown(seconds: cooldownSeconds)
+                    } else {
+                        self.rateLimitBackoffCount = 0 // Reset on non-rate-limit error
+                        let errorMsg = LocalizedStrings.Auth.verificationEmailFailed(error.localizedDescription)
+                        self.errorMessage = errorMsg
+                        self.startCooldown(seconds: 60) // 60 seconds for normal errors
+                    }
+                } else {
+                    self.rateLimitBackoffCount = 0 // Reset on success
+                    self.infoMessage = LocalizedStrings.Auth.verificationEmailSent
+                    self.startCooldown(seconds: 60) // 60 seconds after successful send
+                }
+            }
+        }
+    }
+    
+    private func startCooldown(seconds: Int) {
+        resendCooldownSeconds = seconds
+        cooldownTimer?.invalidate()
+        
+        cooldownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self else { return }
+                if self.resendCooldownSeconds > 0 {
+                    self.resendCooldownSeconds -= 1
+                } else {
+                    self.cooldownTimer?.invalidate()
+                    self.cooldownTimer = nil
+                }
+            }
+        }
+    }
+    
+    func reloadUser() async {
+        guard let user = user else {
+            await MainActor.run {
+                errorMessage = LocalizedStrings.Auth.genericError
+            }
+            return
+        }
+        
+        do {
+            try await user.reload()
+            // Update the user property by re-fetching from Auth
+            await MainActor.run {
+                self.user = Auth.auth().currentUser
+                if let updatedUser = self.user, updatedUser.isEmailVerified {
+                    infoMessage = LocalizedStrings.Auth.emailVerified
+                }
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = mapAuthError(error)
+            }
+        }
     }
     
     func resetFormState() {

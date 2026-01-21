@@ -27,6 +27,9 @@ struct RootView: View {
                     LoginView(showSignUp: $showSignUp)
                 }
             }
+            else if let user = authViewModel.user, !user.isEmailVerified {
+                VerifyEmailView()
+            }
             else {
                 MainTabView()
             }

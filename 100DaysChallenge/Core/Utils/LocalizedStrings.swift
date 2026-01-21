@@ -73,6 +73,15 @@ enum LocalizedStrings {
         // Alert titles
         static let errorTitle = NSLocalizedString("auth.errorTitle", value: "Error", comment: "Error alert title")
         static let infoTitle = NSLocalizedString("auth.infoTitle", value: "Info", comment: "Info alert title")
+        
+        // Email verification
+        static let verifyEmailTitle = NSLocalizedString("auth.verifyEmailTitle", value: "Verify Your Email", comment: "Email verification screen title")
+        static let verifyEmailMessage = NSLocalizedString("auth.verifyEmailMessage", value: "We've sent a verification email to your inbox. Please check your email and click the verification link to continue.", comment: "Email verification screen message")
+        static let resendVerificationEmail = NSLocalizedString("auth.resendVerificationEmail", value: "Resend Email", comment: "Resend verification email button")
+        static let iVerifiedRefresh = NSLocalizedString("auth.iVerifiedRefresh", value: "I Verified, Refresh", comment: "Refresh after verification button")
+        static let logOut = NSLocalizedString("auth.logOut", value: "Log Out", comment: "Log out button")
+        static let verificationEmailSent = NSLocalizedString("auth.verificationEmailSent", value: "Verification email sent", comment: "Verification email sent success message")
+        static let emailVerified = NSLocalizedString("auth.emailVerified", value: "Email verified successfully", comment: "Email verified success message")
     }
     
     // MARK: - Progress

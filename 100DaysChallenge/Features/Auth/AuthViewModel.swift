@@ -115,7 +115,7 @@ final class AuthViewModel: ObservableObject {
                             self.errorMessage = nil
                             self.formError = nil
                             self.isLoading = false
-                            completion()
+                            // Don't call completion - user needs to verify email first
                         }
                     }
                 }
@@ -236,6 +236,53 @@ final class AuthViewModel: ObservableObject {
         isLoading = false
         do { try Auth.auth().signOut() }
         catch { errorMessage = error.localizedDescription }
+    }
+    
+    // MARK: - Email Verification
+    
+    func sendEmailVerification() {
+        guard let user = user else {
+            errorMessage = LocalizedStrings.Auth.genericError
+            return
+        }
+        
+        isLoading = true
+        user.sendEmailVerification { [weak self] error in
+            Task { @MainActor in
+                guard let self = self else { return }
+                self.isLoading = false
+                if let error = error {
+                    let errorMsg = LocalizedStrings.Auth.verificationEmailFailed(error.localizedDescription)
+                    self.errorMessage = errorMsg
+                } else {
+                    self.infoMessage = LocalizedStrings.Auth.verificationEmailSent
+                }
+            }
+        }
+    }
+    
+    func reloadUser() async {
+        guard let user = user else {
+            await MainActor.run {
+                errorMessage = LocalizedStrings.Auth.genericError
+            }
+            return
+        }
+        
+        do {
+            try await user.reload()
+            // Update the user property by re-fetching from Auth
+            await MainActor.run {
+                self.user = Auth.auth().currentUser
+                if let updatedUser = self.user, updatedUser.isEmailVerified {
+                    infoMessage = LocalizedStrings.Auth.emailVerified
+                }
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = mapAuthError(error)
+            }
+        }
     }
     
     func resetFormState() {

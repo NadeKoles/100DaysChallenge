@@ -165,4 +165,10 @@ enum LocalizedStrings {
             String(format: quickIdeaAccessibility, tag)
         }
     }
+    
+    // MARK: - Onboarding
+    enum Onboarding {
+        static let continueButton = NSLocalizedString("onboarding.continueButton", value: "Continue", comment: "Continue button on onboarding")
+        static let getStarted = NSLocalizedString("onboarding.getStarted", value: "Get Started", comment: "Get started button on onboarding")
+    }
 }

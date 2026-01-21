@@ -46,7 +46,7 @@ struct OnboardingView: View {
                 // Bottom button
                 PrimaryButton(
                     title: viewModel.currentSlide < viewModel.slides.count - 1 ? 
-                           "Continue" : "Get Started",
+                           LocalizedStrings.Onboarding.continueButton : LocalizedStrings.Onboarding.getStarted,
                     action: {
                         if viewModel.currentSlide < viewModel.slides.count - 1 {
                             withAnimation {

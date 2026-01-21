@@ -46,7 +46,7 @@ struct SettingsView: View {
                 
                 // Logout button
                 PrimaryButton(
-                    title: "Log Out",
+                    title: LocalizedStrings.Auth.logOut,
                     action: {
                         authViewModel.signOut()
                     },

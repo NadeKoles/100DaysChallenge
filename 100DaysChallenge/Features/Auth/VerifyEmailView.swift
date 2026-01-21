@@ -9,6 +9,7 @@ import SwiftUI
 
 struct VerifyEmailView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @Environment(\.scenePhase) var scenePhase
     
     var body: some View {
         ScrollView {
@@ -28,11 +29,13 @@ struct VerifyEmailView: View {
                 VStack(spacing: Spacing.xl) {
                     // Resend email button
                     PrimaryButton(
-                        title: LocalizedStrings.Auth.resendVerificationEmail,
+                        title: authViewModel.resendCooldownSeconds > 0 
+                            ? LocalizedStrings.Auth.resendVerificationEmailWithCooldown(authViewModel.resendCooldownSeconds)
+                            : LocalizedStrings.Auth.resendVerificationEmail,
                         action: {
                             authViewModel.sendEmailVerification()
                         },
-                        isEnabled: true,
+                        isEnabled: authViewModel.resendCooldownSeconds == 0 && !authViewModel.isLoading,
                         isLoading: authViewModel.isLoading
                     )
                     
@@ -69,6 +72,13 @@ struct VerifyEmailView: View {
             info: $authViewModel.infoMessage,
             resetPrompt: .constant(nil)
         )
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            if newPhase == .active {
+                Task {
+                    await authViewModel.reloadUser()
+                }
+            }
+        }
     }
 }
 

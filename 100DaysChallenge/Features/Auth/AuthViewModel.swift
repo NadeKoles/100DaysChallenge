@@ -31,8 +31,10 @@ final class AuthViewModel: ObservableObject {
     @Published var isPasswordVisible = false
     @Published var isLoading = false
     @Published private(set) var user: FirebaseAuth.User?
+    @Published var resendCooldownSeconds: Int = 0
 
     private var authHandle: AuthStateDidChangeListenerHandle?
+    private var cooldownTimer: Timer?
 
     init() {
         authHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
@@ -45,6 +47,7 @@ final class AuthViewModel: ObservableObject {
 
     deinit {
         if let authHandle { Auth.auth().removeStateDidChangeListener(authHandle) }
+        cooldownTimer?.invalidate()
     }
 
     var isAuthenticated: Bool { user != nil }
@@ -246,16 +249,48 @@ final class AuthViewModel: ObservableObject {
             return
         }
         
+        guard resendCooldownSeconds == 0 else { return }
+        
         isLoading = true
         user.sendEmailVerification { [weak self] error in
             Task { @MainActor in
                 guard let self = self else { return }
                 self.isLoading = false
                 if let error = error {
-                    let errorMsg = LocalizedStrings.Auth.verificationEmailFailed(error.localizedDescription)
-                    self.errorMessage = errorMsg
+                    let authError = error as NSError
+                    let errorCode = AuthErrorCode(rawValue: authError.code)
+                    
+                    // Check for rate-limit errors
+                    if errorCode == .tooManyRequests || 
+                       authError.localizedDescription.contains("TOO_MANY_ATTEMPTS_TRY_LATER") ||
+                       authError.localizedDescription.lowercased().contains("too many") {
+                        self.errorMessage = LocalizedStrings.Auth.rateLimitExceeded
+                        self.startCooldown(seconds: 300) // 5 minutes
+                    } else {
+                        let errorMsg = LocalizedStrings.Auth.verificationEmailFailed(error.localizedDescription)
+                        self.errorMessage = errorMsg
+                        self.startCooldown(seconds: 60) // 60 seconds for normal errors
+                    }
                 } else {
                     self.infoMessage = LocalizedStrings.Auth.verificationEmailSent
+                    self.startCooldown(seconds: 60) // 60 seconds after successful send
+                }
+            }
+        }
+    }
+    
+    private func startCooldown(seconds: Int) {
+        resendCooldownSeconds = seconds
+        cooldownTimer?.invalidate()
+        
+        cooldownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self else { return }
+                if self.resendCooldownSeconds > 0 {
+                    self.resendCooldownSeconds -= 1
+                } else {
+                    self.cooldownTimer?.invalidate()
+                    self.cooldownTimer = nil
                 }
             }
         }

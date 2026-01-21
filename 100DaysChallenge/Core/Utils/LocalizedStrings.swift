@@ -68,6 +68,7 @@ enum LocalizedStrings {
         static let emailAlreadyInUse = NSLocalizedString("auth.emailAlreadyInUse", value: "This email is already registered", comment: "Email already registered error")
         static let networkError = NSLocalizedString("auth.networkError", value: "Network error. Please try again.", comment: "Network error message")
         static let tooManyRequests = NSLocalizedString("auth.tooManyRequests", value: "Too many attempts. Try again later.", comment: "Too many requests error")
+        static let rateLimitExceeded = NSLocalizedString("auth.rateLimitExceeded", value: "Too many requests. Please wait a few minutes before trying again.", comment: "Rate limit exceeded error")
         static let genericError = NSLocalizedString("auth.genericError", value: "Something went wrong. Please try again.", comment: "Generic error message")
         
         // Alert titles
@@ -78,6 +79,10 @@ enum LocalizedStrings {
         static let verifyEmailTitle = NSLocalizedString("auth.verifyEmailTitle", value: "Verify Your Email", comment: "Email verification screen title")
         static let verifyEmailMessage = NSLocalizedString("auth.verifyEmailMessage", value: "We've sent a verification email to your inbox. Please check your email and click the verification link to continue.", comment: "Email verification screen message")
         static let resendVerificationEmail = NSLocalizedString("auth.resendVerificationEmail", value: "Resend Email", comment: "Resend verification email button")
+        static func resendVerificationEmailWithCooldown(_ seconds: Int) -> String {
+            let format = NSLocalizedString("auth.resendVerificationEmailWithCooldown", value: "Resend Email (%ds)", comment: "Resend verification email button with cooldown")
+            return String(format: format, seconds)
+        }
         static let iVerifiedRefresh = NSLocalizedString("auth.iVerifiedRefresh", value: "I Verified, Refresh", comment: "Refresh after verification button")
         static let logOut = NSLocalizedString("auth.logOut", value: "Log Out", comment: "Log out button")
         static let verificationEmailSent = NSLocalizedString("auth.verificationEmailSent", value: "Verification email sent", comment: "Verification email sent success message")

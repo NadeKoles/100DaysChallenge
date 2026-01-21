@@ -12,6 +12,18 @@ struct VerifyEmailView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var reloadTask: Task<Void, Never>?
     
+    private var formattedCooldown: String {
+        let seconds = authViewModel.resendCooldownSeconds
+        guard seconds > 0 else { return "" }
+        if seconds >= 60 {
+            let minutes = seconds / 60
+            let remainingSeconds = seconds % 60
+            return String(format: "%d:%02d", minutes, remainingSeconds)
+        } else {
+            return "\(seconds)s"
+        }
+    }
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl) {
@@ -31,7 +43,7 @@ struct VerifyEmailView: View {
                     // Resend email button
                     PrimaryButton(
                         title: authViewModel.resendCooldownSeconds > 0 
-                            ? LocalizedStrings.Auth.resendVerificationEmailWithCooldown(authViewModel.resendCooldownSeconds)
+                            ? LocalizedStrings.Auth.resendVerificationEmailWithCooldown(formattedCooldown)
                             : LocalizedStrings.Auth.resendVerificationEmail,
                         action: {
                             authViewModel.sendEmailVerification()
@@ -53,18 +65,17 @@ struct VerifyEmailView: View {
                     )
                     
                     // Log out button
-                    Button(action: {
-                        authViewModel.signOut()
-                    }) {
-                        Text(LocalizedStrings.Auth.logOut)
-                            .font(.label)
-                            .foregroundColor(.textSecondary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, Spacing.md)
-                    }
+                    PrimaryButton(
+                        title: LocalizedStrings.Auth.logOut,
+                        action: {
+                            authViewModel.signOut()
+                        },
+                        style: .secondary
+                    )
                 }
             }
             .padding(.horizontal, Spacing.xl)
+            .padding(.top, Spacing.xl)
             .padding(.bottom, Spacing.xxxl)
         }
         .background(Color.background)

@@ -35,6 +35,7 @@ final class AuthViewModel: ObservableObject {
 
     private var authHandle: AuthStateDidChangeListenerHandle?
     private var cooldownTimer: Timer?
+    private var rateLimitBackoffCount: Int = 0
 
     init() {
         authHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
@@ -264,14 +265,18 @@ final class AuthViewModel: ObservableObject {
                     if errorCode == .tooManyRequests || 
                        authError.localizedDescription.contains("TOO_MANY_ATTEMPTS_TRY_LATER") ||
                        authError.localizedDescription.lowercased().contains("too many") {
+                        self.rateLimitBackoffCount += 1
+                        let cooldownSeconds = self.rateLimitBackoffCount >= 2 ? 900 : 300 // 15 minutes if consecutive, else 5 minutes
                         self.errorMessage = LocalizedStrings.Auth.rateLimitExceeded
-                        self.startCooldown(seconds: 300) // 5 minutes
+                        self.startCooldown(seconds: cooldownSeconds)
                     } else {
+                        self.rateLimitBackoffCount = 0 // Reset on non-rate-limit error
                         let errorMsg = LocalizedStrings.Auth.verificationEmailFailed(error.localizedDescription)
                         self.errorMessage = errorMsg
                         self.startCooldown(seconds: 60) // 60 seconds for normal errors
                     }
                 } else {
+                    self.rateLimitBackoffCount = 0 // Reset on success
                     self.infoMessage = LocalizedStrings.Auth.verificationEmailSent
                     self.startCooldown(seconds: 60) // 60 seconds after successful send
                 }

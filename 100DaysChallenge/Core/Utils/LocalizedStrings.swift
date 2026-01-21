@@ -77,11 +77,11 @@ enum LocalizedStrings {
         
         // Email verification
         static let verifyEmailTitle = NSLocalizedString("auth.verifyEmailTitle", value: "Verify Your Email", comment: "Email verification screen title")
-        static let verifyEmailMessage = NSLocalizedString("auth.verifyEmailMessage", value: "We've sent a verification email to your inbox. Please check your email and click the verification link to continue.", comment: "Email verification screen message")
+        static let verifyEmailMessage = NSLocalizedString("auth.verifyEmailMessage", value: "We've sent a verification email to your inbox. Please check your email (including Spam folder) and click the verification link to continue.", comment: "Email verification screen message")
         static let resendVerificationEmail = NSLocalizedString("auth.resendVerificationEmail", value: "Resend Email", comment: "Resend verification email button")
-        static func resendVerificationEmailWithCooldown(_ seconds: Int) -> String {
-            let format = NSLocalizedString("auth.resendVerificationEmailWithCooldown", value: "Resend Email (%ds)", comment: "Resend verification email button with cooldown")
-            return String(format: format, seconds)
+        static func resendVerificationEmailWithCooldown(_ formattedTime: String) -> String {
+            let format = NSLocalizedString("auth.resendVerificationEmailWithCooldown", value: "Resend Email (%@)", comment: "Resend verification email button with cooldown")
+            return String(format: format, formattedTime)
         }
         static let iVerifiedRefresh = NSLocalizedString("auth.iVerifiedRefresh", value: "I Verified, Refresh", comment: "Refresh after verification button")
         static let logOut = NSLocalizedString("auth.logOut", value: "Log Out", comment: "Log out button")

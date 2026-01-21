@@ -9,7 +9,8 @@ import SwiftUI
 
 struct VerifyEmailView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
-    @Environment(\.scenePhase) var scenePhase
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var reloadTask: Task<Void, Never>?
     
     var body: some View {
         ScrollView {
@@ -47,8 +48,8 @@ struct VerifyEmailView: View {
                                 await authViewModel.reloadUser()
                             }
                         },
-                        isEnabled: true,
-                        isLoading: false
+                        isEnabled: !authViewModel.isLoading,
+                        isLoading: authViewModel.isLoading
                     )
                     
                     // Log out button
@@ -72,12 +73,21 @@ struct VerifyEmailView: View {
             info: $authViewModel.infoMessage,
             resetPrompt: .constant(nil)
         )
-        .onChange(of: scenePhase) { oldPhase, newPhase in
+        .task {
+            await authViewModel.reloadUser()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                Task {
+                reloadTask?.cancel()
+                reloadTask = Task {
+                    try? await Task.sleep(nanoseconds: 250_000_000) 
+                    guard !Task.isCancelled else { return }
                     await authViewModel.reloadUser()
                 }
             }
+        }
+        .onDisappear {
+            reloadTask?.cancel()
         }
     }
 }

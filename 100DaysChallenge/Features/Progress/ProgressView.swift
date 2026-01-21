@@ -109,17 +109,11 @@ struct ProgressView: View {
 
 struct EmptyChallengesView: View {
     var body: some View {
-        VStack(spacing: Spacing.xl) {
-            ZStack {
-                RoundedRectangle(cornerRadius: CornerRadius.xxl)
-                    .fill(Color.gray100)
-                    .frame(width: 96, height: 96)
-                
-                Image(systemName: "checkmark.circle")
-                    .font(.system(size: 48, weight: .light))
-                    .foregroundColor(.gray400)
-            }
-            
+        ContentUnavailableView {
+            Image(systemName: "checkmark.circle")
+                .font(.system(size: 48, weight: .light))
+                .foregroundColor(.gray400)
+        } description: {
             VStack(spacing: Spacing.sm) {
                 Text(LocalizedStrings.Progress.noChallengesYet)
                     .font(.heading2)

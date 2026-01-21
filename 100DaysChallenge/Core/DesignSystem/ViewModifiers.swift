@@ -88,14 +88,15 @@ private struct AuthAlertsModifier: ViewModifier {
                             if shouldReopenResetPrompt && resetPrompt != nil {
                                 // Reopen prompt after validation failure
                                 if let currentPrompt = resetPrompt {
-                                    DispatchQueue.main.async {
+                                    Task { @MainActor in
+                                        resetPrompt = nil
+                                        await Task.yield()
+
                                         resetPrompt = ResetPasswordPrompt(
                                             email: currentPrompt.email,
                                             onSend: currentPrompt.onSend
                                         )
-                                        DispatchQueue.main.async {
-                                            shouldReopenResetPrompt = false
-                                        }
+                                        shouldReopenResetPrompt = false
                                     }
                                 }
                             } else {

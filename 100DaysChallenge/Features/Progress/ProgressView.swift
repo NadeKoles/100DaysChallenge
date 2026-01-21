@@ -71,14 +71,14 @@ struct ProgressView: View {
             updateCurrentChallengeId()
             navigateToSelectedChallenge()
         }
-        .onChange(of: viewModel.currentIndex) { _ in
+        .onChange(of: viewModel.currentIndex) {
             updateCurrentChallengeId()
         }
-        .onChange(of: challengeStore.challenges) { _ in
+        .onChange(of: challengeStore.challenges) {
             updateCurrentChallengeId()
             navigateToSelectedChallenge()
         }
-        .onChange(of: appState.selectedChallengeId) { _ in
+        .onChange(of: appState.selectedChallengeId) {
             navigateToSelectedChallenge()
         }
     }
@@ -109,17 +109,11 @@ struct ProgressView: View {
 
 struct EmptyChallengesView: View {
     var body: some View {
-        VStack(spacing: Spacing.xl) {
-            ZStack {
-                RoundedRectangle(cornerRadius: CornerRadius.xxl)
-                    .fill(Color.gray100)
-                    .frame(width: 96, height: 96)
-                
-                Image(systemName: "checkmark.circle")
-                    .font(.system(size: 48, weight: .light))
-                    .foregroundColor(.gray400)
-            }
-            
+        ContentUnavailableView {
+            Image(systemName: "checkmark.circle")
+                .font(.system(size: 48, weight: .light))
+                .foregroundColor(.gray400)
+        } description: {
             VStack(spacing: Spacing.sm) {
                 Text(LocalizedStrings.Progress.noChallengesYet)
                     .font(.heading2)

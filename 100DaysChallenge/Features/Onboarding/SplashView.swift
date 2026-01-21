@@ -57,7 +57,9 @@ struct SplashView: View {
             }
             
             // Navigate after 2 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                guard !Task.isCancelled else { return }
                 appState.handleSplashComplete()
             }
         }

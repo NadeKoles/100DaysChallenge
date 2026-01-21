@@ -11,6 +11,8 @@ struct VerifyEmailView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @Environment(\.scenePhase) private var scenePhase
     @State private var reloadTask: Task<Void, Never>?
+    @State private var isResending = false
+    @State private var isRefreshing = false
     
     private var formattedCooldown: String {
         let seconds = authViewModel.resendCooldownSeconds
@@ -46,22 +48,37 @@ struct VerifyEmailView: View {
                             ? LocalizedStrings.Auth.resendVerificationEmailWithCooldown(formattedCooldown)
                             : LocalizedStrings.Auth.resendVerificationEmail,
                         action: {
+                            isResending = true
                             authViewModel.sendEmailVerification()
+                            // Fallback: reset if isLoading never becomes true (early return case)
+                            Task {
+                                try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+                                if isResending && !authViewModel.isLoading {
+                                    isResending = false
+                                }
+                            }
                         },
-                        isEnabled: authViewModel.resendCooldownSeconds == 0 && !authViewModel.isLoading,
-                        isLoading: authViewModel.isLoading
+                        isEnabled: authViewModel.resendCooldownSeconds == 0 && !isResending,
+                        isLoading: isResending
                     )
+                    .onChange(of: authViewModel.isLoading) { oldValue, newValue in
+                        if isResending && !newValue {
+                            isResending = false
+                        }
+                    }
                     
                     // Refresh button
                     PrimaryButton(
                         title: LocalizedStrings.Auth.iVerifiedRefresh,
                         action: {
                             Task {
+                                isRefreshing = true
                                 await authViewModel.reloadUser()
+                                isRefreshing = false
                             }
                         },
-                        isEnabled: !authViewModel.isLoading,
-                        isLoading: authViewModel.isLoading
+                        isEnabled: !isRefreshing,
+                        isLoading: isRefreshing
                     )
                     
                     // Log out button
@@ -85,7 +102,9 @@ struct VerifyEmailView: View {
             resetPrompt: .constant(nil)
         )
         .task {
+            isRefreshing = true
             await authViewModel.reloadUser()
+            isRefreshing = false
         }
         .onChange(of: scenePhase) { _, newPhase in
             guard newPhase == .active else { return }
@@ -93,11 +112,15 @@ struct VerifyEmailView: View {
             reloadTask = Task {
                 try? await Task.sleep(nanoseconds: 250_000_000)
                 guard !Task.isCancelled else { return }
+                isRefreshing = true
                 await authViewModel.reloadUser()
+                isRefreshing = false
             }
         }
         .onDisappear {
             reloadTask?.cancel()
+            isRefreshing = false
+            isResending = false
         }
     }
 }

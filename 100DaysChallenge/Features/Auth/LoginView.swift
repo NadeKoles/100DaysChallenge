@@ -37,7 +37,7 @@ struct LoginView: View {
                             type: .email,
                             iconName: "envelope"
                         )
-                        .onChange(of: authViewModel.email) { _ in
+                        .onChange(of: authViewModel.email) {
                             authViewModel.clearFormError()
                             if didSubmit {
                                 _ = authViewModel.validateLoginForm()
@@ -61,7 +61,7 @@ struct LoginView: View {
                             type: .password,
                             iconName: "lock"
                         )
-                        .onChange(of: authViewModel.password) { _ in
+                        .onChange(of: authViewModel.password) {
                             authViewModel.clearFormError()
                             if didSubmit {
                                 _ = authViewModel.validateLoginForm()

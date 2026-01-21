@@ -71,14 +71,14 @@ struct ProgressView: View {
             updateCurrentChallengeId()
             navigateToSelectedChallenge()
         }
-        .onChange(of: viewModel.currentIndex) { _ in
+        .onChange(of: viewModel.currentIndex) {
             updateCurrentChallengeId()
         }
-        .onChange(of: challengeStore.challenges) { _ in
+        .onChange(of: challengeStore.challenges) {
             updateCurrentChallengeId()
             navigateToSelectedChallenge()
         }
-        .onChange(of: appState.selectedChallengeId) { _ in
+        .onChange(of: appState.selectedChallengeId) {
             navigateToSelectedChallenge()
         }
     }

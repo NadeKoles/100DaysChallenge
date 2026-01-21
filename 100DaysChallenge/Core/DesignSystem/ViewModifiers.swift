@@ -112,7 +112,7 @@ private struct AuthAlertsModifier: ViewModifier {
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        .onChange(of: resetEmail) { _ in
+                        .onChange(of: resetEmail) {
                             resetEmailError = nil
                         }
                     
@@ -164,7 +164,7 @@ private struct AuthAlertsModifier: ViewModifier {
                     Text(infoMessage)
                 }
             }
-            .onChange(of: resetPrompt) { newValue in
+            .onChange(of: resetPrompt) { _, newValue in
                 if let prompt = newValue {
                     // Preserve error state when reopening after validation failure
                     if resetEmailError == nil {

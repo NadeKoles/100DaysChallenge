@@ -77,13 +77,12 @@ struct VerifyEmailView: View {
             await authViewModel.reloadUser()
         }
         .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .active {
-                reloadTask?.cancel()
-                reloadTask = Task {
-                    try? await Task.sleep(nanoseconds: 250_000_000) 
-                    guard !Task.isCancelled else { return }
-                    await authViewModel.reloadUser()
-                }
+            guard newPhase == .active else { return }
+            reloadTask?.cancel()
+            reloadTask = Task {
+                try? await Task.sleep(nanoseconds: 250_000_000)
+                guard !Task.isCancelled else { return }
+                await authViewModel.reloadUser()
             }
         }
         .onDisappear {

@@ -9,19 +9,25 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @State private var showSignUp = false
     
     var body: some View {
         Group {
-            switch appState.currentScreen {
-            case .splash:
+            if !appState.didFinishLaunchSplash {
                 SplashView()
-            case .onboarding:
+            }
+            else if !appState.hasCompletedOnboarding {
                 OnboardingView()
-            case .signUp:
-                SignUpView()
-            case .login:
-                LoginView()
-            case .main:
+            }
+            else if authViewModel.user == nil {
+                if showSignUp {
+                    SignUpView(showSignUp: $showSignUp)
+                } else {
+                    LoginView(showSignUp: $showSignUp)
+                }
+            }
+            else {
                 MainTabView()
             }
         }

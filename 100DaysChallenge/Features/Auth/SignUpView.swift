@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct SignUpView: View {
-    @EnvironmentObject var appState: AppState
     @EnvironmentObject var authViewModel: AuthViewModel
+    @Binding var showSignUp: Bool
     @State private var didSubmit = false
     @State private var resetPrompt: ResetPasswordPrompt? = nil
     
@@ -117,7 +117,6 @@ struct SignUpView: View {
                                 didSubmit = true
                                 guard authViewModel.validateSignUpForm() else { return }
                                 authViewModel.signUp {
-                                    appState.handleSignUpComplete()
                                 }
                             },
                             isEnabled: !authViewModel.name.isEmpty &&
@@ -133,7 +132,7 @@ struct SignUpView: View {
                                 .foregroundColor(.textSecondary)
                             
                             Button(action: {
-                                appState.currentScreen = .login
+                                showSignUp = false
                             }) {
                                 Text(LocalizedStrings.Auth.logIn)
                                     .font(.label)
@@ -161,8 +160,7 @@ struct SignUpView: View {
 }
 
 #Preview {
-    SignUpView()
-        .environmentObject(AppState())
+    SignUpView(showSignUp: .constant(true))
         .environmentObject(AuthViewModel())
 }
 

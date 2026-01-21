@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var challengeStore: ChallengeStore
-    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var authViewModel: AuthViewModel
     @StateObject private var viewModel = SettingsViewModel()
     @State private var challengeToDelete: Challenge? = nil
     
@@ -48,7 +48,7 @@ struct SettingsView: View {
                 PrimaryButton(
                     title: "Log Out",
                     action: {
-                        appState.handleLogout()
+                        authViewModel.signOut()
                     },
                     iconSystemNameLeft: "arrow.right.square",
                     style: .secondary

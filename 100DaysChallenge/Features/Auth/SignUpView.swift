@@ -146,6 +146,7 @@ struct SignUpView: View {
             .padding(.horizontal, Spacing.xl)
             .padding(.bottom, Spacing.xxxl)
         }
+        .scrollBounceBehavior(.basedOnSize)
         .background(Color.background)
         .authAlerts(
             error: $authViewModel.errorMessage,

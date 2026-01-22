@@ -101,6 +101,10 @@ struct ProgressBarView: View {
                 }
             }
         }
+        .onDisappear {
+            animationTask?.cancel()
+            animationTask = nil
+        }
     }
 }
 

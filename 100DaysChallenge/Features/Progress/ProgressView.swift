@@ -74,7 +74,14 @@ struct ProgressView: View {
         .onChange(of: viewModel.currentIndex) {
             updateCurrentChallengeId()
         }
-        .onChange(of: challengeStore.challenges) {
+        .onChange(of: challengeStore.challenges) { oldValue, newValue in
+            // Handle challenge deletion: adjust index if current challenge was deleted
+            if newValue.isEmpty {
+                viewModel.currentIndex = 0
+            } else if viewModel.currentIndex >= newValue.count {
+                // Current challenge was deleted, move to last available challenge
+                viewModel.currentIndex = max(0, newValue.count - 1)
+            }
             updateCurrentChallengeId()
             navigateToSelectedChallenge()
         }
@@ -84,8 +91,11 @@ struct ProgressView: View {
     }
     
     private func updateCurrentChallengeId() {
-        if viewModel.currentIndex < challengeStore.challenges.count {
-            viewModel.currentChallengeId = challengeStore.challenges[viewModel.currentIndex].id
+        let safeIndex = max(0, min(viewModel.currentIndex, challengeStore.challenges.count - 1))
+        if safeIndex >= 0 && safeIndex < challengeStore.challenges.count {
+            viewModel.currentChallengeId = challengeStore.challenges[safeIndex].id
+        } else {
+            viewModel.currentChallengeId = ""
         }
     }
     
@@ -136,106 +146,138 @@ struct ChallengeProgressView: View {
     let onToggleDay: (String, Int) -> Void
     let onCompleteToday: (String, Int) -> Void
     
-    var currentChallenge: Challenge {
-        challenges[currentIndex]
+    private var safeCurrentIndex: Int {
+        guard !challenges.isEmpty else { return 0 }
+        return max(0, min(currentIndex, challenges.count - 1))
+    }
+    
+    var currentChallenge: Challenge? {
+        guard safeCurrentIndex >= 0 && safeCurrentIndex < challenges.count else {
+            return nil
+        }
+        return challenges[safeCurrentIndex]
     }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                ScrollView {
-                    VStack(spacing: Spacing.xl) {
-                        // Challenge indicator dots 
-                        HStack(spacing: Spacing.sm) {
-                            ForEach(0..<challenges.count, id: \.self) { index in
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(index == currentIndex ? 
-                                          Color(hex: currentChallenge.accentColor) : Color.gray200)
-                                    .frame(width: index == currentIndex ? 24 : 6, height: 6)
-                                    .animation(.easeInOut, value: currentIndex)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, Spacing.xl)
-                        .padding(.top, Spacing.xs)
-                        
-                        // Challenge stats
-                        VStack(alignment: .leading, spacing: Spacing.sm) {
-                            HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
-                                Text("\(currentChallenge.completedDaysSet.count)")
-                                    .font(.displayMedium)
-                                    .foregroundColor(.textPrimary)
+        Group {
+            if let challenge = currentChallenge {
+                NavigationStack {
+                    VStack(spacing: 0) {
+                        ScrollView {
+                            VStack(spacing: Spacing.xl) {
+                                // Challenge indicator dots 
+                                HStack(spacing: Spacing.sm) {
+                                    ForEach(0..<challenges.count, id: \.self) { index in
+                                        RoundedRectangle(cornerRadius: 2)
+                                            .fill(index == safeCurrentIndex ? 
+                                                  Color(hex: challenge.accentColor) : Color.gray200)
+                                            .frame(width: index == safeCurrentIndex ? 24 : 6, height: 6)
+                                            .animation(.easeInOut, value: safeCurrentIndex)
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, Spacing.xl)
+                                .padding(.top, Spacing.xs)
                                 
-                                Text("/ 100")
-                                    .font(.heading3)
-                                    .foregroundColor(.textTertiary)
+                                // Challenge stats
+                                VStack(alignment: .leading, spacing: Spacing.sm) {
+                                    HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
+                                        Text("\(challenge.completedDaysSet.count)")
+                                            .font(.displayMedium)
+                                            .foregroundColor(.textPrimary)
+                                        
+                                        Text("/ 100")
+                                            .font(.heading3)
+                                            .foregroundColor(.textTertiary)
+                                    }
+                                    
+                                    Text(LocalizedStrings.Progress.daysCompleted)
+                                        .font(.body)
+                                        .foregroundColor(.textSecondary)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, Spacing.xl)
+                                .padding(.top, Spacing.lg)
+                                
+                                // Progress bar
+                                ProgressBarView(
+                                    progress: challenge.progress,
+                                    accentColor: Color(hex: challenge.accentColor)
+                                )
+                                .padding(.horizontal, Spacing.xl)
+                                .padding(.bottom, Spacing.lg)
+                                
+                                // 100-day grid
+                                ChallengeGridView(
+                                    challenge: challenge,
+                                    onToggleDay: { day in
+                                        onToggleDay(challenge.id, day)
+                                    }
+                                )
+                                .padding(.horizontal, Spacing.xl)
+                                .padding(.bottom, shouldShowButton(challenge) ? 80 : Spacing.xl)
                             }
-                            
-                            Text(LocalizedStrings.Progress.daysCompleted)
-                                .font(.body)
-                                .foregroundColor(.textSecondary)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, Spacing.xl)
-                        .padding(.top, Spacing.lg)
                         
-                        // Progress bar
-                        ProgressBarView(
-                            progress: currentChallenge.progress,
-                            accentColor: Color(hex: currentChallenge.accentColor)
-                        )
-                        .padding(.horizontal, Spacing.xl)
-                        .padding(.bottom, Spacing.lg)
-                        
-                        // 100-day grid
-                        ChallengeGridView(
-                            challenge: currentChallenge,
-                            onToggleDay: { day in
-                                onToggleDay(currentChallenge.id, day)
-                            }
-                        )
-                        .padding(.horizontal, Spacing.xl)
-                        .padding(.bottom, shouldShowButton ? 80 : Spacing.xl)
+                        // Sticky button at bottom
+                        if shouldShowButton(challenge) {
+                            PrimaryButton(
+                                title: LocalizedStrings.Progress.markDayCompleteFormatted(challenge.currentDay),
+                                action: {
+                                    onCompleteToday(challenge.id, challenge.currentDay)
+                                },
+                                iconSystemNameLeft: "checkmark",
+                                style: .solid(Color(hex: challenge.accentColor))
+                            )
+                            .padding(.horizontal, Spacing.xl)
+                            .padding(.vertical, Spacing.md)
+                            .background(Color.background)
+                        }
                     }
-                }
-                
-                // Sticky button at bottom
-                if shouldShowButton {
-                    PrimaryButton(
-                        title: LocalizedStrings.Progress.markDayCompleteFormatted(currentChallenge.currentDay),
-                        action: {
-                            onCompleteToday(currentChallenge.id, currentChallenge.currentDay)
-                        },
-                        iconSystemNameLeft: "checkmark",
-                        style: .solid(Color(hex: currentChallenge.accentColor))
+                    .navigationTitle(challenge.title)
+                    .navigationBarTitleDisplayMode(.large)
+                    .gesture(
+                        DragGesture()
+                            .onEnded { value in
+                                let threshold: CGFloat = 50
+                                let safeIndex = safeCurrentIndex
+                                if value.translation.width > threshold && safeIndex > 0 {
+                                    withAnimation {
+                                        currentIndex = safeIndex - 1
+                                    }
+                                } else if value.translation.width < -threshold && safeIndex < challenges.count - 1 {
+                                    withAnimation {
+                                        currentIndex = safeIndex + 1
+                                    }
+                                }
+                            }
                     )
-                    .padding(.horizontal, Spacing.xl)
-                    .padding(.vertical, Spacing.md)
-                    .background(Color.background)
+                }
+            } else {
+                // Fallback empty state if no challenge available
+                ContentUnavailableView {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 48, weight: .light))
+                        .foregroundColor(.gray400)
+                } description: {
+                    Text("No challenge available")
+                        .font(.heading2)
+                        .foregroundColor(.textPrimary)
                 }
             }
-            .navigationTitle(currentChallenge.title)
-            .navigationBarTitleDisplayMode(.large)
-            .gesture(
-                DragGesture()
-                    .onEnded { value in
-                        let threshold: CGFloat = 50
-                        if value.translation.width > threshold && currentIndex > 0 {
-                            withAnimation {
-                                currentIndex -= 1
-                            }
-                        } else if value.translation.width < -threshold && currentIndex < challenges.count - 1 {
-                            withAnimation {
-                                currentIndex += 1
-                            }
-                        }
-                    }
-            )
+        }
+        .onChange(of: challenges.count) { _, newCount in
+            // Ensure currentIndex is within bounds when challenges array changes
+            if newCount > 0 {
+                currentIndex = max(0, min(currentIndex, newCount - 1))
+            } else {
+                currentIndex = 0
+            }
         }
     }
     
-    private var shouldShowButton: Bool {
-        !currentChallenge.isTodayCompleted && currentChallenge.currentDay <= 100
+    private func shouldShowButton(_ challenge: Challenge) -> Bool {
+        !challenge.isTodayCompleted && challenge.currentDay <= 100
     }
 }
 

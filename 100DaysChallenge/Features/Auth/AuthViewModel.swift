@@ -34,7 +34,7 @@ final class AuthViewModel: ObservableObject {
     @Published var resendCooldownSeconds: Int = 0
 
     private var authHandle: AuthStateDidChangeListenerHandle?
-    private var cooldownTimer: Timer?
+    private var cooldownTask: Task<Void, Never>?
     private var rateLimitBackoffCount: Int = 0
 
     init() {
@@ -48,7 +48,7 @@ final class AuthViewModel: ObservableObject {
 
     deinit {
         if let authHandle { Auth.auth().removeStateDidChangeListener(authHandle) }
-        cooldownTimer?.invalidate()
+        cooldownTask?.cancel()
     }
 
     var isAuthenticated: Bool { user != nil }
@@ -286,18 +286,19 @@ final class AuthViewModel: ObservableObject {
     
     private func startCooldown(seconds: Int) {
         resendCooldownSeconds = seconds
-        cooldownTimer?.invalidate()
+        cooldownTask?.cancel()
         
-        cooldownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self else { return }
-                if self.resendCooldownSeconds > 0 {
-                    self.resendCooldownSeconds -= 1
-                } else {
-                    self.cooldownTimer?.invalidate()
-                    self.cooldownTimer = nil
-                }
+        cooldownTask = Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            
+            for remaining in (0..<seconds).reversed() {
+                guard !Task.isCancelled else { return }
+                self.resendCooldownSeconds = remaining
+                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
             }
+            
+            guard !Task.isCancelled else { return }
+            self.resendCooldownSeconds = 0
         }
     }
     

@@ -33,10 +33,16 @@ class ChallengeStore: ObservableObject {
     
     // MARK: - Save
     private func saveChallenges() {
-        guard let encoded = try? JSONEncoder().encode(challenges) else {
-            return
+        do {
+            let encoded = try JSONEncoder().encode(challenges)
+            UserDefaults.standard.set(encoded, forKey: userDefaultsKey)
+        } catch {
+            // TODO: In a production app, implement:
+            // - Send error to analytics/crash reporting service
+            // - Show a user-friendly error message
+            // - Attempt to save to a backup location
+            print("Failed to save challenges: \(error.localizedDescription)")
         }
-        UserDefaults.standard.set(encoded, forKey: userDefaultsKey)
     }
     
     // MARK: - Add Challenge

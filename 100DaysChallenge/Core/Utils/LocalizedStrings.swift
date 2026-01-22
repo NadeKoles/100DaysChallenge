@@ -165,4 +165,36 @@ enum LocalizedStrings {
             String(format: quickIdeaAccessibility, tag)
         }
     }
+    
+    // MARK: - Onboarding
+    enum Onboarding {
+        static let continueButton = NSLocalizedString("onboarding.continueButton", value: "Continue", comment: "Continue button on onboarding")
+        static let getStarted = NSLocalizedString("onboarding.getStarted", value: "Get Started", comment: "Get started button on onboarding")
+    }
+    
+    // MARK: - Settings
+    enum Settings {
+        static let title = NSLocalizedString("settings.title", value: "Settings", comment: "Settings screen title")
+        static let accountSection = NSLocalizedString("settings.accountSection", value: "ACCOUNT", comment: "Account section header")
+        static let profile = NSLocalizedString("settings.profile", value: "Profile", comment: "Profile settings row")
+        static let notifications = NSLocalizedString("settings.notifications", value: "Notifications", comment: "Notifications settings row")
+        static let yourChallengesSection = NSLocalizedString("settings.yourChallengesSection", value: "YOUR CHALLENGES", comment: "Your challenges section header")
+        static let supportSection = NSLocalizedString("settings.supportSection", value: "SUPPORT", comment: "Support section header")
+        static let helpCenter = NSLocalizedString("settings.helpCenter", value: "Help Center", comment: "Help Center settings row")
+        static let privacyPolicy = NSLocalizedString("settings.privacyPolicy", value: "Privacy Policy", comment: "Privacy Policy settings row")
+        static func version(_ version: String) -> String {
+            let format = NSLocalizedString("settings.version", value: "Version %@", comment: "App version string")
+            return String(format: format, version)
+        }
+        static let deleteChallengeTitle = NSLocalizedString("settings.deleteChallengeTitle", value: "Delete Challenge?", comment: "Delete challenge alert title")
+        static let delete = NSLocalizedString("settings.delete", value: "Delete", comment: "Delete button")
+        static func deleteChallengeMessage(_ challengeTitle: String) -> String {
+            let format = NSLocalizedString("settings.deleteChallengeMessage", value: "This will permanently delete \"%@\" and all progress. This action cannot be undone.", comment: "Delete challenge alert message")
+            return String(format: format, challengeTitle)
+        }
+        static func challengeProgress(_ completed: Int) -> String {
+            let format = NSLocalizedString("settings.challengeProgress", value: "%d / 100 days", comment: "Challenge progress in settings")
+            return String(format: format, completed)
+        }
+    }
 }

@@ -181,18 +181,19 @@ enum ColorPreviewData {
 struct ChallengeAccentColor {
     let name: String
     let color: Color
+    let hex: String
     
     static let all: [ChallengeAccentColor] = [
-        ChallengeAccentColor(name: "Coral Red", color: .accentCoralRed),
-        ChallengeAccentColor(name: "Sunset Orange", color: .accentSunsetOrange),
-        ChallengeAccentColor(name: "Fresh Green", color: .accentFreshGreen),
-        ChallengeAccentColor(name: "Ocean Teal", color: .accentOceanTeal),
-        ChallengeAccentColor(name: "Sky Blue", color: .accentSkyBlue),
-        ChallengeAccentColor(name: "Soft Lavender", color: .accentSoftLavender),
-        ChallengeAccentColor(name: "Royal Purple", color: .accentRoyalPurple),
-        ChallengeAccentColor(name: "Magenta", color: .accentMagenta),
-        ChallengeAccentColor(name: "Dark Brown", color: .accentDarkBrown),
-        ChallengeAccentColor(name: "Deep Navy", color: .accentDeepNavy)
+        ChallengeAccentColor(name: "Coral Red", color: .accentCoralRed, hex: "#F56B6B"),
+        ChallengeAccentColor(name: "Sunset Orange", color: .accentSunsetOrange, hex: "#FF9D5C"),
+        ChallengeAccentColor(name: "Fresh Green", color: .accentFreshGreen, hex: "#6BCF94"),
+        ChallengeAccentColor(name: "Ocean Teal", color: .accentOceanTeal, hex: "#4ECDC4"),
+        ChallengeAccentColor(name: "Sky Blue", color: .accentSkyBlue, hex: "#5C9FFF"),
+        ChallengeAccentColor(name: "Soft Lavender", color: .accentSoftLavender, hex: "#C7B7FF"),
+        ChallengeAccentColor(name: "Royal Purple", color: .accentRoyalPurple, hex: "#9B6BFF"),
+        ChallengeAccentColor(name: "Magenta", color: .accentMagenta, hex: "#EE7FB3"),
+        ChallengeAccentColor(name: "Dark Brown", color: .accentDarkBrown, hex: "#76574A"),
+        ChallengeAccentColor(name: "Deep Navy", color: .accentDeepNavy, hex: "#24304D")
     ]
 }
 

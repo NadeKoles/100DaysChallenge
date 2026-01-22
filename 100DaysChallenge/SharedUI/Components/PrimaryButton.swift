@@ -23,6 +23,15 @@ struct PrimaryButton: View {
         static let systemIconSize: CGFloat = 18
     }
     
+    // Animation parameters - single source of truth for press interaction
+    private enum PressAnimation {
+        static let pressedScale: CGFloat = 0.97
+        static let pressedYTranslation: CGFloat = 0.8
+        static let pressedShadowRadius: CGFloat = 4.0
+        static let pressedShadowY: CGFloat = 2.0
+        static let animation: SwiftUI.Animation = .spring(response: 0.22, dampingFraction: 0.78)
+    }
+    
     let title: String
     let action: () -> Void
     let icon: Image?
@@ -64,7 +73,11 @@ struct PrimaryButton: View {
     }
     
     private var buttonOpacity: Double {
-        (isEnabled && !isLoading) ? 1 : 0.5
+        if isEnabled && !isLoading {
+            return 1.0
+        } else {
+            return 0.72
+        }
     }
     
     private var shouldHaveShadow: Bool {
@@ -113,15 +126,19 @@ struct PrimaryButton: View {
             .frame(height: Metrics.height)
             .background(backgroundView)
             .cornerRadius(CornerRadius.xl)
-            .shadow(
-                color: shouldHaveShadow ? shadowConfig.color : .clear,
-                radius: shouldHaveShadow ? shadowConfig.radius : 0,
-                x: shouldHaveShadow ? shadowConfig.x : 0,
-                y: shouldHaveShadow ? shadowConfig.y : 0
-            )
         }
         .disabled(!isEnabled || isLoading)
         .opacity(buttonOpacity)
+        .buttonStyle(PrimaryButtonPressStyle(
+            shouldHaveShadow: shouldHaveShadow,
+            shadowConfig: shadowConfig,
+            pressedScale: PressAnimation.pressedScale,
+            pressedYTranslation: PressAnimation.pressedYTranslation,
+            pressedShadowRadius: PressAnimation.pressedShadowRadius,
+            pressedShadowY: PressAnimation.pressedShadowY,
+            animation: PressAnimation.animation,
+            isInteractive: isEnabled && !isLoading
+        ))
     }
     
     @ViewBuilder
@@ -168,6 +185,34 @@ struct PrimaryButton: View {
                         .stroke(Color.border, lineWidth: 1)
                 )
         }
+    }
+}
+
+// MARK: - Custom Button Style for Press Animation
+// Removes default system dimming and applies consistent press animation across all button styles
+private struct PrimaryButtonPressStyle: ButtonStyle {
+    let shouldHaveShadow: Bool
+    let shadowConfig: (color: Color, radius: CGFloat, x: CGFloat, y: CGFloat)
+    let pressedScale: CGFloat
+    let pressedYTranslation: CGFloat
+    let pressedShadowRadius: CGFloat
+    let pressedShadowY: CGFloat
+    let animation: SwiftUI.Animation
+    let isInteractive: Bool
+    
+    func makeBody(configuration: Configuration) -> some View {
+        let isPressed = configuration.isPressed && isInteractive
+        
+        return configuration.label
+            .scaleEffect(isPressed ? pressedScale : 1.0)
+            .offset(y: isPressed ? pressedYTranslation : 0)
+            .shadow(
+                color: shouldHaveShadow ? shadowConfig.color : .clear,
+                radius: isPressed && shouldHaveShadow ? pressedShadowRadius : (shouldHaveShadow ? shadowConfig.radius : 0),
+                x: shouldHaveShadow ? shadowConfig.x : 0,
+                y: isPressed && shouldHaveShadow ? pressedShadowY : (shouldHaveShadow ? shadowConfig.y : 0)
+            )
+            .animation(animation, value: isPressed)
     }
 }
 

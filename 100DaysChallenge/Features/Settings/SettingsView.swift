@@ -19,14 +19,14 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: Spacing.xl) {
                 
                 // Account section
-                SettingsSection(title: "ACCOUNT") {
-                    SettingsRow(icon: "person", title: "Profile") { }
-                    SettingsRow(icon: "bell", title: "Notifications") { }
+                SettingsSection(title: LocalizedStrings.Settings.accountSection) {
+                    SettingsRow(icon: "person", title: LocalizedStrings.Settings.profile) { }
+                    SettingsRow(icon: "bell", title: LocalizedStrings.Settings.notifications) { }
                 }
                 
                 // Challenges section
                 if !challengeStore.challenges.isEmpty {
-                    SettingsSection(title: "YOUR CHALLENGES") {
+                    SettingsSection(title: LocalizedStrings.Settings.yourChallengesSection) {
                         ForEach(challengeStore.challenges) { challenge in
                             ChallengeRow(
                                 challenge: challenge,
@@ -39,14 +39,14 @@ struct SettingsView: View {
                 }
                 
                 // Support section
-                SettingsSection(title: "SUPPORT") {
-                    SettingsRow(icon: "questionmark.circle", title: "Help Center") { }
-                    SettingsRow(icon: "shield", title: "Privacy Policy") { }
+                SettingsSection(title: LocalizedStrings.Settings.supportSection) {
+                    SettingsRow(icon: "questionmark.circle", title: LocalizedStrings.Settings.helpCenter) { }
+                    SettingsRow(icon: "shield", title: LocalizedStrings.Settings.privacyPolicy) { }
                 }
                 
                 // Logout button
                 PrimaryButton(
-                    title: "Log Out",
+                    title: LocalizedStrings.Auth.logOut,
                     action: {
                         authViewModel.signOut()
                     },
@@ -56,7 +56,7 @@ struct SettingsView: View {
                 .padding(.top, Spacing.xl)
                 
                 // Version
-                Text("Version 1.0.0")
+                Text(LocalizedStrings.Settings.version("1.0.0"))
                     .font(.caption)
                     .foregroundColor(.textTertiary)
                     .frame(maxWidth: .infinity)
@@ -67,17 +67,17 @@ struct SettingsView: View {
             .padding(.bottom, Spacing.xxxl)
             }
             .background(Color.background)
-            .navigationTitle("Settings")
+            .navigationTitle(LocalizedStrings.Settings.title)
             .navigationBarTitleDisplayMode(.large)
         }
-        .alert("Delete Challenge?", isPresented: Binding(
+        .alert(LocalizedStrings.Settings.deleteChallengeTitle, isPresented: Binding(
             get: { challengeToDelete != nil },
             set: { if !$0 { challengeToDelete = nil } }
         )) {
-            Button("Cancel", role: .cancel) {
+            Button(LocalizedStrings.Progress.cancel, role: .cancel) {
                 challengeToDelete = nil
             }
-            Button("Delete", role: .destructive) {
+            Button(LocalizedStrings.Settings.delete, role: .destructive) {
                 if let challenge = challengeToDelete {
                     challengeStore.deleteChallenge(id: challenge.id)
                     challengeToDelete = nil
@@ -85,7 +85,7 @@ struct SettingsView: View {
             }
         } message: {
             if let challenge = challengeToDelete {
-                Text("This will permanently delete \"\(challenge.title)\" and all progress. This action cannot be undone.")
+                Text(LocalizedStrings.Settings.deleteChallengeMessage(challenge.title))
             }
         }
     }
@@ -162,7 +162,7 @@ struct ChallengeRow: View {
                     .foregroundColor(.textPrimary)
                     .lineLimit(1)
                 
-                Text("\(challenge.completedDaysSet.count) / 100 days")
+                Text(LocalizedStrings.Settings.challengeProgress(challenge.completedDaysSet.count))
                     .font(.bodySmall)
                     .foregroundColor(.textSecondary)
             }

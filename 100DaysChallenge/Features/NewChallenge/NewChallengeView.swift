@@ -56,12 +56,12 @@ struct NewChallengeView: View {
                             .sectionHeaderStyle()
                         
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Spacing.md), count: 4), spacing: Spacing.md) {
-                            ForEach(ChallengeAccentColor.all, id: \.name) { colorOption in
+                            ForEach(Array(ChallengeAccentColor.all.enumerated()), id: \.element.name) { index, colorOption in
                                 ColorOptionButton(
                                     color: colorOption.color,
-                                    isSelected: viewModel.selectedColor == colorOption.color,
+                                    isSelected: viewModel.selectedColorIndex == index,
                                     onSelect: {
-                                        viewModel.selectedColor = colorOption.color
+                                        viewModel.selectedColorIndex = index
                                     }
                                 )
                             }

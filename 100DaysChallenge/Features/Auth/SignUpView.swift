@@ -35,7 +35,8 @@ struct SignUpView: View {
                             placeholder: LocalizedStrings.Auth.namePlaceholder,
                             text: $authViewModel.name,
                             type: .text,
-                            iconName: "person"
+                            iconName: "person",
+                            maxLength: InputLimits.name
                         )
                         .onChange(of: authViewModel.name) {
                             authViewModel.clearFormError()
@@ -59,7 +60,8 @@ struct SignUpView: View {
                             placeholder: LocalizedStrings.Auth.emailPlaceholder,
                             text: $authViewModel.email,
                             type: .email,
-                            iconName: "envelope"
+                            iconName: "envelope",
+                            maxLength: InputLimits.email
                         )
                         .onChange(of: authViewModel.email) {
                             authViewModel.clearFormError()

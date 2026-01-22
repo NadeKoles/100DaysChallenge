@@ -35,7 +35,8 @@ struct LoginView: View {
                             placeholder: LocalizedStrings.Auth.emailPlaceholder,
                             text: $authViewModel.email,
                             type: .email,
-                            iconName: "envelope"
+                            iconName: "envelope",
+                            maxLength: InputLimits.email
                         )
                         .onChange(of: authViewModel.email) {
                             authViewModel.clearFormError()

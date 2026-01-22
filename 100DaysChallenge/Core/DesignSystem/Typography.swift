@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 extension Font {
     // MARK: - Display
@@ -32,5 +33,17 @@ extension Font {
     // MARK: - Caption
     static let caption = Font.system(size: 12, weight: .regular, design: .default)
     static let captionSmall = Font.system(size: 10, weight: .regular, design: .default)
+}
+
+extension UIFont {
+    // MARK: - Body
+    static let body = UIFont.systemFont(ofSize: 16, weight: .regular)
+    static let bodyLarge = UIFont.systemFont(ofSize: 18, weight: .regular)
+    static let bodySmall = UIFont.systemFont(ofSize: 14, weight: .regular)
+    
+    // MARK: - Labels
+    static let label = UIFont.systemFont(ofSize: 16, weight: .medium)
+    static let labelSmall = UIFont.systemFont(ofSize: 14, weight: .medium)
+    static let labelTiny = UIFont.systemFont(ofSize: 12, weight: .medium)
 }
 

@@ -32,6 +32,11 @@ struct NewChallengeView: View {
                                 RoundedRectangle(cornerRadius: CornerRadius.xl)
                                     .stroke(Color.border, lineWidth: 1)
                             )
+                            .onChange(of: viewModel.title) { newValue in
+                                if newValue.count > InputLimits.challengeTitle {
+                                    viewModel.title = String(newValue.prefix(InputLimits.challengeTitle))
+                                }
+                            }
                     }
                     
                     // Quick ideas

@@ -33,7 +33,6 @@ struct EmailTextFieldWrapper: UIViewRepresentable {
         textField.textContentType = .username
         textField.borderStyle = .none
         textField.adjustsFontSizeToFitWidth = false
-        // Prevent horizontal expansion by lowering content priority
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         textField.setContentHuggingPriority(.defaultLow, for: .horizontal)
         textField.delegate = context.coordinator

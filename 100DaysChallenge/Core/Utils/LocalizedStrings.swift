@@ -90,9 +90,23 @@ enum LocalizedStrings {
         static let emailVerified = NSLocalizedString("auth.emailVerified", value: "Email verified successfully", comment: "Email verified success message")
     }
     
+    // MARK: - Splash
+    enum Splash {
+        static let title = NSLocalizedString("splash.title", value: "100 Days", comment: "Splash screen title")
+        static let subtitle = NSLocalizedString("splash.subtitle", value: "Build lasting habits", comment: "Splash screen subtitle")
+    }
+    
+    // MARK: - Tabs
+    enum Tabs {
+        static let progress = NSLocalizedString("tabs.progress", value: "Progress", comment: "Tab bar label")
+        static let newChallenge = NSLocalizedString("tabs.newChallenge", value: "New", comment: "Tab bar label")
+    }
+    
     // MARK: - Progress
     enum Progress {
         static let noChallengesYet = NSLocalizedString("progress.noChallengesYet", value: "No Challenges Yet", comment: "Empty state title")
+        static let noChallengeAvailable = NSLocalizedString("progress.noChallengeAvailable", value: "No challenge available", comment: "Content unavailable when no challenge selected")
+        static let gridTitle = NSLocalizedString("progress.gridTitle", value: "100 DAYS GRID", comment: "100-day grid section header")
         static let noChallengesDescription = NSLocalizedString("progress.noChallengesDescription", value: "Start your first 100-days challenge to build a lasting habit", comment: "Empty state description")
         static let daysCompleted = NSLocalizedString("progress.daysCompleted", value: "days completed", comment: "Days completed label")
         static let markDayComplete = NSLocalizedString("progress.markDayComplete", value: "Mark Day %d Complete", comment: "Mark day complete button")
@@ -171,6 +185,15 @@ enum LocalizedStrings {
     enum Onboarding {
         static let continueButton = NSLocalizedString("onboarding.continueButton", value: "Continue", comment: "Continue button on onboarding")
         static let getStarted = NSLocalizedString("onboarding.getStarted", value: "Get Started", comment: "Get started button on onboarding")
+        
+        enum Slides {
+            static let goalTitle = NSLocalizedString("onboarding.slides.goalTitle", value: "Set Your Goal", comment: "Onboarding slide 1 title")
+            static let goalDescription = NSLocalizedString("onboarding.slides.goalDescription", value: "Choose a habit to focus on.\nAnything that truly matters to you.", comment: "Onboarding slide 1 description")
+            static let progressTitle = NSLocalizedString("onboarding.slides.progressTitle", value: "Track Your Progress", comment: "Onboarding slide 2 title")
+            static let progressDescription = NSLocalizedString("onboarding.slides.progressDescription", value: "Mark each completed day\nand watch your progress grow.", comment: "Onboarding slide 2 description")
+            static let consistencyTitle = NSLocalizedString("onboarding.slides.consistencyTitle", value: "Build Consistency", comment: "Onboarding slide 3 title")
+            static let consistencyDescription = NSLocalizedString("onboarding.slides.consistencyDescription", value: "Small steps every day lead\nto lasting change.", comment: "Onboarding slide 3 description")
+        }
     }
     
     // MARK: - Settings

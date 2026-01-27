@@ -198,7 +198,7 @@ struct ChallengeProgressView: View {
                         .font(.system(size: 48, weight: .light))
                         .foregroundColor(.gray400)
                 } description: {
-                    Text("No challenge available")
+                    Text(LocalizedStrings.Progress.noChallengeAvailable)
                         .font(.heading2)
                         .foregroundColor(.textPrimary)
                 }

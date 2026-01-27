@@ -40,12 +40,12 @@ struct SplashView: View {
 
                 // Text
                 VStack(spacing: Spacing.sm) {
-                    Text("100 Days")
+                    Text(LocalizedStrings.Splash.title)
                         .font(.displayLarge)
                         .foregroundColor(.textPrimary)
                         .tracking(-1)
 
-                    Text("Build lasting habits")
+                    Text(LocalizedStrings.Splash.subtitle)
                         .font(.bodyLarge)
                         .foregroundColor(.textSecondary)
                 }

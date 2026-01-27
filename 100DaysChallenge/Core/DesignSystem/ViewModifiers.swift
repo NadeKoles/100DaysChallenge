@@ -145,7 +145,7 @@ private struct AuthAlertsModifier: ViewModifier {
                     }
                     .disabled(trimmedResetEmail.isEmpty)
                 } else {
-                    Button("OK") {
+                    Button(LocalizedStrings.Auth.ok) {
                         error = nil
                         info = nil
                     }

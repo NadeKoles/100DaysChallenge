@@ -46,21 +46,21 @@ struct CustomTabBar: View {
             HStack(spacing: 0) {
                 TabBarButton(
                     icon: "house.fill",
-                    label: "Progress",
+                    label: LocalizedStrings.Tabs.progress,
                     isSelected: currentTab == .progress,
                     action: { onTabChange(.progress) }
                 )
                 
                 TabBarButton(
                     icon: "plus.circle.fill",
-                    label: "New",
+                    label: LocalizedStrings.Tabs.newChallenge,
                     isSelected: currentTab == .newChallenge,
                     action: { onTabChange(.newChallenge) }
                 )
                 
                 TabBarButton(
                     icon: "gearshape.fill",
-                    label: "Settings",
+                    label: LocalizedStrings.Settings.title,
                     isSelected: currentTab == .settings,
                     action: { onTabChange(.settings) }
                 )

@@ -23,8 +23,8 @@ class NewChallengeViewModel: ObservableObject {
     @Published var alert: NewChallengeAlertState?
     @Published var isLoading: Bool = false
 
-    private weak var challengeStore: ChallengeStore?
-    private weak var appState: AppState?
+    private var challengeStore: ChallengeStore?
+    private var appState: AppState?
 
     var selectedColor: Color {
         ChallengeAccentColor.all[selectedColorIndex].color
@@ -72,7 +72,10 @@ class NewChallengeViewModel: ObservableObject {
     }
 
     func submit() {
-        guard let store = challengeStore, let app = appState else { return }
+        guard let store = challengeStore, let app = appState else {
+            assertionFailure("NewChallengeViewModel.submit() called before onAppear; challengeStore or appState is nil")
+            return
+        }
         guard store.challenges.count < ChallengeStore.maxChallenges else {
             alert = .maxChallengesReached
             return

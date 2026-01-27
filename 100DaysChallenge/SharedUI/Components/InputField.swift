@@ -118,7 +118,7 @@ struct InputField: View {
                             .font(.body)
                             .foregroundColor(.textSecondary)
                             .lineLimit(1)
-                            .onChange(of: text) { newValue in
+                            .onChange(of: text) { _, newValue in
                                 if let maxLength = maxLength, newValue.count > maxLength {
                                     text = String(newValue.prefix(maxLength))
                                 }
@@ -138,7 +138,7 @@ struct InputField: View {
                             .font(.body)
                             .foregroundColor(.textSecondary)
                             .lineLimit(1)
-                            .onChange(of: text) { newValue in
+                            .onChange(of: text) { _, newValue in
                                 if let maxLength = maxLength, newValue.count > maxLength {
                                     text = String(newValue.prefix(maxLength))
                                 }

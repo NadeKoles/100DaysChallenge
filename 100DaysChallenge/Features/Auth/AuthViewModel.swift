@@ -11,6 +11,14 @@ import FirebaseCore
 import GoogleSignIn
 import SwiftUI
 
+// MARK: - Verify Email Alert State
+struct VerifyEmailAlertState: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
+    let primaryTitle: String
+}
+
 @MainActor
 final class AuthViewModel: ObservableObject {
     // MARK: - Feature Flags
@@ -32,9 +40,12 @@ final class AuthViewModel: ObservableObject {
     @Published var isLoading = false
     @Published private(set) var user: FirebaseAuth.User?
     @Published var resendCooldownSeconds: Int = 0
+    @Published var verifyEmailAlert: VerifyEmailAlertState?
+    @Published var isRefreshing = false
 
     private var authHandle: AuthStateDidChangeListenerHandle?
     private var cooldownTask: Task<Void, Never>?
+    private var verifyReloadTask: Task<Void, Never>?
     private var rateLimitBackoffCount: Int = 0
 
     init() {
@@ -49,6 +60,25 @@ final class AuthViewModel: ObservableObject {
     deinit {
         if let authHandle { Auth.auth().removeStateDidChangeListener(authHandle) }
         cooldownTask?.cancel()
+        verifyReloadTask?.cancel()
+    }
+
+    var formattedResendCooldown: String {
+        let seconds = resendCooldownSeconds
+        guard seconds > 0 else { return "" }
+        if seconds >= 60 {
+            let minutes = seconds / 60
+            let remainingSeconds = seconds % 60
+            return String(format: "%d:%02d", minutes, remainingSeconds)
+        } else {
+            return "\(seconds)s"
+        }
+    }
+
+    var resendVerificationButtonTitle: String {
+        resendCooldownSeconds > 0
+            ? LocalizedStrings.Auth.resendVerificationEmailWithCooldown(formattedResendCooldown)
+            : LocalizedStrings.Auth.resendVerificationEmail
     }
 
     var isAuthenticated: Bool { user != nil }
@@ -239,14 +269,33 @@ final class AuthViewModel: ObservableObject {
     func signOut() {
         isLoading = false
         do { try Auth.auth().signOut() }
-        catch { errorMessage = error.localizedDescription }
+        catch {
+            errorMessage = error.localizedDescription
+            verifyEmailAlert = VerifyEmailAlertState(
+                title: LocalizedStrings.Auth.errorTitle,
+                message: error.localizedDescription,
+                primaryTitle: "OK"
+            )
+        }
     }
-    
+
+    func dismissVerifyEmailAlert() {
+        verifyEmailAlert = nil
+        errorMessage = nil
+        infoMessage = nil
+    }
+
     // MARK: - Email Verification
-    
+
     func sendEmailVerification() {
         guard let user = user else {
-            errorMessage = LocalizedStrings.Auth.genericError
+            let msg = LocalizedStrings.Auth.genericError
+            errorMessage = msg
+            verifyEmailAlert = VerifyEmailAlertState(
+                title: LocalizedStrings.Auth.errorTitle,
+                message: msg,
+                primaryTitle: "OK"
+            )
             return
         }
         
@@ -262,22 +311,39 @@ final class AuthViewModel: ObservableObject {
                     let errorCode = AuthErrorCode(rawValue: authError.code)
                     
                     // Check for rate-limit errors
-                    if errorCode == .tooManyRequests || 
+                    if errorCode == .tooManyRequests ||
                        authError.localizedDescription.contains("TOO_MANY_ATTEMPTS_TRY_LATER") ||
                        authError.localizedDescription.lowercased().contains("too many") {
                         self.rateLimitBackoffCount += 1
                         let cooldownSeconds = self.rateLimitBackoffCount >= 2 ? 900 : 300 // 15 minutes if consecutive, else 5 minutes
-                        self.errorMessage = LocalizedStrings.Auth.rateLimitExceeded
+                        let msg = LocalizedStrings.Auth.rateLimitExceeded
+                        self.errorMessage = msg
+                        self.verifyEmailAlert = VerifyEmailAlertState(
+                            title: LocalizedStrings.Auth.errorTitle,
+                            message: msg,
+                            primaryTitle: "OK"
+                        )
                         self.startCooldown(seconds: cooldownSeconds)
                     } else {
                         self.rateLimitBackoffCount = 0 // Reset on non-rate-limit error
                         let errorMsg = LocalizedStrings.Auth.verificationEmailFailed(error.localizedDescription)
                         self.errorMessage = errorMsg
+                        self.verifyEmailAlert = VerifyEmailAlertState(
+                            title: LocalizedStrings.Auth.errorTitle,
+                            message: errorMsg,
+                            primaryTitle: "OK"
+                        )
                         self.startCooldown(seconds: 60) // 60 seconds for normal errors
                     }
                 } else {
                     self.rateLimitBackoffCount = 0 // Reset on success
-                    self.infoMessage = LocalizedStrings.Auth.verificationEmailSent
+                    let msg = LocalizedStrings.Auth.verificationEmailSent
+                    self.infoMessage = msg
+                    self.verifyEmailAlert = VerifyEmailAlertState(
+                        title: LocalizedStrings.Auth.infoTitle,
+                        message: msg,
+                        primaryTitle: "OK"
+                    )
                     self.startCooldown(seconds: 60) // 60 seconds after successful send
                 }
             }
@@ -305,24 +371,63 @@ final class AuthViewModel: ObservableObject {
     func reloadUser() async {
         guard let user = user else {
             await MainActor.run {
-                errorMessage = LocalizedStrings.Auth.genericError
+                let msg = LocalizedStrings.Auth.genericError
+                errorMessage = msg
+                verifyEmailAlert = VerifyEmailAlertState(
+                    title: LocalizedStrings.Auth.errorTitle,
+                    message: msg,
+                    primaryTitle: "OK"
+                )
             }
             return
         }
-        
+
         do {
             try await user.reload()
             // Update the user property by re-fetching from Auth
             await MainActor.run {
                 self.user = Auth.auth().currentUser
                 if let updatedUser = self.user, updatedUser.isEmailVerified {
-                    infoMessage = LocalizedStrings.Auth.emailVerified
+                    let msg = LocalizedStrings.Auth.emailVerified
+                    infoMessage = msg
+                    verifyEmailAlert = VerifyEmailAlertState(
+                        title: LocalizedStrings.Auth.infoTitle,
+                        message: msg,
+                        primaryTitle: "OK"
+                    )
                 }
             }
         } catch {
             await MainActor.run {
-                errorMessage = mapAuthError(error)
+                let msg = mapAuthError(error)
+                errorMessage = msg
+                verifyEmailAlert = VerifyEmailAlertState(
+                    title: LocalizedStrings.Auth.errorTitle,
+                    message: msg,
+                    primaryTitle: "OK"
+                )
             }
+        }
+    }
+
+    func checkVerification() async {
+        isRefreshing = true
+        await reloadUser()
+        isRefreshing = false
+    }
+
+    func onVerifyEmailDisappear() {
+        verifyReloadTask?.cancel()
+        verifyReloadTask = nil
+        isRefreshing = false
+    }
+
+    func onVerifyEmailSceneActive() {
+        verifyReloadTask?.cancel()
+        verifyReloadTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            guard !Task.isCancelled else { return }
+            await self?.checkVerification()
         }
     }
     

@@ -10,22 +10,7 @@ import SwiftUI
 struct VerifyEmailView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @Environment(\.scenePhase) private var scenePhase
-    @State private var reloadTask: Task<Void, Never>?
-    @State private var isResending = false
-    @State private var isRefreshing = false
-    
-    private var formattedCooldown: String {
-        let seconds = authViewModel.resendCooldownSeconds
-        guard seconds > 0 else { return "" }
-        if seconds >= 60 {
-            let minutes = seconds / 60
-            let remainingSeconds = seconds % 60
-            return String(format: "%d:%02d", minutes, remainingSeconds)
-        } else {
-            return "\(seconds)s"
-        }
-    }
-    
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl) {
@@ -33,60 +18,32 @@ struct VerifyEmailView: View {
                     Text(LocalizedStrings.Auth.verifyEmailTitle)
                         .font(.displaySmall)
                         .foregroundColor(.textPrimary)
-                    
+
                     Text(LocalizedStrings.Auth.verifyEmailMessage)
                         .font(.bodyLarge)
                         .foregroundColor(.textSecondary)
                 }
                 .padding(.top, Spacing.xxxl)
                 .padding(.bottom, Spacing.xxxl)
-                
+
                 VStack(spacing: Spacing.xl) {
-                    // Resend email button
                     PrimaryButton(
-                        title: authViewModel.resendCooldownSeconds > 0 
-                            ? LocalizedStrings.Auth.resendVerificationEmailWithCooldown(formattedCooldown)
-                            : LocalizedStrings.Auth.resendVerificationEmail,
-                        action: {
-                            isResending = true
-                            authViewModel.sendEmailVerification()
-                            // Fallback: reset if isLoading never becomes true (early return case)
-                            Task {
-                                try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
-                                if isResending && !authViewModel.isLoading {
-                                    isResending = false
-                                }
-                            }
-                        },
-                        isEnabled: authViewModel.resendCooldownSeconds == 0 && !isResending,
-                        isLoading: isResending
+                        title: authViewModel.resendVerificationButtonTitle,
+                        action: { authViewModel.sendEmailVerification() },
+                        isEnabled: authViewModel.resendCooldownSeconds == 0 && !authViewModel.isLoading,
+                        isLoading: authViewModel.isLoading
                     )
-                    .onChange(of: authViewModel.isLoading) { oldValue, newValue in
-                        if isResending && !newValue {
-                            isResending = false
-                        }
-                    }
-                    
-                    // Refresh button
+
                     PrimaryButton(
                         title: LocalizedStrings.Auth.iVerifiedRefresh,
-                        action: {
-                            Task {
-                                isRefreshing = true
-                                await authViewModel.reloadUser()
-                                isRefreshing = false
-                            }
-                        },
-                        isEnabled: !isRefreshing,
-                        isLoading: isRefreshing
+                        action: { Task { await authViewModel.checkVerification() } },
+                        isEnabled: !authViewModel.isRefreshing,
+                        isLoading: authViewModel.isRefreshing
                     )
-                    
-                    // Log out button
+
                     PrimaryButton(
                         title: LocalizedStrings.Auth.logOut,
-                        action: {
-                            authViewModel.signOut()
-                        },
+                        action: { authViewModel.signOut() },
                         style: .secondary
                     )
                 }
@@ -97,32 +54,32 @@ struct VerifyEmailView: View {
         }
         .scrollBounceBehavior(.basedOnSize)
         .background(Color.background)
-        .authAlerts(
-            error: $authViewModel.errorMessage,
-            info: $authViewModel.infoMessage,
-            resetPrompt: .constant(nil)
-        )
+        .alert(item: verifyEmailAlertBinding) { alert in
+            Alert(
+                title: Text(alert.title),
+                message: Text(alert.message),
+                dismissButton: .default(Text(alert.primaryTitle)) {
+                    authViewModel.dismissVerifyEmailAlert()
+                }
+            )
+        }
         .task {
-            isRefreshing = true
-            await authViewModel.reloadUser()
-            isRefreshing = false
+            await authViewModel.checkVerification()
         }
         .onChange(of: scenePhase) { _, newPhase in
             guard newPhase == .active else { return }
-            reloadTask?.cancel()
-            reloadTask = Task {
-                try? await Task.sleep(nanoseconds: 250_000_000)
-                guard !Task.isCancelled else { return }
-                isRefreshing = true
-                await authViewModel.reloadUser()
-                isRefreshing = false
-            }
+            authViewModel.onVerifyEmailSceneActive()
         }
         .onDisappear {
-            reloadTask?.cancel()
-            isRefreshing = false
-            isResending = false
+            authViewModel.onVerifyEmailDisappear()
         }
+    }
+
+    private var verifyEmailAlertBinding: Binding<VerifyEmailAlertState?> {
+        Binding(
+            get: { authViewModel.verifyEmailAlert },
+            set: { _ in authViewModel.dismissVerifyEmailAlert() }
+        )
     }
 }
 

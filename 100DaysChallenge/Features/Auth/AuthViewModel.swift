@@ -274,7 +274,7 @@ final class AuthViewModel: ObservableObject {
             verifyEmailAlert = VerifyEmailAlertState(
                 title: LocalizedStrings.Auth.errorTitle,
                 message: error.localizedDescription,
-                primaryTitle: "OK"
+                primaryTitle: LocalizedStrings.Auth.ok
             )
         }
     }
@@ -294,11 +294,11 @@ final class AuthViewModel: ObservableObject {
             verifyEmailAlert = VerifyEmailAlertState(
                 title: LocalizedStrings.Auth.errorTitle,
                 message: msg,
-                primaryTitle: "OK"
+                primaryTitle: LocalizedStrings.Auth.ok
             )
             return
         }
-        
+
         guard resendCooldownSeconds == 0 else { return }
         
         isLoading = true
@@ -321,7 +321,7 @@ final class AuthViewModel: ObservableObject {
                         self.verifyEmailAlert = VerifyEmailAlertState(
                             title: LocalizedStrings.Auth.errorTitle,
                             message: msg,
-                            primaryTitle: "OK"
+                            primaryTitle: LocalizedStrings.Auth.ok
                         )
                         self.startCooldown(seconds: cooldownSeconds)
                     } else {
@@ -331,7 +331,7 @@ final class AuthViewModel: ObservableObject {
                         self.verifyEmailAlert = VerifyEmailAlertState(
                             title: LocalizedStrings.Auth.errorTitle,
                             message: errorMsg,
-                            primaryTitle: "OK"
+                            primaryTitle: LocalizedStrings.Auth.ok
                         )
                         self.startCooldown(seconds: 60) // 60 seconds for normal errors
                     }
@@ -342,7 +342,7 @@ final class AuthViewModel: ObservableObject {
                     self.verifyEmailAlert = VerifyEmailAlertState(
                         title: LocalizedStrings.Auth.infoTitle,
                         message: msg,
-                        primaryTitle: "OK"
+                        primaryTitle: LocalizedStrings.Auth.ok
                     )
                     self.startCooldown(seconds: 60) // 60 seconds after successful send
                 }
@@ -370,43 +370,37 @@ final class AuthViewModel: ObservableObject {
     
     func reloadUser() async {
         guard let user = user else {
-            await MainActor.run {
-                let msg = LocalizedStrings.Auth.genericError
-                errorMessage = msg
-                verifyEmailAlert = VerifyEmailAlertState(
-                    title: LocalizedStrings.Auth.errorTitle,
-                    message: msg,
-                    primaryTitle: "OK"
-                )
-            }
+            let msg = LocalizedStrings.Auth.genericError
+            errorMessage = msg
+            verifyEmailAlert = VerifyEmailAlertState(
+                title: LocalizedStrings.Auth.errorTitle,
+                message: msg,
+                primaryTitle: LocalizedStrings.Auth.ok
+            )
             return
         }
 
         do {
             try await user.reload()
             // Update the user property by re-fetching from Auth
-            await MainActor.run {
-                self.user = Auth.auth().currentUser
-                if let updatedUser = self.user, updatedUser.isEmailVerified {
-                    let msg = LocalizedStrings.Auth.emailVerified
-                    infoMessage = msg
-                    verifyEmailAlert = VerifyEmailAlertState(
-                        title: LocalizedStrings.Auth.infoTitle,
-                        message: msg,
-                        primaryTitle: "OK"
-                    )
-                }
-            }
-        } catch {
-            await MainActor.run {
-                let msg = mapAuthError(error)
-                errorMessage = msg
+            self.user = Auth.auth().currentUser
+            if let updatedUser = self.user, updatedUser.isEmailVerified {
+                let msg = LocalizedStrings.Auth.emailVerified
+                infoMessage = msg
                 verifyEmailAlert = VerifyEmailAlertState(
-                    title: LocalizedStrings.Auth.errorTitle,
+                    title: LocalizedStrings.Auth.infoTitle,
                     message: msg,
-                    primaryTitle: "OK"
+                    primaryTitle: LocalizedStrings.Auth.ok
                 )
             }
+        } catch {
+            let msg = mapAuthError(error)
+            errorMessage = msg
+            verifyEmailAlert = VerifyEmailAlertState(
+                title: LocalizedStrings.Auth.errorTitle,
+                message: msg,
+                primaryTitle: LocalizedStrings.Auth.ok
+            )
         }
     }
 

@@ -74,6 +74,7 @@ enum LocalizedStrings {
         // Alert titles
         static let errorTitle = NSLocalizedString("auth.errorTitle", value: "Error", comment: "Error alert title")
         static let infoTitle = NSLocalizedString("auth.infoTitle", value: "Info", comment: "Info alert title")
+        static let ok = NSLocalizedString("auth.ok", value: "OK", comment: "Alert primary button")
         
         // Email verification
         static let verifyEmailTitle = NSLocalizedString("auth.verifyEmailTitle", value: "Verify Your Email", comment: "Email verification screen title")

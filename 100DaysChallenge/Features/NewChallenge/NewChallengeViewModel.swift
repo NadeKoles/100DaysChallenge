@@ -94,8 +94,8 @@ class NewChallengeViewModel: ObservableObject {
             alert = .maxChallengesReached
         }
 
-        DispatchQueue.main.async { [weak self] in
-            self?.isLoading = false
+        Task { @MainActor in
+            self.isLoading = false
         }
     }
 

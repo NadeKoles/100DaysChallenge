@@ -80,7 +80,6 @@ class NewChallengeViewModel: ObservableObject {
         guard !trimmed.isEmpty, trimmed.count <= InputLimits.challengeTitle else { return }
 
         isLoading = true
-        defer { isLoading = false }
 
         let challenge = Challenge(
             title: trimmed,
@@ -93,6 +92,10 @@ class NewChallengeViewModel: ObservableObject {
             app.currentTab = .progress
         } else {
             alert = .maxChallengesReached
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.isLoading = false
         }
     }
 

@@ -14,7 +14,8 @@ class ChallengeStore: ObservableObject {
     
     @Published var challenges: [Challenge] = []
     
-    private let maxChallenges = 3
+    /// Single source of truth for maximum number of active challenges.
+    static let maxChallenges = 3
     private let userDefaultsKey = "challenges"
     
     private init() {
@@ -47,7 +48,7 @@ class ChallengeStore: ObservableObject {
     
     // MARK: - Add Challenge
     func addChallenge(_ challenge: Challenge) -> Bool {
-        guard challenges.count < maxChallenges else {
+        guard challenges.count < Self.maxChallenges else {
             return false
         }
         challenges.append(challenge)

@@ -11,8 +11,21 @@ struct NewChallengeView: View {
     @EnvironmentObject var challengeStore: ChallengeStore
     @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = NewChallengeViewModel()
-    @State private var showingMaxChallengesAlert = false
-    
+
+    private var titleBinding: Binding<String> {
+        Binding(
+            get: { viewModel.title },
+            set: { viewModel.setTitle($0) }
+        )
+    }
+
+    private var alertPresentedBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.alert != nil },
+            set: { if !$0 { viewModel.dismissAlert() } }
+        )
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -21,8 +34,8 @@ struct NewChallengeView: View {
                     VStack(alignment: .leading, spacing: Spacing.md) {
                         Text(LocalizedStrings.NewChallenge.whatDoYouWantToAchieve.uppercased())
                             .sectionHeaderStyle()
-                        
-                        TextField(LocalizedStrings.NewChallenge.placeholder, text: $viewModel.title)
+
+                        TextField(LocalizedStrings.NewChallenge.placeholder, text: titleBinding)
                             .textFieldStyle(.plain)
                             .font(.body)
                             .padding(Spacing.lg)
@@ -32,70 +45,50 @@ struct NewChallengeView: View {
                                 RoundedRectangle(cornerRadius: CornerRadius.xl)
                                     .stroke(Color.border, lineWidth: 1)
                             )
-                            .onChange(of: viewModel.title) { newValue in
-                                if newValue.count > InputLimits.challengeTitle {
-                                    viewModel.title = String(newValue.prefix(InputLimits.challengeTitle))
-                                }
-                            }
                     }
-                    
+
                     // Quick ideas
                     VStack(alignment: .leading, spacing: Spacing.md) {
                         Text(LocalizedStrings.NewChallenge.quickIdeas.uppercased())
                             .sectionHeaderStyle()
-                        
+
                         FlowLayout(horizontalSpacing: Spacing.sm, verticalSpacing: Spacing.sm) {
                             ForEach(LocalizedStrings.NewChallenge.Tags.all, id: \.self) { tag in
                                 ChipTagView(tag: tag, onTap: {
                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                        viewModel.title = tag
+                                        viewModel.setTitle(tag)
                                     }
                                 })
                             }
                         }
                     }
-                    
+
                     // Color picker
                     VStack(alignment: .leading, spacing: Spacing.md) {
                         Text(LocalizedStrings.NewChallenge.pickAColor.uppercased())
                             .sectionHeaderStyle()
-                        
+
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Spacing.md), count: 4), spacing: Spacing.md) {
                             ForEach(Array(ChallengeAccentColor.all.enumerated()), id: \.element.name) { index, colorOption in
                                 ColorOptionButton(
                                     color: colorOption.color,
                                     isSelected: viewModel.selectedColorIndex == index,
                                     onSelect: {
-                                        viewModel.selectedColorIndex = index
+                                        viewModel.selectColor(index)
                                     }
                                 )
                             }
                         }
                     }
-                    
+
                     // Start challenge button
                     PrimaryButton(
                         title: LocalizedStrings.NewChallenge.startChallenge,
-                        action: {
-                            if challengeStore.challenges.count >= 3 {
-                                showingMaxChallengesAlert = true
-                            } else {
-                                let challenge = Challenge(
-                                    title: viewModel.title.trimmingCharacters(in: .whitespaces),
-                                    accentColor: viewModel.selectedColorHex,
-                                    startDate: Date()
-                                )
-                                
-                                if challengeStore.addChallenge(challenge) {
-                                    viewModel.reset()
-                                    appState.selectedChallengeId = challenge.id
-                                    appState.currentTab = .progress
-                                }
-                            }
-                        },
+                        action: { viewModel.submit() },
                         iconSystemNameLeft: "plus",
                         style: .solid(viewModel.selectedColor),
-                        isEnabled: viewModel.isValid
+                        isEnabled: viewModel.isSubmitEnabled,
+                        isLoading: viewModel.isLoading
                     )
                     
                     // Tips card
@@ -123,11 +116,16 @@ struct NewChallengeView: View {
             .background(Color.background)
             .navigationTitle(LocalizedStrings.NewChallenge.title)
             .navigationBarTitleDisplayMode(.large)
+            .onAppear {
+                viewModel.onAppear(challengeStore: challengeStore, appState: appState)
+            }
         }
-        .alert(LocalizedStrings.NewChallenge.maxChallengesReached, isPresented: $showingMaxChallengesAlert) {
-            Button(LocalizedStrings.NewChallenge.ok, role: .cancel) { }
+        .alert(viewModel.alertTitle, isPresented: alertPresentedBinding) {
+            Button(LocalizedStrings.NewChallenge.ok, role: .cancel) {
+                viewModel.dismissAlert()
+            }
         } message: {
-            Text(LocalizedStrings.NewChallenge.maxChallengesMessage)
+            Text(viewModel.alertMessage)
         }
     }
 }

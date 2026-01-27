@@ -2,32 +2,107 @@
 //  NewChallengeViewModel.swift
 //  100DaysChallenge
 //
-//  ViewModel for new challenge screen
+//  ViewModel for new challenge screen. Owns form state, validation, submission, and alert state.
 //
 
 import SwiftUI
+
+// MARK: - Alert State
+
+enum NewChallengeAlertState: Identifiable {
+    case maxChallengesReached
+    var id: Self { self }
+}
+
+// MARK: - ViewModel
 
 @MainActor
 class NewChallengeViewModel: ObservableObject {
     @Published var title: String = ""
     @Published var selectedColorIndex: Int = 0
-    
+    @Published var alert: NewChallengeAlertState?
+    @Published var isLoading: Bool = false
+
+    private weak var challengeStore: ChallengeStore?
+    private weak var appState: AppState?
+
     var selectedColor: Color {
         ChallengeAccentColor.all[selectedColorIndex].color
     }
-    
+
     var selectedColorHex: String {
         ChallengeAccentColor.all[selectedColorIndex].hex
     }
-    
-    var isValid: Bool {
+
+    /// Whether the form can be submitted (non-empty trimmed title within limit).
+    var isSubmitEnabled: Bool {
         let trimmed = title.trimmingCharacters(in: .whitespaces)
-        return !trimmed.isEmpty && trimmed.count <= 100
+        return !trimmed.isEmpty && trimmed.count <= InputLimits.challengeTitle
     }
-    
+
+    var alertTitle: String {
+        switch alert {
+        case .maxChallengesReached:
+            return LocalizedStrings.NewChallenge.maxChallengesReached
+        case .none:
+            return ""
+        }
+    }
+
+    var alertMessage: String {
+        switch alert {
+        case .maxChallengesReached:
+            return LocalizedStrings.NewChallenge.maxChallengesMessage
+        case .none:
+            return ""
+        }
+    }
+
+    func onAppear(challengeStore: ChallengeStore, appState: AppState) {
+        self.challengeStore = challengeStore
+        self.appState = appState
+    }
+
+    func setTitle(_ string: String) {
+        title = String(string.prefix(InputLimits.challengeTitle))
+    }
+
+    func selectColor(_ index: Int) {
+        selectedColorIndex = index
+    }
+
+    func submit() {
+        guard let store = challengeStore, let app = appState else { return }
+        guard store.challenges.count < ChallengeStore.maxChallenges else {
+            alert = .maxChallengesReached
+            return
+        }
+        let trimmed = title.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty, trimmed.count <= InputLimits.challengeTitle else { return }
+
+        isLoading = true
+        defer { isLoading = false }
+
+        let challenge = Challenge(
+            title: trimmed,
+            accentColor: selectedColorHex,
+            startDate: Date()
+        )
+        if store.addChallenge(challenge) {
+            reset()
+            app.selectedChallengeId = challenge.id
+            app.currentTab = .progress
+        } else {
+            alert = .maxChallengesReached
+        }
+    }
+
+    func dismissAlert() {
+        alert = nil
+    }
+
     func reset() {
         title = ""
         selectedColorIndex = 0
     }
 }
-

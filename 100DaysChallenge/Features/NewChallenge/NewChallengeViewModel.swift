@@ -76,10 +76,6 @@ class NewChallengeViewModel: ObservableObject {
             assertionFailure("NewChallengeViewModel.submit() called before onAppear; challengeStore or appState is nil")
             return
         }
-        guard store.challenges.count < ChallengeStore.maxChallenges else {
-            alert = .maxChallengesReached
-            return
-        }
         let trimmed = title.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty, trimmed.count <= InputLimits.challengeTitle else { return }
 

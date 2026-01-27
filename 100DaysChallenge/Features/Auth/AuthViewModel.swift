@@ -21,6 +21,13 @@ struct VerifyEmailAlertState: Identifiable {
 
 @MainActor
 final class AuthViewModel: ObservableObject {
+    private enum AuthConstants {
+        static let minPasswordLength = 6
+        static let resendCooldownAfterSuccess = 60
+        static let resendCooldownRateLimitFirst = 300
+        static let resendCooldownRateLimitRepeat = 900
+    }
+    
     // MARK: - Feature Flags
     // TODO: Enable Sign in with Apple after enrolling in Apple Developer Program
     // Set to true once Apple Developer Program membership is active and Sign in with Apple is configured
@@ -66,9 +73,9 @@ final class AuthViewModel: ObservableObject {
     var formattedResendCooldown: String {
         let seconds = resendCooldownSeconds
         guard seconds > 0 else { return "" }
-        if seconds >= 60 {
-            let minutes = seconds / 60
-            let remainingSeconds = seconds % 60
+        if seconds >= AuthConstants.resendCooldownAfterSuccess {
+            let minutes = seconds / AuthConstants.resendCooldownAfterSuccess
+            let remainingSeconds = seconds % AuthConstants.resendCooldownAfterSuccess
             return String(format: "%d:%02d", minutes, remainingSeconds)
         } else {
             return "\(seconds)s"
@@ -315,7 +322,7 @@ final class AuthViewModel: ObservableObject {
                        authError.localizedDescription.contains("TOO_MANY_ATTEMPTS_TRY_LATER") ||
                        authError.localizedDescription.lowercased().contains("too many") {
                         self.rateLimitBackoffCount += 1
-                        let cooldownSeconds = self.rateLimitBackoffCount >= 2 ? 900 : 300 // 15 minutes if consecutive, else 5 minutes
+                        let cooldownSeconds = self.rateLimitBackoffCount >= 2 ? AuthConstants.resendCooldownRateLimitRepeat : AuthConstants.resendCooldownRateLimitFirst
                         let msg = LocalizedStrings.Auth.rateLimitExceeded
                         self.errorMessage = msg
                         self.verifyEmailAlert = VerifyEmailAlertState(
@@ -333,7 +340,7 @@ final class AuthViewModel: ObservableObject {
                             message: errorMsg,
                             primaryTitle: LocalizedStrings.Auth.ok
                         )
-                        self.startCooldown(seconds: 60) // 60 seconds for normal errors
+                        self.startCooldown(seconds: AuthConstants.resendCooldownAfterSuccess)
                     }
                 } else {
                     self.rateLimitBackoffCount = 0 // Reset on success
@@ -344,7 +351,7 @@ final class AuthViewModel: ObservableObject {
                         message: msg,
                         primaryTitle: LocalizedStrings.Auth.ok
                     )
-                    self.startCooldown(seconds: 60) // 60 seconds after successful send
+                    self.startCooldown(seconds: AuthConstants.resendCooldownAfterSuccess)
                 }
             }
         }
@@ -446,7 +453,7 @@ final class AuthViewModel: ObservableObject {
         return NSPredicate(format: "SELF MATCHES %@", r).evaluate(with: email)
     }
 
-    func isValidPassword(_ password: String) -> Bool { password.count >= 6 }
+    func isValidPassword(_ password: String) -> Bool { password.count >= AuthConstants.minPasswordLength }
     
     // MARK: - Form Validation
     enum FormType {
@@ -472,7 +479,7 @@ final class AuthViewModel: ObservableObject {
             isValid = false
         }
         
-        if password.count < 6 {
+        if password.count < AuthConstants.minPasswordLength {
             passwordError = LocalizedStrings.Auth.passwordTooShort
             isValid = false
         }

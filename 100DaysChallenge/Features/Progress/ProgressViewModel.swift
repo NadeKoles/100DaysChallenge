@@ -145,16 +145,6 @@ class ProgressViewModel: ObservableObject {
         app.selectedChallengeId = nil
     }
 
-    // MARK: - Computed (for View binding)
-
-    var progressFraction: Double {
-        guard let store = challengeStore,
-              let challenge = store.challenges.first(where: { $0.id == currentChallengeId }) else {
-            return 0
-        }
-        return challenge.progress
-    }
-
     // MARK: - Private
 
     /// Returns injected store and app when both are set; asserts in DEBUG if missing.

@@ -23,8 +23,8 @@ class ProgressViewModel: ObservableObject {
     @Published private(set) var currentChallengeId: String = ""
     @Published private(set) var alert: ProgressAlertState?
 
-    private weak var challengeStore: ChallengeStore?
-    private weak var appState: AppState?
+    private var challengeStore: ChallengeStore?
+    private var appState: AppState?
 
     // MARK: - Configuration
 
@@ -38,7 +38,7 @@ class ProgressViewModel: ObservableObject {
     // MARK: - Intents
 
     func selectChallenge(_ id: String) {
-        guard let store = challengeStore,
+        guard let (store, _) = deps(),
               let index = store.challenges.firstIndex(where: { $0.id == id }) else {
             return
         }
@@ -51,9 +51,10 @@ class ProgressViewModel: ObservableObject {
     }
 
     func didTapDay(_ day: Int) {
-        guard let store = challengeStore else { return }
-        let challenge = store.challenges.first { $0.id == currentChallengeId }
-        guard let challenge = challenge else { return }
+        guard let (store, _) = deps() else { return }
+        guard let challenge = store.challenges.first(where: { $0.id == currentChallengeId }) else {
+            return
+        }
 
         let isUnmarking = challenge.completedDaysSet.contains(day)
         alert = ProgressAlertState(
@@ -70,7 +71,7 @@ class ProgressViewModel: ObservableObject {
     }
 
     func confirmToggleDay() {
-        guard let a = alert, let store = challengeStore, !currentChallengeId.isEmpty else {
+        guard let a = alert, let (store, _) = deps(), !currentChallengeId.isEmpty else {
             alert = nil
             return
         }
@@ -87,12 +88,12 @@ class ProgressViewModel: ObservableObject {
     }
 
     func markDayComplete(day: Int) {
-        guard !currentChallengeId.isEmpty else { return }
-        challengeStore?.completeDay(challengeId: currentChallengeId, day: day)
+        guard let (store, _) = deps(), !currentChallengeId.isEmpty else { return }
+        store.completeDay(challengeId: currentChallengeId, day: day)
     }
 
     func previousChallenge() {
-        guard let store = challengeStore, !store.challenges.isEmpty else { return }
+        guard let (store, _) = deps(), !store.challenges.isEmpty else { return }
         let safe = max(0, min(currentIndex, store.challenges.count - 1))
         if safe > 0 {
             withAnimation {
@@ -103,7 +104,7 @@ class ProgressViewModel: ObservableObject {
     }
 
     func nextChallenge() {
-        guard let store = challengeStore, !store.challenges.isEmpty else { return }
+        guard let (store, _) = deps(), !store.challenges.isEmpty else { return }
         let safe = max(0, min(currentIndex, store.challenges.count - 1))
         if safe < store.challenges.count - 1 {
             withAnimation {
@@ -130,8 +131,8 @@ class ProgressViewModel: ObservableObject {
     }
 
     func navigateToSelectedChallengeIfNeeded() {
-        guard let app = appState, let selectedId = app.selectedChallengeId,
-              let store = challengeStore,
+        guard let (store, app) = deps(),
+              let selectedId = app.selectedChallengeId,
               let index = store.challenges.firstIndex(where: { $0.id == selectedId }) else {
             return
         }
@@ -141,7 +142,7 @@ class ProgressViewModel: ObservableObject {
             }
         }
         syncCurrentChallengeId()
-        appState?.selectedChallengeId = nil
+        app.selectedChallengeId = nil
     }
 
     // MARK: - Computed (for View binding)
@@ -155,6 +156,17 @@ class ProgressViewModel: ObservableObject {
     }
 
     // MARK: - Private
+
+    /// Returns injected store and app when both are set; asserts in DEBUG if missing.
+    private func deps() -> (store: ChallengeStore, app: AppState)? {
+        guard let store = challengeStore, let app = appState else {
+            #if DEBUG
+            assertionFailure("ProgressViewModel dependencies not injected")
+            #endif
+            return nil
+        }
+        return (store, app)
+    }
 
     private func syncCurrentChallengeId() {
         guard let store = challengeStore else {

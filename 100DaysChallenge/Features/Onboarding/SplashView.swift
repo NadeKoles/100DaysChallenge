@@ -10,12 +10,13 @@ import SwiftUI
 struct SplashView: View {
     @EnvironmentObject var appState: AppState
     @State private var showContent = false
-    
+    @State private var transitionTask: Task<Void, Never>?
+
     var body: some View {
         ZStack {
             Color.gradientSplash
                 .ignoresSafeArea()
-            
+
             VStack(spacing: Spacing.xxxl) {
                 // Icon
                 ZStack {
@@ -29,21 +30,21 @@ struct SplashView: View {
                         )
                         .frame(width: 96, height: 96)
                         .shadow(color: .black.opacity(0.2), radius: 16, x: 0, y: 8)
-                    
+
                     Image(systemName: "calendar")
                         .font(.system(size: 48, weight: .light))
                         .foregroundColor(.white)
                 }
                 .opacity(showContent ? 1 : 0)
                 .scaleEffect(showContent ? 1 : 0.8)
-                
+
                 // Text
                 VStack(spacing: Spacing.sm) {
                     Text("100 Days")
                         .font(.displayLarge)
                         .foregroundColor(.textPrimary)
                         .tracking(-1)
-                    
+
                     Text("Build lasting habits")
                         .font(.bodyLarge)
                         .foregroundColor(.textSecondary)
@@ -55,14 +56,17 @@ struct SplashView: View {
             withAnimation(.easeOut(duration: 0.6)) {
                 showContent = true
             }
-            
-            // Navigate after 2 seconds
-            Task { @MainActor in
+
+            transitionTask?.cancel()
+            transitionTask = Task { @MainActor in
                 try? await Task.sleep(nanoseconds: 2_000_000_000)
                 guard !Task.isCancelled else { return }
                 appState.handleSplashComplete()
             }
         }
+        .onDisappear {
+            transitionTask?.cancel()
+            transitionTask = nil
+        }
     }
 }
-

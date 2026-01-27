@@ -2,38 +2,37 @@
 //  RootView.swift
 //  100DaysChallenge
 //
-//  Root view that handles navigation between screens
+//  Declarative root: renders the screen for the current appState.rootRoute only.
 //
 
 import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject var appState: AppState
-    @EnvironmentObject var authViewModel: AuthViewModel
-    @State private var showSignUp = false
-    
+
     var body: some View {
         Group {
-            if !appState.didFinishLaunchSplash {
+            switch appState.rootRoute {
+            case .splash:
                 SplashView()
-            }
-            else if !appState.hasCompletedOnboarding {
+            case .onboarding:
                 OnboardingView()
-            }
-            else if authViewModel.user == nil {
-                if showSignUp {
-                    SignUpView(showSignUp: $showSignUp)
-                } else {
-                    LoginView(showSignUp: $showSignUp)
-                }
-            }
-            else if let user = authViewModel.user, !user.isEmailVerified {
+            case .auth(.login):
+                LoginView(showSignUp: authSignUpBinding)
+            case .auth(.signUp):
+                SignUpView(showSignUp: authSignUpBinding)
+            case .verifyEmail:
                 VerifyEmailView()
-            }
-            else {
+            case .main:
                 MainTabView()
             }
         }
     }
-}
 
+    private var authSignUpBinding: Binding<Bool> {
+        Binding(
+            get: { appState.authRoute == .signUp },
+            set: { if $0 { appState.showSignUp() } else { appState.showLogin() } }
+        )
+    }
+}

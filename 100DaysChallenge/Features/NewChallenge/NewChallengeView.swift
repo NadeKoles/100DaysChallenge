@@ -28,90 +28,95 @@ struct NewChallengeView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: Spacing.xl) {
-                    // Title input
-                    VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text(LocalizedStrings.NewChallenge.whatDoYouWantToAchieve.uppercased())
-                            .sectionHeaderStyle()
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: Spacing.xl) {
+                        // Title input
+                        VStack(alignment: .leading, spacing: Spacing.md) {
+                            Text(LocalizedStrings.NewChallenge.whatDoYouWantToAchieve.uppercased())
+                                .sectionHeaderStyle()
 
-                        TextField(LocalizedStrings.NewChallenge.placeholder, text: titleBinding)
-                            .textFieldStyle(.plain)
-                            .font(.body)
-                            .padding(Spacing.lg)
-                            .background(Color.inputBackground)
-                            .cornerRadius(CornerRadius.xl)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: CornerRadius.xl)
-                                    .stroke(Color.border, lineWidth: 1)
-                            )
-                    }
-
-                    // Quick ideas
-                    VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text(LocalizedStrings.NewChallenge.quickIdeas.uppercased())
-                            .sectionHeaderStyle()
-
-                        FlowLayout(horizontalSpacing: Spacing.sm, verticalSpacing: Spacing.sm) {
-                            ForEach(LocalizedStrings.NewChallenge.Tags.all, id: \.self) { tag in
-                                ChipTagView(tag: tag, onTap: {
-                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                        viewModel.setTitle(tag)
-                                    }
-                                })
-                            }
-                        }
-                    }
-
-                    // Color picker
-                    VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text(LocalizedStrings.NewChallenge.pickAColor.uppercased())
-                            .sectionHeaderStyle()
-
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Spacing.md), count: 4), spacing: Spacing.md) {
-                            ForEach(Array(ChallengeAccentColor.all.enumerated()), id: \.element.name) { index, colorOption in
-                                ColorOptionButton(
-                                    color: colorOption.color,
-                                    isSelected: viewModel.selectedColorIndex == index,
-                                    onSelect: {
-                                        viewModel.selectColor(index)
-                                    }
+                            TextField(LocalizedStrings.NewChallenge.placeholder, text: titleBinding)
+                                .textFieldStyle(.plain)
+                                .font(.body)
+                                .padding(Spacing.lg)
+                                .background(Color.inputBackground)
+                                .cornerRadius(CornerRadius.xl)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: CornerRadius.xl)
+                                        .stroke(Color.border, lineWidth: 1)
                                 )
+                        }
+
+                        // Quick ideas
+                        VStack(alignment: .leading, spacing: Spacing.md) {
+                            Text(LocalizedStrings.NewChallenge.quickIdeas.uppercased())
+                                .sectionHeaderStyle()
+
+                            FlowLayout(horizontalSpacing: Spacing.sm, verticalSpacing: Spacing.sm) {
+                                ForEach(LocalizedStrings.NewChallenge.Tags.all, id: \.self) { tag in
+                                    ChipTagView(tag: tag, onTap: {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                            viewModel.setTitle(tag)
+                                        }
+                                    })
+                                }
                             }
                         }
-                    }
 
-                    // Start challenge button
-                    PrimaryButton(
-                        title: LocalizedStrings.NewChallenge.startChallenge,
-                        action: { viewModel.submit() },
-                        iconSystemNameLeft: "plus",
-                        style: .solid(viewModel.selectedColor),
-                        isEnabled: viewModel.isSubmitEnabled,
-                        isLoading: viewModel.isLoading
-                    )
-                    
-                    // Tips card
-                    VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text(LocalizedStrings.NewChallenge.tipsForSuccess)
-                            .font(.label)
-                            .foregroundColor(.textPrimary)
-                        
-                        VStack(alignment: .leading, spacing: Spacing.sm) {
-                            TipRow(text: LocalizedStrings.NewChallenge.tipRealisticHabit)
-                            TipRow(text: LocalizedStrings.NewChallenge.tipBeSpecific)
-                            TipRow(text: LocalizedStrings.NewChallenge.tipPickTime)
-                            TipRow(text: LocalizedStrings.NewChallenge.tipMaxChallenges)
+                        // Color picker
+                        VStack(alignment: .leading, spacing: Spacing.md) {
+                            Text(LocalizedStrings.NewChallenge.pickAColor.uppercased())
+                                .sectionHeaderStyle()
+
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Spacing.md), count: 4), spacing: Spacing.md) {
+                                ForEach(Array(ChallengeAccentColor.all.enumerated()), id: \.element.name) { index, colorOption in
+                                    ColorOptionButton(
+                                        color: colorOption.color,
+                                        isSelected: viewModel.selectedColorIndex == index,
+                                        onSelect: {
+                                            viewModel.selectColor(index)
+                                        }
+                                    )
+                                }
+                            }
                         }
+
+                        // Tips card
+                        VStack(alignment: .leading, spacing: Spacing.md) {
+                            Text(LocalizedStrings.NewChallenge.tipsForSuccess)
+                                .font(.label)
+                                .foregroundColor(.textPrimary)
+                            
+                            VStack(alignment: .leading, spacing: Spacing.sm) {
+                                TipRow(text: LocalizedStrings.NewChallenge.tipRealisticHabit)
+                                TipRow(text: LocalizedStrings.NewChallenge.tipBeSpecific)
+                                TipRow(text: LocalizedStrings.NewChallenge.tipPickTime)
+                                TipRow(text: LocalizedStrings.NewChallenge.tipMaxChallenges)
+                            }
+                        }
+                        .padding(Spacing.xl)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.gradientTipsCard)
+                        .cornerRadius(CornerRadius.xxl)
                     }
-                    .padding(Spacing.xl)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.gradientTipsCard)
-                    .cornerRadius(CornerRadius.xxl)
+                    .padding(.top, Spacing.lg)
+                    .padding(.horizontal, Spacing.xl)
+                    .padding(.bottom, 80)
                 }
-                .padding(.top, Spacing.lg)
+
+                // Sticky button at bottom
+                PrimaryButton(
+                    title: LocalizedStrings.NewChallenge.startChallenge,
+                    action: { viewModel.submit() },
+                    iconSystemNameLeft: "plus",
+                    style: .solid(viewModel.selectedColor),
+                    isEnabled: viewModel.isSubmitEnabled,
+                    isLoading: viewModel.isLoading
+                )
                 .padding(.horizontal, Spacing.xl)
-                .padding(.bottom, Spacing.xxxl)
+                .padding(.vertical, Spacing.md)
+                .background(Color.background)
             }
             .background(Color.background)
             .navigationTitle(LocalizedStrings.NewChallenge.title)

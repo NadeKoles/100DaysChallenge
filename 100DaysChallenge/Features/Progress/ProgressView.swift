@@ -161,21 +161,19 @@ struct ChallengeProgressView: View {
                                     onToggleDay: onToggleDay
                                 )
                                 .padding(.horizontal, Spacing.xl)
-                                .padding(.bottom, shouldShowButton(challenge) ? 80 : Spacing.xl)
+                                .padding(.bottom, shouldShowButton(challenge) ? BottomActionBarLayout.scrollContentBottomMargin : Spacing.xl)
                             }
                         }
 
-                        // Sticky button at bottom
                         if shouldShowButton(challenge) {
-                            PrimaryButton(
-                                title: LocalizedStrings.Progress.markDayCompleteFormatted(challenge.currentDay),
-                                action: { onCompleteToday(challenge.currentDay) },
-                                iconSystemNameLeft: "checkmark",
-                                style: .solid(Color(hex: challenge.accentColor))
-                            )
-                            .padding(.horizontal, Spacing.xl)
-                            .padding(.vertical, Spacing.md)
-                            .background(Color.background)
+                            BottomActionBar {
+                                PrimaryButton(
+                                    title: LocalizedStrings.Progress.markDayCompleteFormatted(challenge.currentDay),
+                                    action: { onCompleteToday(challenge.currentDay) },
+                                    iconSystemNameLeft: "checkmark",
+                                    style: .solid(Color(hex: challenge.accentColor))
+                                )
+                            }
                         }
                     }
                     .navigationTitle(challenge.title)

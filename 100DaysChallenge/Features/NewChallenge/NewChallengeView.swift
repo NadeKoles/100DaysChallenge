@@ -102,21 +102,20 @@ struct NewChallengeView: View {
                     }
                     .padding(.top, Spacing.lg)
                     .padding(.horizontal, Spacing.xl)
-                    .padding(.bottom, 80)
+                    .padding(.bottom, BottomActionBarLayout.scrollContentBottomMargin)
                 }
+                .contentMargins(.bottom, BottomActionBarLayout.scrollContentBottomMargin, for: .scrollContent)
 
-                // Sticky button at bottom
-                PrimaryButton(
-                    title: LocalizedStrings.NewChallenge.startChallenge,
-                    action: { viewModel.submit() },
-                    iconSystemNameLeft: "plus",
-                    style: .solid(viewModel.selectedColor),
-                    isEnabled: viewModel.isSubmitEnabled,
-                    isLoading: viewModel.isLoading
-                )
-                .padding(.horizontal, Spacing.xl)
-                .padding(.vertical, Spacing.md)
-                .background(Color.background)
+                BottomActionBar {
+                    PrimaryButton(
+                        title: LocalizedStrings.NewChallenge.startChallenge,
+                        action: { viewModel.submit() },
+                        iconSystemNameLeft: "plus",
+                        style: .solid(viewModel.selectedColor),
+                        isEnabled: viewModel.isSubmitEnabled,
+                        isLoading: viewModel.isLoading
+                    )
+                }
             }
             .background(Color.background)
             .navigationTitle(LocalizedStrings.NewChallenge.title)

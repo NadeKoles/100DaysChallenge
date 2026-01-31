@@ -17,15 +17,11 @@ struct BottomActionBar<Content: View>: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Rectangle()
-                .fill(Color.primary.opacity(0.1))
-                .frame(height: 1)
             content()
                 .padding(.horizontal, Spacing.xl)
                 .padding(.vertical, Spacing.md)
         }
         .frame(maxWidth: .infinity)
-        .background(Color.background)
         .shadow(color: .black.opacity(0.06), radius: 12, y: -2)
     }
 }

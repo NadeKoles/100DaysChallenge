@@ -9,6 +9,6 @@ import Foundation
 
 @MainActor
 class SettingsViewModel: ObservableObject {
-    // Settings view model for future use
+    // Intentionally minimal; reserved for future settings-related logic (profile, notifications, privacy, etc.).
 }
 

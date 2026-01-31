@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject var appState: AppState
     @EnvironmentObject var authViewModel: AuthViewModel
+    @Binding var showSignUp: Bool
     @State private var didSubmit = false
     @State private var resetPrompt: ResetPasswordPrompt? = nil
     
@@ -35,9 +35,10 @@ struct LoginView: View {
                             placeholder: LocalizedStrings.Auth.emailPlaceholder,
                             text: $authViewModel.email,
                             type: .email,
-                            iconName: "envelope"
+                            iconName: "envelope",
+                            maxLength: InputLimits.email
                         )
-                        .onChange(of: authViewModel.email) { _ in
+                        .onChange(of: authViewModel.email) {
                             authViewModel.clearFormError()
                             if didSubmit {
                                 _ = authViewModel.validateLoginForm()
@@ -61,7 +62,7 @@ struct LoginView: View {
                             type: .password,
                             iconName: "lock"
                         )
-                        .onChange(of: authViewModel.password) { _ in
+                        .onChange(of: authViewModel.password) {
                             authViewModel.clearFormError()
                             if didSubmit {
                                 _ = authViewModel.validateLoginForm()
@@ -111,7 +112,6 @@ struct LoginView: View {
                                 didSubmit = true
                                 guard authViewModel.validateLoginForm() else { return }
                                 authViewModel.signIn {
-                                    appState.handleLoginComplete()
                                 }
                             },
                             isEnabled: !authViewModel.email.isEmpty && !authViewModel.password.isEmpty,
@@ -141,7 +141,6 @@ struct LoginView: View {
                                 title: LocalizedStrings.Auth.continueWithApple,
                                 action: {
                                     authViewModel.signInWithApple {
-                                        appState.handleLoginComplete()
                                     }
                                 },
                                 icon: Image("Apple"),
@@ -156,7 +155,6 @@ struct LoginView: View {
                             title: LocalizedStrings.Auth.continueWithGoogle,
                             action: {
                                 authViewModel.signInWithGoogle {
-                                    appState.handleLoginComplete()
                                 }
                             },
                             icon: Image("GoogleIcon"),
@@ -172,7 +170,7 @@ struct LoginView: View {
                                 .foregroundColor(.textSecondary)
                             
                             Button(action: {
-                                appState.currentScreen = .signUp
+                                showSignUp = true
                             }) {
                                 Text(LocalizedStrings.Auth.signUp)
                                     .font(.label)
@@ -186,6 +184,7 @@ struct LoginView: View {
             .padding(.horizontal, Spacing.xl)
             .padding(.bottom, Spacing.xxxl)
         }
+        .scrollBounceBehavior(.basedOnSize)
         .background(Color.background)
         .authAlerts(
             error: $authViewModel.errorMessage,
@@ -200,8 +199,7 @@ struct LoginView: View {
 }
 
 #Preview {
-    LoginView()
-        .environmentObject(AppState())
+    LoginView(showSignUp: .constant(false))
         .environmentObject(AuthViewModel())
 }
 

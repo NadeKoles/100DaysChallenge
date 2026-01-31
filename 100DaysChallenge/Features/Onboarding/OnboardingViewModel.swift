@@ -18,26 +18,28 @@ struct OnboardingSlide {
 class OnboardingViewModel: ObservableObject {
     @Published var currentSlide: Int = 0
     
-    static let allSlides: [OnboardingSlide] = [
-        OnboardingSlide(
-            iconName: "target",
-            title: "Set Your Goal",
-            description: "Choose a habit to focus on.\nAnything that truly matters to you.",
-            color: .onboardingSunsetOrange
-        ),
-        OnboardingSlide(
-            iconName: "chart.line.uptrend.xyaxis",
-            title: "Track Your Progress",
-            description: "Mark each completed day\nand watch your progress grow.",
-            color: .onboardingGreen
-        ),
-        OnboardingSlide(
-            iconName: "sparkles",
-            title: "Build Consistency",
-            description: "Small steps every day lead\nto lasting change.",
-            color: .onboardingBlue
-        )
-    ]
+    static var allSlides: [OnboardingSlide] {
+        [
+            OnboardingSlide(
+                iconName: "target",
+                title: LocalizedStrings.Onboarding.Slides.goalTitle,
+                description: LocalizedStrings.Onboarding.Slides.goalDescription,
+                color: .onboardingSunsetOrange
+            ),
+            OnboardingSlide(
+                iconName: "chart.line.uptrend.xyaxis",
+                title: LocalizedStrings.Onboarding.Slides.progressTitle,
+                description: LocalizedStrings.Onboarding.Slides.progressDescription,
+                color: .onboardingGreen
+            ),
+            OnboardingSlide(
+                iconName: "sparkles",
+                title: LocalizedStrings.Onboarding.Slides.consistencyTitle,
+                description: LocalizedStrings.Onboarding.Slides.consistencyDescription,
+                color: .onboardingBlue
+            )
+        ]
+    }
     
     let slides: [OnboardingSlide] = OnboardingViewModel.allSlides
 }

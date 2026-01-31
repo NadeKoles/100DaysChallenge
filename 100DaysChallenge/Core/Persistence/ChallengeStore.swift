@@ -14,7 +14,8 @@ class ChallengeStore: ObservableObject {
     
     @Published var challenges: [Challenge] = []
     
-    private let maxChallenges = 3
+    /// Single source of truth for maximum number of active challenges.
+    static let maxChallenges = 3
     private let userDefaultsKey = "challenges"
     
     private init() {
@@ -33,15 +34,21 @@ class ChallengeStore: ObservableObject {
     
     // MARK: - Save
     private func saveChallenges() {
-        guard let encoded = try? JSONEncoder().encode(challenges) else {
-            return
+        do {
+            let encoded = try JSONEncoder().encode(challenges)
+            UserDefaults.standard.set(encoded, forKey: userDefaultsKey)
+        } catch {
+            // TODO: In a production app, implement:
+            // - Send error to analytics/crash reporting service
+            // - Show a user-friendly error message
+            // - Attempt to save to a backup location
+            print("Failed to save challenges: \(error.localizedDescription)")
         }
-        UserDefaults.standard.set(encoded, forKey: userDefaultsKey)
     }
     
     // MARK: - Add Challenge
     func addChallenge(_ challenge: Challenge) -> Bool {
-        guard challenges.count < maxChallenges else {
+        guard challenges.count < Self.maxChallenges else {
             return false
         }
         challenges.append(challenge)

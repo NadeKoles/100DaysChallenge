@@ -22,11 +22,6 @@ struct Challenge: Identifiable, Codable, Equatable {
         self.completedDaysSet = completedDaysSet
     }
     
-    // Computed property for compatibility
-    var completedDays: [Int] {
-        Array(completedDaysSet).sorted()
-    }
-    
     // Current day based on start date
     var currentDay: Int {
         let calendar = Calendar.current

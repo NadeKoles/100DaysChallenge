@@ -2,41 +2,109 @@
 //  NewChallengeViewModel.swift
 //  100DaysChallenge
 //
-//  ViewModel for new challenge screen
+//  ViewModel for new challenge screen. Owns form state, validation, submission, and alert state.
 //
 
 import SwiftUI
 
+// MARK: - Alert State
+
+enum NewChallengeAlertState: Identifiable {
+    case maxChallengesReached
+    var id: Self { self }
+}
+
+// MARK: - ViewModel
+
 @MainActor
 class NewChallengeViewModel: ObservableObject {
     @Published var title: String = ""
-    @Published var selectedColor: Color = ChallengeAccentColor.all[0].color
-    
+    @Published var selectedColorIndex: Int = 0
+    @Published var alert: NewChallengeAlertState?
+    @Published var isLoading: Bool = false
+
+    private var challengeStore: ChallengeStore?
+    private var appState: AppState?
+
+    var selectedColor: Color {
+        ChallengeAccentColor.all[selectedColorIndex].color
+    }
+
     var selectedColorHex: String {
-        // Convert Color to hex string
-        // For simplicity, we'll use a mapping
-        let colorMap: [Color: String] = [
-            .accentCoralRed: "#F26D6D",
-            .accentSunsetOrange: "#F4A261",
-            .accentFreshGreen: "#6BCF94",
-            .accentOceanTeal: "#4ECDC4",
-            .accentSkyBlue: "#5C9FFF",
-            .accentSoftLavender: "#C7B7FF",
-            .accentRoyalPurple: "#9B6BFF",
-            .accentMagenta: "#FF6BB5",
-            .accentDarkBrown: "#76574A",
-            .accentDeepNavy: "#1F2A44"
-        ]
-        return colorMap[selectedColor] ?? "#F26D6D"
+        ChallengeAccentColor.all[selectedColorIndex].hex
     }
-    
-    var isValid: Bool {
-        !title.trimmingCharacters(in: .whitespaces).isEmpty
+
+    /// Whether the form can be submitted (non-empty trimmed title within limit).
+    var isSubmitEnabled: Bool {
+        let trimmed = title.trimmingCharacters(in: .whitespaces)
+        return !trimmed.isEmpty && trimmed.count <= InputLimits.challengeTitle
     }
-    
+
+    var alertTitle: String {
+        switch alert {
+        case .maxChallengesReached:
+            return LocalizedStrings.NewChallenge.maxChallengesReached
+        case .none:
+            return ""
+        }
+    }
+
+    var alertMessage: String {
+        switch alert {
+        case .maxChallengesReached:
+            return LocalizedStrings.NewChallenge.maxChallengesMessage
+        case .none:
+            return ""
+        }
+    }
+
+    func onAppear(challengeStore: ChallengeStore, appState: AppState) {
+        self.challengeStore = challengeStore
+        self.appState = appState
+    }
+
+    func setTitle(_ string: String) {
+        title = String(string.prefix(InputLimits.challengeTitle))
+    }
+
+    func selectColor(_ index: Int) {
+        selectedColorIndex = index
+    }
+
+    func submit() {
+        guard let store = challengeStore, let app = appState else {
+            assertionFailure("NewChallengeViewModel.submit() called before onAppear; challengeStore or appState is nil")
+            return
+        }
+        let trimmed = title.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty, trimmed.count <= InputLimits.challengeTitle else { return }
+
+        isLoading = true
+
+        let challenge = Challenge(
+            title: trimmed,
+            accentColor: selectedColorHex,
+            startDate: Date()
+        )
+        if store.addChallenge(challenge) {
+            reset()
+            app.selectedChallengeId = challenge.id
+            app.currentTab = .progress
+        } else {
+            alert = .maxChallengesReached
+        }
+
+        Task { @MainActor in
+            self.isLoading = false
+        }
+    }
+
+    func dismissAlert() {
+        alert = nil
+    }
+
     func reset() {
         title = ""
-        selectedColor = ChallengeAccentColor.all[0].color
+        selectedColorIndex = 0
     }
 }
-

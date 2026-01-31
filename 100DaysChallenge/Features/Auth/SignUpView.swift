@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct SignUpView: View {
-    @EnvironmentObject var appState: AppState
     @EnvironmentObject var authViewModel: AuthViewModel
+    @Binding var showSignUp: Bool
     @State private var didSubmit = false
     @State private var resetPrompt: ResetPasswordPrompt? = nil
     
@@ -35,9 +35,10 @@ struct SignUpView: View {
                             placeholder: LocalizedStrings.Auth.namePlaceholder,
                             text: $authViewModel.name,
                             type: .text,
-                            iconName: "person"
+                            iconName: "person",
+                            maxLength: InputLimits.name
                         )
-                        .onChange(of: authViewModel.name) { _ in
+                        .onChange(of: authViewModel.name) {
                             authViewModel.clearFormError()
                             if didSubmit {
                                 _ = authViewModel.validateSignUpForm()
@@ -59,9 +60,10 @@ struct SignUpView: View {
                             placeholder: LocalizedStrings.Auth.emailPlaceholder,
                             text: $authViewModel.email,
                             type: .email,
-                            iconName: "envelope"
+                            iconName: "envelope",
+                            maxLength: InputLimits.email
                         )
-                        .onChange(of: authViewModel.email) { _ in
+                        .onChange(of: authViewModel.email) {
                             authViewModel.clearFormError()
                             if didSubmit {
                                 _ = authViewModel.validateSignUpForm()
@@ -85,7 +87,7 @@ struct SignUpView: View {
                             type: .password,
                             iconName: "lock"
                         )
-                        .onChange(of: authViewModel.password) { _ in
+                        .onChange(of: authViewModel.password) {
                             authViewModel.clearFormError()
                             if didSubmit {
                                 _ = authViewModel.validateSignUpForm()
@@ -117,7 +119,6 @@ struct SignUpView: View {
                                 didSubmit = true
                                 guard authViewModel.validateSignUpForm() else { return }
                                 authViewModel.signUp {
-                                    appState.handleSignUpComplete()
                                 }
                             },
                             isEnabled: !authViewModel.name.isEmpty &&
@@ -133,7 +134,7 @@ struct SignUpView: View {
                                 .foregroundColor(.textSecondary)
                             
                             Button(action: {
-                                appState.currentScreen = .login
+                                showSignUp = false
                             }) {
                                 Text(LocalizedStrings.Auth.logIn)
                                     .font(.label)
@@ -147,6 +148,7 @@ struct SignUpView: View {
             .padding(.horizontal, Spacing.xl)
             .padding(.bottom, Spacing.xxxl)
         }
+        .scrollBounceBehavior(.basedOnSize)
         .background(Color.background)
         .authAlerts(
             error: $authViewModel.errorMessage,
@@ -161,8 +163,7 @@ struct SignUpView: View {
 }
 
 #Preview {
-    SignUpView()
-        .environmentObject(AppState())
+    SignUpView(showSignUp: .constant(true))
         .environmentObject(AuthViewModel())
 }
 

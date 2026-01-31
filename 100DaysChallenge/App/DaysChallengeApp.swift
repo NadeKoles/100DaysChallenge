@@ -11,13 +11,16 @@ import GoogleSignIn
 
 @main
 struct DaysChallengeApp: App {
-    @StateObject private var appState = AppState()
-    @StateObject private var authVM = AuthViewModel()
-    
+    @StateObject private var authVM: AuthViewModel
+    @StateObject private var appState: AppState
+
     init() {
         FirebaseApp.configure()
+        let auth = AuthViewModel()
+        _authVM = StateObject(wrappedValue: auth)
+        _appState = StateObject(wrappedValue: AppState(authViewModel: auth))
     }
-    
+
     var body: some Scene {
         WindowGroup {
             RootView()

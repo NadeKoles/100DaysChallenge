@@ -68,16 +68,45 @@ enum LocalizedStrings {
         static let emailAlreadyInUse = NSLocalizedString("auth.emailAlreadyInUse", value: "This email is already registered", comment: "Email already registered error")
         static let networkError = NSLocalizedString("auth.networkError", value: "Network error. Please try again.", comment: "Network error message")
         static let tooManyRequests = NSLocalizedString("auth.tooManyRequests", value: "Too many attempts. Try again later.", comment: "Too many requests error")
+        static let rateLimitExceeded = NSLocalizedString("auth.rateLimitExceeded", value: "Too many requests. Please wait a few minutes before trying again.", comment: "Rate limit exceeded error")
         static let genericError = NSLocalizedString("auth.genericError", value: "Something went wrong. Please try again.", comment: "Generic error message")
         
         // Alert titles
         static let errorTitle = NSLocalizedString("auth.errorTitle", value: "Error", comment: "Error alert title")
         static let infoTitle = NSLocalizedString("auth.infoTitle", value: "Info", comment: "Info alert title")
+        static let ok = NSLocalizedString("auth.ok", value: "OK", comment: "Alert primary button")
+        
+        // Email verification
+        static let verifyEmailTitle = NSLocalizedString("auth.verifyEmailTitle", value: "Verify Your Email", comment: "Email verification screen title")
+        static let verifyEmailMessage = NSLocalizedString("auth.verifyEmailMessage", value: "We've sent a verification email to your inbox. Please check your email (including Spam folder) and click the verification link to continue.", comment: "Email verification screen message")
+        static let resendVerificationEmail = NSLocalizedString("auth.resendVerificationEmail", value: "Resend Email", comment: "Resend verification email button")
+        static func resendVerificationEmailWithCooldown(_ formattedTime: String) -> String {
+            let format = NSLocalizedString("auth.resendVerificationEmailWithCooldown", value: "Resend Email (%@)", comment: "Resend verification email button with cooldown")
+            return String(format: format, formattedTime)
+        }
+        static let iVerifiedRefresh = NSLocalizedString("auth.iVerifiedRefresh", value: "I Verified, Refresh", comment: "Refresh after verification button")
+        static let logOut = NSLocalizedString("auth.logOut", value: "Log Out", comment: "Log out button")
+        static let verificationEmailSent = NSLocalizedString("auth.verificationEmailSent", value: "Verification email sent", comment: "Verification email sent success message")
+        static let emailVerified = NSLocalizedString("auth.emailVerified", value: "Email verified successfully", comment: "Email verified success message")
+    }
+    
+    // MARK: - Splash
+    enum Splash {
+        static let title = NSLocalizedString("splash.title", value: "100 Days", comment: "Splash screen title")
+        static let subtitle = NSLocalizedString("splash.subtitle", value: "Build lasting habits", comment: "Splash screen subtitle")
+    }
+    
+    // MARK: - Tabs
+    enum Tabs {
+        static let progress = NSLocalizedString("tabs.progress", value: "Progress", comment: "Tab bar label")
+        static let newChallenge = NSLocalizedString("tabs.newChallenge", value: "New", comment: "Tab bar label")
     }
     
     // MARK: - Progress
     enum Progress {
         static let noChallengesYet = NSLocalizedString("progress.noChallengesYet", value: "No Challenges Yet", comment: "Empty state title")
+        static let noChallengeAvailable = NSLocalizedString("progress.noChallengeAvailable", value: "No challenge available", comment: "Content unavailable when no challenge selected")
+        static let gridTitle = NSLocalizedString("progress.gridTitle", value: "100 DAYS GRID", comment: "100-day grid section header")
         static let noChallengesDescription = NSLocalizedString("progress.noChallengesDescription", value: "Start your first 100-days challenge to build a lasting habit", comment: "Empty state description")
         static let daysCompleted = NSLocalizedString("progress.daysCompleted", value: "days completed", comment: "Days completed label")
         static let markDayComplete = NSLocalizedString("progress.markDayComplete", value: "Mark Day %d Complete", comment: "Mark day complete button")
@@ -149,6 +178,47 @@ enum LocalizedStrings {
         
         static func quickIdeaAccessibilityLabel(_ tag: String) -> String {
             String(format: quickIdeaAccessibility, tag)
+        }
+    }
+    
+    // MARK: - Onboarding
+    enum Onboarding {
+        static let continueButton = NSLocalizedString("onboarding.continueButton", value: "Continue", comment: "Continue button on onboarding")
+        static let getStarted = NSLocalizedString("onboarding.getStarted", value: "Get Started", comment: "Get started button on onboarding")
+        
+        enum Slides {
+            static let goalTitle = NSLocalizedString("onboarding.slides.goalTitle", value: "Set Your Goal", comment: "Onboarding slide 1 title")
+            static let goalDescription = NSLocalizedString("onboarding.slides.goalDescription", value: "Choose a habit to focus on.\nAnything that truly matters to you.", comment: "Onboarding slide 1 description")
+            static let progressTitle = NSLocalizedString("onboarding.slides.progressTitle", value: "Track Your Progress", comment: "Onboarding slide 2 title")
+            static let progressDescription = NSLocalizedString("onboarding.slides.progressDescription", value: "Mark each completed day\nand watch your progress grow.", comment: "Onboarding slide 2 description")
+            static let consistencyTitle = NSLocalizedString("onboarding.slides.consistencyTitle", value: "Build Consistency", comment: "Onboarding slide 3 title")
+            static let consistencyDescription = NSLocalizedString("onboarding.slides.consistencyDescription", value: "Small steps every day lead\nto lasting change.", comment: "Onboarding slide 3 description")
+        }
+    }
+    
+    // MARK: - Settings
+    enum Settings {
+        static let title = NSLocalizedString("settings.title", value: "Settings", comment: "Settings screen title")
+        static let accountSection = NSLocalizedString("settings.accountSection", value: "ACCOUNT", comment: "Account section header")
+        static let profile = NSLocalizedString("settings.profile", value: "Profile", comment: "Profile settings row")
+        static let notifications = NSLocalizedString("settings.notifications", value: "Notifications", comment: "Notifications settings row")
+        static let yourChallengesSection = NSLocalizedString("settings.yourChallengesSection", value: "YOUR CHALLENGES", comment: "Your challenges section header")
+        static let supportSection = NSLocalizedString("settings.supportSection", value: "SUPPORT", comment: "Support section header")
+        static let helpCenter = NSLocalizedString("settings.helpCenter", value: "Help Center", comment: "Help Center settings row")
+        static let privacyPolicy = NSLocalizedString("settings.privacyPolicy", value: "Privacy Policy", comment: "Privacy Policy settings row")
+        static func version(_ version: String) -> String {
+            let format = NSLocalizedString("settings.version", value: "Version %@", comment: "App version string")
+            return String(format: format, version)
+        }
+        static let deleteChallengeTitle = NSLocalizedString("settings.deleteChallengeTitle", value: "Delete Challenge?", comment: "Delete challenge alert title")
+        static let delete = NSLocalizedString("settings.delete", value: "Delete", comment: "Delete button")
+        static func deleteChallengeMessage(_ challengeTitle: String) -> String {
+            let format = NSLocalizedString("settings.deleteChallengeMessage", value: "This will permanently delete \"%@\" and all progress. This action cannot be undone.", comment: "Delete challenge alert message")
+            return String(format: format, challengeTitle)
+        }
+        static func challengeProgress(_ completed: Int) -> String {
+            let format = NSLocalizedString("settings.challengeProgress", value: "%d / 100 days", comment: "Challenge progress in settings")
+            return String(format: format, completed)
         }
     }
 }

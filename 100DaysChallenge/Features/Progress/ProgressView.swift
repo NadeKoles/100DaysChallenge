@@ -2,7 +2,7 @@
 //  ProgressView.swift
 //  100DaysChallenge
 //
-//  Progress view with 100-day grid and challenge navigation
+//  Progress view with 100-day grid and challenge navigation.
 //
 
 import SwiftUI
@@ -11,10 +11,7 @@ struct ProgressView: View {
     @EnvironmentObject var challengeStore: ChallengeStore
     @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = ProgressViewModel()
-    @State private var showingConfirmModal = false
-    @State private var selectedDay: Int? = nil
-    @State private var isUnmarking = false
-    
+
     var body: some View {
         Group {
             if challengeStore.challenges.isEmpty {
@@ -22,109 +19,62 @@ struct ProgressView: View {
             } else {
                 ChallengeProgressView(
                     challenges: challengeStore.challenges,
-                    currentIndex: $viewModel.currentIndex,
-                    onToggleDay: { challengeId, day in
-                        let challenge = challengeStore.challenges.first { $0.id == challengeId }
-                        if let challenge = challenge {
-                            selectedDay = day
-                            isUnmarking = challenge.completedDaysSet.contains(day)
-                            showingConfirmModal = true
-                        }
-                    },
-                    onCompleteToday: { challengeId, day in
-                        challengeStore.completeDay(challengeId: challengeId, day: day)
-                    }
+                    currentIndex: viewModel.currentIndex,
+                    onSwipePrevious: { viewModel.previousChallenge() },
+                    onSwipeNext: { viewModel.nextChallenge() },
+                    onToggleDay: { viewModel.didTapDay($0) },
+                    onCompleteToday: { viewModel.markDayComplete(day: $0) }
                 )
             }
         }
         .alert(
-            isUnmarking 
-                ? LocalizedStrings.Progress.unmarkDayTitleFormatted(selectedDay ?? 0)
-                : LocalizedStrings.Progress.completeDayTitleFormatted(selectedDay ?? 0),
-            isPresented: $showingConfirmModal
+            viewModel.alert?.title ?? "",
+            isPresented: Binding(
+                get: { viewModel.alert != nil },
+                set: { if !$0 { viewModel.cancelToggleDay() } }
+            )
         ) {
             Button(LocalizedStrings.Progress.cancel, role: .cancel) {
-                selectedDay = nil
-                isUnmarking = false
+                viewModel.cancelToggleDay()
             }
-            Button(isUnmarking ? LocalizedStrings.Progress.unmark : LocalizedStrings.Progress.complete) {
-                if let day = selectedDay,
-                   !viewModel.currentChallengeId.isEmpty,
-                   let challenge = challengeStore.challenges.first(where: { $0.id == viewModel.currentChallengeId }) {
-                    if isUnmarking {
-                        challengeStore.toggleDay(challengeId: challenge.id, day: day)
-                    } else {
-                        challengeStore.completeDay(challengeId: challenge.id, day: day)
-                    }
-                    selectedDay = nil
-                    isUnmarking = false
+            if let alert = viewModel.alert {
+                Button(alert.primaryButtonTitle) {
+                    viewModel.confirmToggleDay()
                 }
             }
         } message: {
-            if selectedDay != nil {
-                Text(isUnmarking 
-                    ? LocalizedStrings.Progress.unmarkDayMessage
-                    : LocalizedStrings.Progress.completeDayMessage)
+            if let alert = viewModel.alert {
+                Text(alert.message)
             }
         }
         .onAppear {
-            updateCurrentChallengeId()
-            navigateToSelectedChallenge()
+            viewModel.onAppear(challengeStore: challengeStore, appState: appState)
         }
-        .onChange(of: viewModel.currentIndex) { _ in
-            updateCurrentChallengeId()
+        .onChange(of: viewModel.currentIndex) {
+            viewModel.handleCurrentIndexChanged()
         }
-        .onChange(of: challengeStore.challenges) { _ in
-            updateCurrentChallengeId()
-            navigateToSelectedChallenge()
+        .onChange(of: challengeStore.challenges) { _, newValue in
+            viewModel.handleChallengesUpdated(count: newValue.count)
+            viewModel.navigateToSelectedChallengeIfNeeded()
         }
-        .onChange(of: appState.selectedChallengeId) { _ in
-            navigateToSelectedChallenge()
+        .onChange(of: appState.selectedChallengeId) {
+            viewModel.navigateToSelectedChallengeIfNeeded()
         }
-    }
-    
-    private func updateCurrentChallengeId() {
-        if viewModel.currentIndex < challengeStore.challenges.count {
-            viewModel.currentChallengeId = challengeStore.challenges[viewModel.currentIndex].id
-        }
-    }
-    
-    private func navigateToSelectedChallenge() {
-        guard let selectedId = appState.selectedChallengeId,
-              let index = challengeStore.challenges.firstIndex(where: { $0.id == selectedId }) else {
-            return
-        }
-        
-        // Navigate to the selected challenge
-        if index != viewModel.currentIndex {
-            withAnimation {
-                viewModel.currentIndex = index
-            }
-        }
-        
-        // Clear the selected challenge ID after navigating
-        appState.selectedChallengeId = nil
     }
 }
 
 struct EmptyChallengesView: View {
     var body: some View {
-        VStack(spacing: Spacing.xl) {
-            ZStack {
-                RoundedRectangle(cornerRadius: CornerRadius.xxl)
-                    .fill(Color.gray100)
-                    .frame(width: 96, height: 96)
-                
-                Image(systemName: "checkmark.circle")
-                    .font(.system(size: 48, weight: .light))
-                    .foregroundColor(.gray400)
-            }
-            
+        ContentUnavailableView {
+            Image(systemName: "checkmark.circle")
+                .font(.system(size: 48, weight: .light))
+                .foregroundColor(.gray400)
+        } description: {
             VStack(spacing: Spacing.sm) {
                 Text(LocalizedStrings.Progress.noChallengesYet)
                     .font(.heading2)
                     .foregroundColor(.textPrimary)
-                
+
                 Text(LocalizedStrings.Progress.noChallengesDescription)
                     .font(.body)
                     .foregroundColor(.textSecondary)
@@ -138,110 +88,124 @@ struct EmptyChallengesView: View {
 
 struct ChallengeProgressView: View {
     let challenges: [Challenge]
-    @Binding var currentIndex: Int
-    let onToggleDay: (String, Int) -> Void
-    let onCompleteToday: (String, Int) -> Void
-    
-    var currentChallenge: Challenge {
-        challenges[currentIndex]
+    let currentIndex: Int
+    let onSwipePrevious: () -> Void
+    let onSwipeNext: () -> Void
+    let onToggleDay: (Int) -> Void
+    let onCompleteToday: (Int) -> Void
+
+    private var safeCurrentIndex: Int {
+        guard !challenges.isEmpty else { return 0 }
+        return max(0, min(currentIndex, challenges.count - 1))
     }
-    
+
+    private var currentChallenge: Challenge? {
+        guard safeCurrentIndex >= 0, safeCurrentIndex < challenges.count else {
+            return nil
+        }
+        return challenges[safeCurrentIndex]
+    }
+
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                ScrollView {
-                    VStack(spacing: Spacing.xl) {
-                        // Challenge indicator dots 
-                        HStack(spacing: Spacing.sm) {
-                            ForEach(0..<challenges.count, id: \.self) { index in
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(index == currentIndex ? 
-                                          Color(hex: currentChallenge.accentColor) : Color.gray200)
-                                    .frame(width: index == currentIndex ? 24 : 6, height: 6)
-                                    .animation(.easeInOut, value: currentIndex)
+        Group {
+            if let challenge = currentChallenge {
+                NavigationStack {
+                    VStack(spacing: 0) {
+                        ScrollView {
+                            VStack(spacing: Spacing.xl) {
+                                // Challenge indicator dots
+                                HStack(spacing: Spacing.sm) {
+                                    ForEach(0..<challenges.count, id: \.self) { index in
+                                        RoundedRectangle(cornerRadius: 2)
+                                            .fill(index == safeCurrentIndex ?
+                                                  Color(hex: challenge.accentColor) : Color.gray200)
+                                            .frame(width: index == safeCurrentIndex ? 24 : 6, height: 6)
+                                            .animation(.easeInOut, value: safeCurrentIndex)
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, Spacing.xl)
+                                .padding(.top, Spacing.xs)
+
+                                // Challenge stats
+                                VStack(alignment: .leading, spacing: Spacing.sm) {
+                                    HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
+                                        Text("\(challenge.completedDaysSet.count)")
+                                            .font(.displayMedium)
+                                            .foregroundColor(.textPrimary)
+
+                                        Text("/ 100")
+                                            .font(.heading3)
+                                            .foregroundColor(.textTertiary)
+                                    }
+
+                                    Text(LocalizedStrings.Progress.daysCompleted)
+                                        .font(.body)
+                                        .foregroundColor(.textSecondary)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, Spacing.xl)
+                                .padding(.top, Spacing.lg)
+
+                                // Progress bar
+                                ProgressBarView(
+                                    progress: challenge.progress,
+                                    accentColor: Color(hex: challenge.accentColor)
+                                )
+                                .padding(.horizontal, Spacing.xl)
+                                .padding(.bottom, Spacing.lg)
+
+                                // 100-day grid
+                                ChallengeGridView(
+                                    challenge: challenge,
+                                    onToggleDay: onToggleDay
+                                )
+                                .padding(.horizontal, Spacing.xl)
+                                .padding(.bottom, shouldShowButton(challenge) ? BottomActionBarLayout.scrollContentBottomMargin : Spacing.xl)
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, Spacing.xl)
-                        .padding(.top, Spacing.xs)
-                        
-                        // Challenge stats
-                        VStack(alignment: .leading, spacing: Spacing.sm) {
-                            HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
-                                Text("\(currentChallenge.completedDaysSet.count)")
-                                    .font(.displayMedium)
-                                    .foregroundColor(.textPrimary)
-                                
-                                Text("/ 100")
-                                    .font(.heading3)
-                                    .foregroundColor(.textTertiary)
+
+                        if shouldShowButton(challenge) {
+                            BottomActionBar {
+                                PrimaryButton(
+                                    title: LocalizedStrings.Progress.markDayCompleteFormatted(challenge.currentDay),
+                                    action: { onCompleteToday(challenge.currentDay) },
+                                    iconSystemNameLeft: "checkmark",
+                                    style: .solid(Color(hex: challenge.accentColor))
+                                )
                             }
-                            
-                            Text(LocalizedStrings.Progress.daysCompleted)
-                                .font(.body)
-                                .foregroundColor(.textSecondary)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, Spacing.xl)
-                        .padding(.top, Spacing.lg)
-                        
-                        // Progress bar
-                        ProgressBarView(
-                            progress: currentChallenge.progress,
-                            accentColor: Color(hex: currentChallenge.accentColor)
-                        )
-                        .padding(.horizontal, Spacing.xl)
-                        .padding(.bottom, Spacing.lg)
-                        
-                        // 100-day grid
-                        ChallengeGridView(
-                            challenge: currentChallenge,
-                            onToggleDay: { day in
-                                onToggleDay(currentChallenge.id, day)
-                            }
-                        )
-                        .padding(.horizontal, Spacing.xl)
-                        .padding(.bottom, shouldShowButton ? 80 : Spacing.xl)
                     }
-                }
-                
-                // Sticky button at bottom
-                if shouldShowButton {
-                    PrimaryButton(
-                        title: LocalizedStrings.Progress.markDayCompleteFormatted(currentChallenge.currentDay),
-                        action: {
-                            onCompleteToday(currentChallenge.id, currentChallenge.currentDay)
-                        },
-                        iconSystemNameLeft: "checkmark",
-                        style: .solid(Color(hex: currentChallenge.accentColor))
+                    .navigationTitle(challenge.title)
+                    .navigationBarTitleDisplayMode(.large)
+                    .gesture(
+                        DragGesture()
+                            .onEnded { value in
+                                let threshold: CGFloat = 50
+                                if value.translation.width > threshold {
+                                    onSwipePrevious()
+                                } else if value.translation.width < -threshold {
+                                    onSwipeNext()
+                                }
+                            }
                     )
-                    .padding(.horizontal, Spacing.xl)
-                    .padding(.vertical, Spacing.md)
-                    .background(Color.background)
+                }
+            } else {
+                ContentUnavailableView {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 48, weight: .light))
+                        .foregroundColor(.gray400)
+                } description: {
+                    Text(LocalizedStrings.Progress.noChallengeAvailable)
+                        .font(.heading2)
+                        .foregroundColor(.textPrimary)
                 }
             }
-            .navigationTitle(currentChallenge.title)
-            .navigationBarTitleDisplayMode(.large)
-            .gesture(
-                DragGesture()
-                    .onEnded { value in
-                        let threshold: CGFloat = 50
-                        if value.translation.width > threshold && currentIndex > 0 {
-                            withAnimation {
-                                currentIndex -= 1
-                            }
-                        } else if value.translation.width < -threshold && currentIndex < challenges.count - 1 {
-                            withAnimation {
-                                currentIndex += 1
-                            }
-                        }
-                    }
-            )
         }
     }
-    
-    private var shouldShowButton: Bool {
-        !currentChallenge.isTodayCompleted && currentChallenge.currentDay <= 100
+
+    private func shouldShowButton(_ challenge: Challenge) -> Bool {
+        !challenge.isTodayCompleted && challenge.currentDay <= 100
     }
 }
 
@@ -249,7 +213,7 @@ struct ChallengeProgressView: View {
     let store = ChallengeStore.shared
     let appState = AppState()
     appState.currentTab = .progress
-    
+
     let sampleChallenge1 = Challenge(
         title: "Daily Meditation",
         accentColor: "#4A90E2",
@@ -263,7 +227,7 @@ struct ChallengeProgressView: View {
         completedDaysSet: Set([1, 2, 3, 5])
     )
     store.challenges = [sampleChallenge1, sampleChallenge2]
-    
+
     return MainTabView()
         .environmentObject(store)
         .environmentObject(appState)
@@ -274,7 +238,7 @@ struct ChallengeProgressView: View {
     let appState = AppState()
     appState.currentTab = .progress
     store.challenges = []
-    
+
     return MainTabView()
         .environmentObject(store)
         .environmentObject(appState)

@@ -62,7 +62,7 @@ struct ProgressBarView: View {
         .onAppear {
             displayedProgress = progress
         }
-        .onChange(of: progress) { newProgress in
+        .onChange(of: progress) { _, newProgress in
             animationTask?.cancel()
             
             let previousProgress = displayedProgress
@@ -100,6 +100,10 @@ struct ProgressBarView: View {
                     }
                 }
             }
+        }
+        .onDisappear {
+            animationTask?.cancel()
+            animationTask = nil
         }
     }
 }

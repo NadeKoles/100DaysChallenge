@@ -7,6 +7,25 @@
 
 import SwiftUI
 
+// MARK: - Bottom Action Bar (sticky bar)
+enum BottomActionBarLayout {
+    static let scrollContentBottomMargin: CGFloat = 80
+}
+
+struct BottomActionBar<Content: View>: View {
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        VStack(spacing: 0) {
+            content()
+                .padding(.horizontal, Spacing.xl)
+                .padding(.vertical, Spacing.md)
+        }
+        .frame(maxWidth: .infinity)
+        .shadow(color: .black.opacity(0.06), radius: 12, y: -2)
+    }
+}
+
 // MARK: - Reset Password Prompt Model
 struct ResetPasswordPrompt: Identifiable, Equatable {
     let id = UUID()
@@ -88,14 +107,15 @@ private struct AuthAlertsModifier: ViewModifier {
                             if shouldReopenResetPrompt && resetPrompt != nil {
                                 // Reopen prompt after validation failure
                                 if let currentPrompt = resetPrompt {
-                                    DispatchQueue.main.async {
+                                    Task { @MainActor in
+                                        resetPrompt = nil
+                                        await Task.yield()
+
                                         resetPrompt = ResetPasswordPrompt(
                                             email: currentPrompt.email,
                                             onSend: currentPrompt.onSend
                                         )
-                                        DispatchQueue.main.async {
-                                            shouldReopenResetPrompt = false
-                                        }
+                                        shouldReopenResetPrompt = false
                                     }
                                 }
                             } else {
@@ -112,7 +132,7 @@ private struct AuthAlertsModifier: ViewModifier {
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        .onChange(of: resetEmail) { _ in
+                        .onChange(of: resetEmail) {
                             resetEmailError = nil
                         }
                     
@@ -144,7 +164,7 @@ private struct AuthAlertsModifier: ViewModifier {
                     }
                     .disabled(trimmedResetEmail.isEmpty)
                 } else {
-                    Button("OK") {
+                    Button(LocalizedStrings.Auth.ok) {
                         error = nil
                         info = nil
                     }
@@ -164,7 +184,7 @@ private struct AuthAlertsModifier: ViewModifier {
                     Text(infoMessage)
                 }
             }
-            .onChange(of: resetPrompt) { newValue in
+            .onChange(of: resetPrompt) { _, newValue in
                 if let prompt = newValue {
                     // Preserve error state when reopening after validation failure
                     if resetEmailError == nil {

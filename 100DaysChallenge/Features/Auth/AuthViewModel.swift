@@ -11,8 +11,23 @@ import FirebaseCore
 import GoogleSignIn
 import SwiftUI
 
+// MARK: - Verify Email Alert State
+struct VerifyEmailAlertState: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
+    let primaryTitle: String
+}
+
 @MainActor
 final class AuthViewModel: ObservableObject {
+    private enum AuthConstants {
+        static let minPasswordLength = 6
+        static let resendCooldownAfterSuccess = 60
+        static let resendCooldownRateLimitFirst = 300
+        static let resendCooldownRateLimitRepeat = 900
+    }
+    
     // MARK: - Feature Flags
     // TODO: Enable Sign in with Apple after enrolling in Apple Developer Program
     // Set to true once Apple Developer Program membership is active and Sign in with Apple is configured
@@ -31,8 +46,14 @@ final class AuthViewModel: ObservableObject {
     @Published var isPasswordVisible = false
     @Published var isLoading = false
     @Published private(set) var user: FirebaseAuth.User?
+    @Published var resendCooldownSeconds: Int = 0
+    @Published var verifyEmailAlert: VerifyEmailAlertState?
+    @Published var isRefreshing = false
 
     private var authHandle: AuthStateDidChangeListenerHandle?
+    private var cooldownTask: Task<Void, Never>?
+    private var verifyReloadTask: Task<Void, Never>?
+    private var rateLimitBackoffCount: Int = 0
 
     init() {
         authHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
@@ -45,6 +66,26 @@ final class AuthViewModel: ObservableObject {
 
     deinit {
         if let authHandle { Auth.auth().removeStateDidChangeListener(authHandle) }
+        cooldownTask?.cancel()
+        verifyReloadTask?.cancel()
+    }
+
+    var formattedResendCooldown: String {
+        let seconds = resendCooldownSeconds
+        guard seconds > 0 else { return "" }
+        if seconds >= AuthConstants.resendCooldownAfterSuccess {
+            let minutes = seconds / AuthConstants.resendCooldownAfterSuccess
+            let remainingSeconds = seconds % AuthConstants.resendCooldownAfterSuccess
+            return String(format: "%d:%02d", minutes, remainingSeconds)
+        } else {
+            return "\(seconds)s"
+        }
+    }
+
+    var resendVerificationButtonTitle: String {
+        resendCooldownSeconds > 0
+            ? LocalizedStrings.Auth.resendVerificationEmailWithCooldown(formattedResendCooldown)
+            : LocalizedStrings.Auth.resendVerificationEmail
     }
 
     var isAuthenticated: Bool { user != nil }
@@ -115,7 +156,7 @@ final class AuthViewModel: ObservableObject {
                             self.errorMessage = nil
                             self.formError = nil
                             self.isLoading = false
-                            completion()
+                            // Don't call completion - user needs to verify email first
                         }
                     }
                 }
@@ -235,7 +276,160 @@ final class AuthViewModel: ObservableObject {
     func signOut() {
         isLoading = false
         do { try Auth.auth().signOut() }
-        catch { errorMessage = error.localizedDescription }
+        catch {
+            errorMessage = error.localizedDescription
+            verifyEmailAlert = VerifyEmailAlertState(
+                title: LocalizedStrings.Auth.errorTitle,
+                message: error.localizedDescription,
+                primaryTitle: LocalizedStrings.Auth.ok
+            )
+        }
+    }
+
+    func dismissVerifyEmailAlert() {
+        verifyEmailAlert = nil
+        errorMessage = nil
+        infoMessage = nil
+    }
+
+    // MARK: - Email Verification
+
+    func sendEmailVerification() {
+        guard let user = user else {
+            let msg = LocalizedStrings.Auth.genericError
+            errorMessage = msg
+            verifyEmailAlert = VerifyEmailAlertState(
+                title: LocalizedStrings.Auth.errorTitle,
+                message: msg,
+                primaryTitle: LocalizedStrings.Auth.ok
+            )
+            return
+        }
+
+        guard resendCooldownSeconds == 0 else { return }
+        
+        isLoading = true
+        user.sendEmailVerification { [weak self] error in
+            Task { @MainActor in
+                guard let self = self else { return }
+                self.isLoading = false
+                if let error = error {
+                    let authError = error as NSError
+                    let errorCode = AuthErrorCode(rawValue: authError.code)
+                    
+                    // Check for rate-limit errors
+                    if errorCode == .tooManyRequests ||
+                       authError.localizedDescription.contains("TOO_MANY_ATTEMPTS_TRY_LATER") ||
+                       authError.localizedDescription.lowercased().contains("too many") {
+                        self.rateLimitBackoffCount += 1
+                        let cooldownSeconds = self.rateLimitBackoffCount >= 2 ? AuthConstants.resendCooldownRateLimitRepeat : AuthConstants.resendCooldownRateLimitFirst
+                        let msg = LocalizedStrings.Auth.rateLimitExceeded
+                        self.errorMessage = msg
+                        self.verifyEmailAlert = VerifyEmailAlertState(
+                            title: LocalizedStrings.Auth.errorTitle,
+                            message: msg,
+                            primaryTitle: LocalizedStrings.Auth.ok
+                        )
+                        self.startCooldown(seconds: cooldownSeconds)
+                    } else {
+                        self.rateLimitBackoffCount = 0 // Reset on non-rate-limit error
+                        let errorMsg = LocalizedStrings.Auth.verificationEmailFailed(error.localizedDescription)
+                        self.errorMessage = errorMsg
+                        self.verifyEmailAlert = VerifyEmailAlertState(
+                            title: LocalizedStrings.Auth.errorTitle,
+                            message: errorMsg,
+                            primaryTitle: LocalizedStrings.Auth.ok
+                        )
+                        self.startCooldown(seconds: AuthConstants.resendCooldownAfterSuccess)
+                    }
+                } else {
+                    self.rateLimitBackoffCount = 0 // Reset on success
+                    let msg = LocalizedStrings.Auth.verificationEmailSent
+                    self.infoMessage = msg
+                    self.verifyEmailAlert = VerifyEmailAlertState(
+                        title: LocalizedStrings.Auth.infoTitle,
+                        message: msg,
+                        primaryTitle: LocalizedStrings.Auth.ok
+                    )
+                    self.startCooldown(seconds: AuthConstants.resendCooldownAfterSuccess)
+                }
+            }
+        }
+    }
+    
+    private func startCooldown(seconds: Int) {
+        resendCooldownSeconds = seconds
+        cooldownTask?.cancel()
+        
+        cooldownTask = Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            
+            for remaining in (0..<seconds).reversed() {
+                guard !Task.isCancelled else { return }
+                self.resendCooldownSeconds = remaining
+                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+            }
+            
+            guard !Task.isCancelled else { return }
+            self.resendCooldownSeconds = 0
+        }
+    }
+    
+    func reloadUser() async {
+        guard let user = user else {
+            let msg = LocalizedStrings.Auth.genericError
+            errorMessage = msg
+            verifyEmailAlert = VerifyEmailAlertState(
+                title: LocalizedStrings.Auth.errorTitle,
+                message: msg,
+                primaryTitle: LocalizedStrings.Auth.ok
+            )
+            return
+        }
+
+        do {
+            try await user.reload()
+            // Update the user property by re-fetching from Auth
+            self.user = Auth.auth().currentUser
+            if let updatedUser = self.user, updatedUser.isEmailVerified {
+                let msg = LocalizedStrings.Auth.emailVerified
+                infoMessage = msg
+                verifyEmailAlert = VerifyEmailAlertState(
+                    title: LocalizedStrings.Auth.infoTitle,
+                    message: msg,
+                    primaryTitle: LocalizedStrings.Auth.ok
+                )
+            }
+        } catch {
+            let msg = mapAuthError(error)
+            errorMessage = msg
+            verifyEmailAlert = VerifyEmailAlertState(
+                title: LocalizedStrings.Auth.errorTitle,
+                message: msg,
+                primaryTitle: LocalizedStrings.Auth.ok
+            )
+        }
+    }
+
+    func checkVerification() async {
+        isRefreshing = true
+        await reloadUser()
+        isRefreshing = false
+    }
+
+    func onVerifyEmailDisappear() {
+        verifyReloadTask?.cancel()
+        verifyReloadTask = nil
+        isRefreshing = false
+    }
+
+    func onVerifyEmailSceneActive() {
+        verifyReloadTask?.cancel()
+        verifyReloadTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            guard !Task.isCancelled else { return }
+            await self?.checkVerification()
+        }
     }
     
     func resetFormState() {
@@ -259,7 +453,7 @@ final class AuthViewModel: ObservableObject {
         return NSPredicate(format: "SELF MATCHES %@", r).evaluate(with: email)
     }
 
-    func isValidPassword(_ password: String) -> Bool { password.count >= 6 }
+    func isValidPassword(_ password: String) -> Bool { password.count >= AuthConstants.minPasswordLength }
     
     // MARK: - Form Validation
     enum FormType {
@@ -285,7 +479,7 @@ final class AuthViewModel: ObservableObject {
             isValid = false
         }
         
-        if password.count < 6 {
+        if password.count < AuthConstants.minPasswordLength {
             passwordError = LocalizedStrings.Auth.passwordTooShort
             isValid = false
         }

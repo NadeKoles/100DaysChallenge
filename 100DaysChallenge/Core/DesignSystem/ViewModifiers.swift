@@ -7,6 +7,29 @@
 
 import SwiftUI
 
+// MARK: - Bottom Action Bar (sticky bar)
+enum BottomActionBarLayout {
+    static let scrollContentBottomMargin: CGFloat = 80
+}
+
+struct BottomActionBar<Content: View>: View {
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Rectangle()
+                .fill(Color.primary.opacity(0.1))
+                .frame(height: 1)
+            content()
+                .padding(.horizontal, Spacing.xl)
+                .padding(.vertical, Spacing.md)
+        }
+        .frame(maxWidth: .infinity)
+        .background(Color.background)
+        .shadow(color: .black.opacity(0.06), radius: 12, y: -2)
+    }
+}
+
 // MARK: - Reset Password Prompt Model
 struct ResetPasswordPrompt: Identifiable, Equatable {
     let id = UUID()

@@ -221,4 +221,10 @@ enum LocalizedStrings {
             return String(format: format, completed)
         }
     }
+
+    // MARK: - Preview
+    enum Preview {
+        static let sampleChallenge1Title = NSLocalizedString("preview.sampleChallenge1Title", value: "Daily Meditation", comment: "Sample challenge title for SwiftUI preview")
+        static let sampleChallenge2Title = NSLocalizedString("preview.sampleChallenge2Title", value: "Morning Exercise", comment: "Sample challenge title for SwiftUI preview")
+    }
 }

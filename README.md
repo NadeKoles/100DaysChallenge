@@ -6,9 +6,23 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 
 ### Preview
 
+**Main app**
+
 | Progress | New Challenge | Settings |
 |:--------:|:-------------:|:--------:|
 | ![Progress](100DaysChallenge/Assets.xcassets/Screenshots/ProgressView.imageset/ProgressView.png) | ![New Challenge](100DaysChallenge/Assets.xcassets/Screenshots/NewChallengeView.imageset/NewChallengeView.png) | ![Settings](100DaysChallenge/Assets.xcassets/Screenshots/SettingsView.imageset/SettingsView.png) |
+
+**Onboarding**
+
+| Set Your Goal | Track Your Progress | Build Consistency |
+|:-------------:|:------------------:|:-----------------:|
+| ![Onboarding 1](100DaysChallenge/Assets.xcassets/Screenshots/Onboarding_01.imageset/Onboarding_01.png) | ![Onboarding 2](100DaysChallenge/Assets.xcassets/Screenshots/Onboarding_02.imageset/Onboarding_02.png) | ![Onboarding 3](100DaysChallenge/Assets.xcassets/Screenshots/Onboarding_03.imageset/Onboarding_03.png) |
+
+**Auth**
+
+| Login | Login (error state) |
+|:-----:|:-------------------:|
+| ![Login](100DaysChallenge/Assets.xcassets/Screenshots/Login.imageset/Login.png) | ![Login error](100DaysChallenge/Assets.xcassets/Screenshots/LoginError.imageset/LoginError.png) |
 
 ---
 

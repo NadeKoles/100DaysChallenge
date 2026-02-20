@@ -2,6 +2,8 @@
 //  PersistenceController.swift
 //  100DaysChallenge
 //
+//  Persistence controller for Core Data.
+//
 
 import CoreData
 import os

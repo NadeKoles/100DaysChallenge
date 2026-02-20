@@ -26,7 +26,6 @@ class ChallengeStore: ObservableObject {
         loadChallenges()
     }
 
-    /// Preview store with sample challenges. Uses in-memory persistence.
     static func previewWithSamples() -> ChallengeStore {
         let store = ChallengeStore(context: PersistenceController.preview.viewContext)
         let colorOptions = ChallengeAccentColor.all
@@ -47,12 +46,9 @@ class ChallengeStore: ObservableObject {
         return store
     }
 
-    /// Empty preview store.
     static func previewEmpty() -> ChallengeStore {
         ChallengeStore(context: PersistenceController.preview.viewContext)
     }
-
-    // MARK: - Load
 
     func loadChallenges() {
         let request = ChallengeEntity.fetchRequest()
@@ -65,8 +61,6 @@ class ChallengeStore: ObservableObject {
         }
     }
 
-    // MARK: - Save
-
     private func save() {
         guard context.hasChanges else { return }
         do {
@@ -75,8 +69,6 @@ class ChallengeStore: ObservableObject {
             logger.error("Failed to save challenges: \(error.localizedDescription)")
         }
     }
-
-    // MARK: - Add Challenge
 
     func addChallenge(_ challenge: Challenge) -> Bool {
         guard challenges.count < Self.maxChallenges else {
@@ -89,8 +81,6 @@ class ChallengeStore: ObservableObject {
         return true
     }
 
-    // MARK: - Update Challenge
-
     func updateChallenge(_ challenge: Challenge) {
         guard let entity = fetchEntity(id: challenge.id) else { return }
         entity.update(from: challenge)
@@ -98,16 +88,12 @@ class ChallengeStore: ObservableObject {
         loadChallenges()
     }
 
-    // MARK: - Delete Challenge
-
     func deleteChallenge(id: String) {
         guard let entity = fetchEntity(id: id) else { return }
         context.delete(entity)
         save()
         loadChallenges()
     }
-
-    // MARK: - Toggle Day
 
     func toggleDay(challengeId: String, day: Int) {
         guard var challenge = challenges.first(where: { $0.id == challengeId }) else { return }
@@ -119,15 +105,11 @@ class ChallengeStore: ObservableObject {
         updateChallenge(challenge)
     }
 
-    // MARK: - Complete Day
-
     func completeDay(challengeId: String, day: Int) {
         guard var challenge = challenges.first(where: { $0.id == challengeId }) else { return }
         challenge.completedDaysSet.insert(day)
         updateChallenge(challenge)
     }
-
-    // MARK: - Private
 
     private func fetchEntity(id: String) -> ChallengeEntity? {
         let request = ChallengeEntity.fetchRequest()

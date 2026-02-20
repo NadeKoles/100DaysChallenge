@@ -2,8 +2,6 @@
 //  PersistenceController.swift
 //  100DaysChallenge
 //
-//  Core Data stack for Challenge persistence.
-//
 
 import CoreData
 import os
@@ -33,7 +31,6 @@ struct PersistenceController {
         self.container = container
     }
 
-    /// One-time migration of challenges from UserDefaults to Core Data. Removes "challenges" key after migration.
     private static func migrateChallengesFromUserDefaultsIfNeeded(container: NSPersistentContainer) {
         let defaults = UserDefaults.standard
         let challengesKey = "challenges"

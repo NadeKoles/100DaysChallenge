@@ -4,6 +4,12 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 
 **Purpose.** Most habit apps overwhelm users with features or hide progress in lists. 100 Days Challenge focuses on one principle: commit to a habit for 100 days and track it visually. Built with SwiftUI, Firebase Auth, and Core Data, it combines focused UX with production-ready architecture.
 
+### Preview
+
+| Progress | New Challenge | Settings |
+|:--------:|:-------------:|:--------:|
+| ![Progress](100DaysChallenge/Assets.xcassets/Screenshots/ProgressView.imageset/ProgressView.png) | ![New Challenge](100DaysChallenge/Assets.xcassets/Screenshots/NewChallengeView.imageset/NewChallengeView.png) | ![Settings](100DaysChallenge/Assets.xcassets/Screenshots/SettingsView.imageset/SettingsView.png) |
+
 ---
 
 ## Key Features

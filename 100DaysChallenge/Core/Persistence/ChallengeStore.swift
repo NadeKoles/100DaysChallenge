@@ -29,15 +29,16 @@ class ChallengeStore: ObservableObject {
     /// Preview store with sample challenges. Uses in-memory persistence.
     static func previewWithSamples() -> ChallengeStore {
         let store = ChallengeStore(context: PersistenceController.preview.viewContext)
+        let colorOptions = ChallengeAccentColor.all
         let sample1 = Challenge(
-            title: "Daily Meditation",
-            accentColor: "#4A90E2",
+            title: LocalizedStrings.Preview.sampleChallenge1Title,
+            accentColor: colorOptions[0].hex,
             startDate: Calendar.current.date(byAdding: .day, value: -15, to: Date()) ?? Date(),
             completedDaysSet: Set(1 ... 15)
         )
         let sample2 = Challenge(
-            title: "Morning Exercise",
-            accentColor: "#50C878",
+            title: LocalizedStrings.Preview.sampleChallenge2Title,
+            accentColor: colorOptions[1].hex,
             startDate: Calendar.current.date(byAdding: .day, value: -5, to: Date()) ?? Date(),
             completedDaysSet: Set([1, 2, 3, 5])
         )

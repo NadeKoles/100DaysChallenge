@@ -10,19 +10,19 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 
 | Progress | New Challenge | Settings |
 |:--------:|:-------------:|:--------:|
-| ![Progress](100DaysChallenge/Assets.xcassets/Screenshots/ProgressView.imageset/ProgressView.png) | ![New Challenge](100DaysChallenge/Assets.xcassets/Screenshots/NewChallengeView.imageset/NewChallengeView.png) | ![Settings](100DaysChallenge/Assets.xcassets/Screenshots/SettingsView.imageset/SettingsView.png) |
+| <img src="100DaysChallenge/Assets.xcassets/Screenshots/ProgressView.imageset/ProgressView.png" width="260" alt="Progress" /> | <img src="100DaysChallenge/Assets.xcassets/Screenshots/NewChallengeView.imageset/NewChallengeView.png" width="260" alt="New Challenge" /> | <img src="100DaysChallenge/Assets.xcassets/Screenshots/SettingsView.imageset/SettingsView.png" width="260" alt="Settings" /> |
 
 **Onboarding**
 
 | Set Your Goal | Track Your Progress | Build Consistency |
 |:-------------:|:------------------:|:-----------------:|
-| ![Onboarding 1](100DaysChallenge/Assets.xcassets/Screenshots/Onboarding_01.imageset/Onboarding_01.png) | ![Onboarding 2](100DaysChallenge/Assets.xcassets/Screenshots/Onboarding_02.imageset/Onboarding_02.png) | ![Onboarding 3](100DaysChallenge/Assets.xcassets/Screenshots/Onboarding_03.imageset/Onboarding_03.png) |
+| <img src="100DaysChallenge/Assets.xcassets/Screenshots/Onboarding_01.imageset/Onboarding_01.png" width="260" alt="Onboarding 1" /> | <img src="100DaysChallenge/Assets.xcassets/Screenshots/Onboarding_02.imageset/Onboarding_02.png" width="260" alt="Onboarding 2" /> | <img src="100DaysChallenge/Assets.xcassets/Screenshots/Onboarding_03.imageset/Onboarding_03.png" width="260" alt="Onboarding 3" /> |
 
 **Auth**
 
 | Login | Sign Up | Login (error state) |
 |:-----:|:-------:|:-------------------:|
-| ![Login](100DaysChallenge/Assets.xcassets/Screenshots/Login.imageset/Login.png) | ![Sign Up](100DaysChallenge/Assets.xcassets/Screenshots/Signup.imageset/Signup.png) | ![Login error](100DaysChallenge/Assets.xcassets/Screenshots/LoginError.imageset/LoginError.png) |
+| <img src="100DaysChallenge/Assets.xcassets/Screenshots/Login.imageset/Login.png" width="260" alt="Login" /> | <img src="100DaysChallenge/Assets.xcassets/Screenshots/Signup.imageset/Signup.png" width="260" alt="Sign Up" /> | <img src="100DaysChallenge/Assets.xcassets/Screenshots/LoginError.imageset/LoginError.png" width="260" alt="Login error" /> |
 
 ---
 

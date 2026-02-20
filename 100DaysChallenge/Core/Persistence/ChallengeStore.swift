@@ -57,6 +57,7 @@ class ChallengeStore: ObservableObject {
             let entities = try context.fetch(request)
             challenges = entities.compactMap { $0.toChallenge() }
         } catch {
+            logger.error("Failed to fetch challenges: \(error.localizedDescription)")
             challenges = []
         }
     }

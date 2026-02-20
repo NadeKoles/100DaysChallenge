@@ -43,7 +43,11 @@ struct PersistenceController {
         }
 
         let context = container.viewContext
-        for challenge in decoded {
+        let existingIds: Set<String> = (try? context.fetch(ChallengeEntity.fetchRequest()))
+            .map { Set($0.compactMap(\.id)) } ?? []
+
+        let toInsert = decoded.filter { !existingIds.contains($0.id) }
+        for challenge in toInsert {
             let entity = ChallengeEntity(context: context)
             entity.id = challenge.id
             entity.title = challenge.title

@@ -20,9 +20,9 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 
 **Auth**
 
-| Login | Login (error state) |
-|:-----:|:-------------------:|
-| ![Login](100DaysChallenge/Assets.xcassets/Screenshots/Login.imageset/Login.png) | ![Login error](100DaysChallenge/Assets.xcassets/Screenshots/LoginError.imageset/LoginError.png) |
+| Login | Sign Up | Login (error state) |
+|:-----:|:-------:|:-------------------:|
+| ![Login](100DaysChallenge/Assets.xcassets/Screenshots/Login.imageset/Login.png) | ![Sign Up](100DaysChallenge/Assets.xcassets/Screenshots/Signup.imageset/Signup.png) | ![Login error](100DaysChallenge/Assets.xcassets/Screenshots/LoginError.imageset/LoginError.png) |
 
 ---
 

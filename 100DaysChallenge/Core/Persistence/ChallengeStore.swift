@@ -2,101 +2,136 @@
 //  ChallengeStore.swift
 //  100DaysChallenge
 //
-//  Local persistence using UserDefaults
+//  Local persistence using Core Data.
 //
 
-import Foundation
 import Combine
+import CoreData
+import Foundation
+import os
+
+private let logger = Logger(subsystem: "com.nadekoles.100DaysChallenge.persistence", category: "CoreData")
 
 @MainActor
 class ChallengeStore: ObservableObject {
-    static let shared = ChallengeStore()
-    
-    @Published var challenges: [Challenge] = []
-    
-    /// Single source of truth for maximum number of active challenges.
+    static let shared = ChallengeStore(context: PersistenceController.shared.viewContext)
     static let maxChallenges = 3
-    private let userDefaultsKey = "challenges"
-    
-    private init() {
+
+    @Published private(set) var challenges: [Challenge] = []
+
+    private let context: NSManagedObjectContext
+
+    private init(context: NSManagedObjectContext) {
+        self.context = context
         loadChallenges()
     }
-    
+
+    /// Preview store with sample challenges. Uses in-memory persistence.
+    static func previewWithSamples() -> ChallengeStore {
+        let store = ChallengeStore(context: PersistenceController.preview.viewContext)
+        let sample1 = Challenge(
+            title: "Daily Meditation",
+            accentColor: "#4A90E2",
+            startDate: Calendar.current.date(byAdding: .day, value: -15, to: Date()) ?? Date(),
+            completedDaysSet: Set(1 ... 15)
+        )
+        let sample2 = Challenge(
+            title: "Morning Exercise",
+            accentColor: "#50C878",
+            startDate: Calendar.current.date(byAdding: .day, value: -5, to: Date()) ?? Date(),
+            completedDaysSet: Set([1, 2, 3, 5])
+        )
+        _ = store.addChallenge(sample1)
+        _ = store.addChallenge(sample2)
+        return store
+    }
+
+    /// Empty preview store.
+    static func previewEmpty() -> ChallengeStore {
+        ChallengeStore(context: PersistenceController.preview.viewContext)
+    }
+
     // MARK: - Load
+
     func loadChallenges() {
-        guard let data = UserDefaults.standard.data(forKey: userDefaultsKey),
-              let decoded = try? JSONDecoder().decode([Challenge].self, from: data) else {
-            challenges = []
-            return
-        }
-        challenges = decoded
-    }
-    
-    // MARK: - Save
-    private func saveChallenges() {
+        let request = ChallengeEntity.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \ChallengeEntity.startDate, ascending: true)]
         do {
-            let encoded = try JSONEncoder().encode(challenges)
-            UserDefaults.standard.set(encoded, forKey: userDefaultsKey)
+            let entities = try context.fetch(request)
+            challenges = entities.compactMap { $0.toChallenge() }
         } catch {
-            // TODO: In a production app, implement:
-            // - Send error to analytics/crash reporting service
-            // - Show a user-friendly error message
-            // - Attempt to save to a backup location
-            print("Failed to save challenges: \(error.localizedDescription)")
+            challenges = []
         }
     }
-    
+
+    // MARK: - Save
+
+    private func save() {
+        guard context.hasChanges else { return }
+        do {
+            try context.save()
+        } catch {
+            logger.error("Failed to save challenges: \(error.localizedDescription)")
+        }
+    }
+
     // MARK: - Add Challenge
+
     func addChallenge(_ challenge: Challenge) -> Bool {
         guard challenges.count < Self.maxChallenges else {
             return false
         }
-        challenges.append(challenge)
-        saveChallenges()
+        let entity = ChallengeEntity(context: context)
+        entity.update(from: challenge)
+        save()
+        loadChallenges()
         return true
     }
-    
+
     // MARK: - Update Challenge
+
     func updateChallenge(_ challenge: Challenge) {
-        guard let index = challenges.firstIndex(where: { $0.id == challenge.id }) else {
-            return
-        }
-        challenges[index] = challenge
-        saveChallenges()
+        guard let entity = fetchEntity(id: challenge.id) else { return }
+        entity.update(from: challenge)
+        save()
+        loadChallenges()
     }
-    
+
     // MARK: - Delete Challenge
+
     func deleteChallenge(id: String) {
-        challenges.removeAll { $0.id == id }
-        saveChallenges()
+        guard let entity = fetchEntity(id: id) else { return }
+        context.delete(entity)
+        save()
+        loadChallenges()
     }
-    
+
     // MARK: - Toggle Day
+
     func toggleDay(challengeId: String, day: Int) {
-        guard let index = challenges.firstIndex(where: { $0.id == challengeId }) else {
-            return
-        }
-        
-        var challenge = challenges[index]
+        guard var challenge = challenges.first(where: { $0.id == challengeId }) else { return }
         if challenge.completedDaysSet.contains(day) {
             challenge.completedDaysSet.remove(day)
         } else {
             challenge.completedDaysSet.insert(day)
         }
-        challenges[index] = challenge
-        saveChallenges()
+        updateChallenge(challenge)
     }
-    
+
     // MARK: - Complete Day
+
     func completeDay(challengeId: String, day: Int) {
-        guard let index = challenges.firstIndex(where: { $0.id == challengeId }) else {
-            return
-        }
-        
-        var challenge = challenges[index]
+        guard var challenge = challenges.first(where: { $0.id == challengeId }) else { return }
         challenge.completedDaysSet.insert(day)
-        challenges[index] = challenge
-        saveChallenges()
+        updateChallenge(challenge)
+    }
+
+    // MARK: - Private
+
+    private func fetchEntity(id: String) -> ChallengeEntity? {
+        let request = ChallengeEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id)
+        request.fetchLimit = 1
+        return try? context.fetch(request).first
     }
 }
-

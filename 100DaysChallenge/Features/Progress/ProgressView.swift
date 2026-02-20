@@ -210,23 +210,9 @@ struct ChallengeProgressView: View {
 }
 
 #Preview {
-    let store = ChallengeStore.shared
+    let store = ChallengeStore.previewWithSamples()
     let appState = AppState()
     appState.currentTab = .progress
-
-    let sampleChallenge1 = Challenge(
-        title: "Daily Meditation",
-        accentColor: "#4A90E2",
-        startDate: Calendar.current.date(byAdding: .day, value: -15, to: Date()) ?? Date(),
-        completedDaysSet: Set(1...15)
-    )
-    let sampleChallenge2 = Challenge(
-        title: "Morning Exercise",
-        accentColor: "#50C878",
-        startDate: Calendar.current.date(byAdding: .day, value: -5, to: Date()) ?? Date(),
-        completedDaysSet: Set([1, 2, 3, 5])
-    )
-    store.challenges = [sampleChallenge1, sampleChallenge2]
 
     return MainTabView()
         .environmentObject(store)
@@ -234,10 +220,9 @@ struct ChallengeProgressView: View {
 }
 
 #Preview("Empty State") {
-    let store = ChallengeStore.shared
+    let store = ChallengeStore.previewEmpty()
     let appState = AppState()
     appState.currentTab = .progress
-    store.challenges = []
 
     return MainTabView()
         .environmentObject(store)

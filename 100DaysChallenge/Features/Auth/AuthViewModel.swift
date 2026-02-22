@@ -46,6 +46,7 @@ final class AuthViewModel: ObservableObject {
     @Published var isPasswordVisible = false
     @Published var isLoading = false
     @Published private(set) var user: FirebaseAuth.User?
+    @Published private(set) var hasAuthenticatedThisSession: Bool = false
     @Published var resendCooldownSeconds: Int = 0
     @Published var verifyEmailAlert: VerifyEmailAlertState?
     @Published var isRefreshing = false
@@ -105,6 +106,7 @@ final class AuthViewModel: ObservableObject {
                 } else {
                     self.errorMessage = nil
                     self.formError = nil
+                    self.hasAuthenticatedThisSession = true
                     completion()
                 }
             }
@@ -157,6 +159,7 @@ final class AuthViewModel: ObservableObject {
                             self.formError = nil
                             self.isLoading = false
                             // Don't call completion - user needs to verify email first
+                            self.hasAuthenticatedThisSession = true
                         }
                     }
                 }
@@ -243,6 +246,7 @@ final class AuthViewModel: ObservableObject {
                         } else {
                             self.errorMessage = nil
                             self.formError = nil
+                            self.hasAuthenticatedThisSession = true
                             completion()
                         }
                     }
@@ -284,6 +288,12 @@ final class AuthViewModel: ObservableObject {
                 primaryTitle: LocalizedStrings.Auth.ok
             )
         }
+    }
+
+    // Clears any persisted Firebase session without showing alerts.
+    // Call on fresh install (before onboarding) to ensure auth screen is shown
+    func clearPersistedSession() {
+        try? Auth.auth().signOut()
     }
 
     func dismissVerifyEmailAlert() {

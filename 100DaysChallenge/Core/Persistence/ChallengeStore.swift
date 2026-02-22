@@ -20,9 +20,11 @@ class ChallengeStore: ObservableObject {
     @Published private(set) var challenges: [Challenge] = []
 
     private let context: NSManagedObjectContext
+    private(set) var currentUserId: String?
 
     private init(context: NSManagedObjectContext) {
         self.context = context
+        self.currentUserId = nil
         loadChallenges()
     }
 
@@ -62,9 +64,21 @@ class ChallengeStore: ObservableObject {
         return store
     }
 
+    // Call when auth state changes. Loads challenges for the given user (nil = legacy/anonymous).
+    func switchToUser(_ userId: String?) {
+        guard currentUserId != userId else { return }
+        currentUserId = userId
+        loadChallenges()
+    }
+
     func loadChallenges() {
         let request = ChallengeEntity.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \ChallengeEntity.startDate, ascending: true)]
+        if let uid = currentUserId {
+            request.predicate = NSPredicate(format: "userId == %@", uid)
+        } else {
+            request.predicate = NSPredicate(format: "userId == nil")
+        }
         do {
             let entities = try context.fetch(request)
             challenges = entities.compactMap { $0.toChallenge() }
@@ -89,6 +103,7 @@ class ChallengeStore: ObservableObject {
         }
         let entity = ChallengeEntity(context: context)
         entity.update(from: challenge)
+        entity.userId = currentUserId
         save()
         loadChallenges()
         return true
@@ -126,7 +141,15 @@ class ChallengeStore: ObservableObject {
 
     private func fetchEntity(id: String) -> ChallengeEntity? {
         let request = ChallengeEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", id)
+        var format = "id == %@"
+        var args: [Any] = [id]
+        if let uid = currentUserId {
+            format += " AND userId == %@"
+            args.append(uid)
+        } else {
+            format += " AND userId == nil"
+        }
+        request.predicate = NSPredicate(format: format, argumentArray: args)
         request.fetchLimit = 1
         return try? context.fetch(request).first
     }

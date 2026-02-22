@@ -2,7 +2,7 @@
 //  ChallengeStore.swift
 //  100DaysChallenge
 //
-//  Local persistence using Core Data.
+//  Local persistence (Core Data) with optional cloud sync (Firestore).
 //
 
 import Combine
@@ -20,7 +20,9 @@ class ChallengeStore: ObservableObject {
     @Published private(set) var challenges: [Challenge] = []
 
     private let context: NSManagedObjectContext
+    private let firestoreRepository = FirestoreChallengeRepository()
     private(set) var currentUserId: String?
+    private var hasPerformedInitialSync = false
 
     private init(context: NSManagedObjectContext) {
         self.context = context
@@ -65,10 +67,16 @@ class ChallengeStore: ObservableObject {
     }
 
     // Call when auth state changes. Loads challenges for the given user (nil = legacy/anonymous).
+    // When switching to a signed-in user, runs initial cloud sync once per login session.
     func switchToUser(_ userId: String?) {
         guard currentUserId != userId else { return }
+        hasPerformedInitialSync = false
         currentUserId = userId
         loadChallenges()
+
+        if let uid = userId {
+            performInitialSync(userId: uid)
+        }
     }
 
     func loadChallenges() {
@@ -137,6 +145,81 @@ class ChallengeStore: ObservableObject {
         guard var challenge = challenges.first(where: { $0.id == challengeId }) else { return }
         challenge.completedDaysSet.insert(day)
         updateChallenge(challenge)
+    }
+
+    // MARK: - Initial Cloud Sync
+
+    /// Runs once per login when switching to a signed-in user. Merges local and remote.
+    private func performInitialSync(userId: String) {
+        firestoreRepository.fetchChallenges { [weak self] result in
+            guard let self else { return }
+            guard self.currentUserId == userId else { return }
+            switch result {
+            case .success(let remote):
+                let local = self.challenges
+                if remote.isEmpty && !local.isEmpty {
+                    self.uploadLocalToFirestore(local) {
+                        if self.currentUserId == userId {
+                            self.hasPerformedInitialSync = true
+                        }
+                    }
+                } else if !remote.isEmpty {
+                    self.replaceLocalWithRemote(remote)
+                    self.hasPerformedInitialSync = true
+                    self.loadChallenges()
+                } else {
+                    self.hasPerformedInitialSync = true
+                }
+            case .failure(let error):
+                logger.error("Initial sync failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    /// Uploads all local challenges to Firestore. Used when remote is empty (new account or reinstall).
+    private func uploadLocalToFirestore(_ local: [Challenge], completion: @escaping () -> Void) {
+        guard !local.isEmpty else {
+            completion()
+            return
+        }
+        var remaining = local.count
+        for challenge in local {
+            firestoreRepository.saveChallenge(challenge) { _ in
+                remaining -= 1
+                if remaining == 0 {
+                    completion()
+                }
+            }
+        }
+    }
+
+    /// Replaces all Core Data challenges for current user with remote data.
+    private func replaceLocalWithRemote(_ remote: [Challenge]) {
+        deleteAllEntitiesForCurrentUser()
+        for challenge in remote {
+            let entity = ChallengeEntity(context: context)
+            entity.update(from: challenge)
+            entity.userId = currentUserId
+        }
+        save()
+    }
+
+    private func deleteAllEntitiesForCurrentUser() {
+        let request = ChallengeEntity.fetchRequest()
+        if let uid = currentUserId {
+            request.predicate = NSPredicate(format: "userId == %@", uid)
+        } else {
+            request.predicate = NSPredicate(format: "userId == nil")
+        }
+        do {
+            let entities = try context.fetch(request)
+            for entity in entities {
+                context.delete(entity)
+            }
+            save()
+        } catch {
+            logger.error("Failed to delete local challenges: \(error.localizedDescription)")
+        }
     }
 
     private func fetchEntity(id: String) -> ChallengeEntity? {

@@ -28,7 +28,9 @@ struct PersistenceController {
             if let error = error {
                 logger.error("Core Data failed to load: \(error.localizedDescription)")
             } else {
-                Self.migrateChallengesFromUserDefaultsIfNeeded(container: container)
+                DispatchQueue.main.async {
+                    Self.migrateChallengesFromUserDefaultsIfNeeded(container: container)
+                }
             }
         }
         container.viewContext.automaticallyMergesChangesFromParent = true

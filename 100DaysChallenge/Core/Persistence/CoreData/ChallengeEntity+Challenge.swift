@@ -13,7 +13,7 @@ extension ChallengeEntity {
                   let array = try? JSONDecoder().decode([Int].self, from: data) else {
                 return []
             }
-            return Set(array)
+            return Set(array.filter { (1...100).contains($0) })
         }()
         return Challenge(
             id: id,
@@ -29,6 +29,7 @@ extension ChallengeEntity {
         title = challenge.title
         accentColor = challenge.accentColor
         startDate = challenge.startDate
-        completedDaysData = try? JSONEncoder().encode(Array(challenge.completedDaysSet))
+        let validDays = Array(challenge.completedDaysSet.filter { (1...100).contains($0) })
+        completedDaysData = try? JSONEncoder().encode(validDays)
     }
 }

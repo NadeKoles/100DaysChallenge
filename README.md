@@ -39,6 +39,7 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 ## Tech Stack
 
 - **SwiftUI** — Declarative UI
+- **UIKit** — `UIViewRepresentable` for `UITextField` (email field) and gradient blur; `UIApplication` for Google Sign-In presentation context
 - **Firebase** — Auth (Email/Password + Google Sign-In)
 - **Core Data** — User-scoped local persistence for challenges
 - **Combine** — Reactive root routing via CombineLatest4 (splash, onboarding, user, auth state)

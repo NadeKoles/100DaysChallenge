@@ -40,11 +40,10 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 
 - **SwiftUI** — Declarative UI
 - **Firebase** — Auth (Email/Password + Google Sign-In)
-- **Core Data** — Local persistence for challenges
+- **Core Data** — User-scoped local persistence for challenges
 - **Combine** — Reactive root routing via CombineLatest4 (splash, onboarding, user, auth state)
 - **Swift Concurrency** — `@MainActor` on ViewModels and stores; `async`/`await` for `reloadUser()` and email verification checks
-- **os.Logger** — Structured logging in `PersistenceController` and `ChallengeStore` for Core Data load/save and migration failures
-- **Migration** — Idempotent one-time migration from UserDefaults → Core Data (deduplicates by id, skips existing entities, removes key on success)
+- **os.Logger** — Structured logging in `PersistenceController` and `ChallengeStore` for Core Data load/save
 
 ---
 
@@ -62,13 +61,24 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 | **OnboardingViewModel** | Slide index and content |
 | **SettingsViewModel** | Challenge deletion state |
 
+**Persistence architecture**
+
+- **Single facade** — `ChallengeStore` is the only entry point for persistence; UI and Auth do not touch Core Data or Firestore directly.
+- **User-scoped Core Data** — Challenges are stored with a `userId`; fetches are filtered to the current user. Anonymous/legacy data uses `userId == nil`.
+- **Restore-only Firestore** — Cloud storage at `users/{uid}/challenges`. No ongoing writes; Firestore is used for initial sync and restore on reinstall.
+- **Initial sync on login** — When switching to a signed-in user, one-time sync fetches remote data. If remote has data, local is replaced. If remote is empty and local has data, local is uploaded. Sync runs once per login session.
+- **Cross-account safety** — Sync completion handlers verify `currentUserId` still matches before applying results; switching users mid-sync aborts safely.
+- **Reinstall restore** — Fresh install with sign-in fetches challenges from Firestore and populates local storage.
+- **Thread safety** — `ChallengeStore` is `@MainActor`; Core Data uses the main-queue `viewContext`. All `@Published` updates occur on the main thread.
+- **Separation of concerns** — Auth handles identity only; persistence logic is confined to `ChallengeStore` and its dependencies (`FirestoreChallengeRepository`, `PersistenceController`).
+
 ---
 
 ## Persistence
 
-- **Core Data** — `ChallengeEntity` (id, title, accentColor, startDate, completedDaysData). `PersistenceController` manages container; `ChallengeStore` performs fetches and saves.
-- **UserDefaults** — Only `hasCompletedOnboarding`; challenges migrated away from UserDefaults.
-- **Migration** — One-time, idempotent migration from UserDefaults key `"challenges"` to Core Data: deduplicates by id, skips existing entities, removes key after success. Handles empty or malformed data gracefully.
+- **Core Data** — `ChallengeEntity` (id, title, accentColor, startDate, completedDaysData, userId). `PersistenceController` manages the container; `ChallengeStore` performs fetches and saves.
+- **Firestore** — `FirestoreChallengeRepository` and `FirestoreChallengeDTO` handle read/write for restore-only cloud backup. Path: `users/{uid}/challenges`.
+- **UserDefaults** — Only `hasCompletedOnboarding`.
 
 ---
 
@@ -89,10 +99,14 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 │   ├── Models/
 │   │   └── Challenge.swift        # Challenge model (id, title, accentColor, startDate, completedDaysSet)
 │   ├── Persistence/
-│   │   ├── PersistenceController.swift   # Core Data stack + UserDefaults migration
-│   │   ├── ChallengeStore.swift          # CRUD, day toggle, load/save
-│   │   ├── ChallengeEntity+Challenge.swift
-│   │   └── DaysChallengeModel.xcdatamodeld
+│   │   ├── CoreData/
+│   │   │   ├── PersistenceController.swift
+│   │   │   ├── ChallengeEntity+Challenge.swift
+│   │   │   └── DaysChallengeModel.xcdatamodeld
+│   │   ├── Firestore/
+│   │   │   ├── FirestoreChallengeRepository.swift
+│   │   │   └── FirestoreChallengeDTO.swift
+│   │   └── ChallengeStore.swift          # Single persistence facade
 │   └── Utils/
 │       ├── AppState.swift         # Root routing state
 │       └── LocalizedStrings.swift  # NSLocalizedString wrapper
@@ -171,14 +185,14 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 - **Localization** — `LocalizedStrings` enum with `NSLocalizedString`; all user-facing text centralized.
 - **Design system** — `Colors`, `Typography`, `Spacing`, `CornerRadius`; reusable `PrimaryButton`, `InputField`, `SectionHeaderStyle`, `BottomActionBar`.
 - **Logging** — `os.Logger` in `PersistenceController` and `ChallengeStore` for Core Data load/save and migration failures.
-- **Edge cases** — UserDefaults migration is idempotent; duplicate challenges filtered by id; rate limiting and cooldown for email verification resend; auth error mapping for user-friendly messages.
+- **Edge cases** — Duplicate challenges filtered by id; rate limiting and cooldown for email verification resend; auth error mapping for user-friendly messages.
 
 ---
 
 ## Roadmap
 
 - Sign in with Apple (requires Apple Developer Program enrollment)
-- Cloud Firestore sync for challenges across devices
+- Ongoing Firestore sync for real-time cross-device updates (restore-on-login implemented)
 - Home screen widgets for “today’s challenge” and progress
 - Localization for additional languages
 
@@ -186,7 +200,7 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 
 ## Project Status
 
-Actively developed. App Store release planned. Persistence layer (Core Data + idempotent UserDefaults migration) is hardened and production-ready.
+Actively developed. App Store release planned. Persistence layer (Core Data + restore-only Firestore) is hardened and production-ready.
 
 ---
 

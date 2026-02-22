@@ -149,26 +149,20 @@ class ChallengeStore: ObservableObject {
 
     // MARK: - Initial Cloud Sync
 
-    /// Runs once per login when switching to a signed-in user. Merges local and remote.
+    // Runs once per login when switching to a signed-in user. Merges local and remote.
     private func performInitialSync(userId: String) {
+        guard !hasPerformedInitialSync else { return }
         firestoreRepository.fetchChallenges { [weak self] result in
             guard let self else { return }
             guard self.currentUserId == userId else { return }
             switch result {
             case .success(let remote):
+                self.hasPerformedInitialSync = true
                 let local = self.challenges
                 if remote.isEmpty && !local.isEmpty {
-                    self.uploadLocalToFirestore(local) {
-                        if self.currentUserId == userId {
-                            self.hasPerformedInitialSync = true
-                        }
-                    }
+                    self.uploadLocalToFirestore(local) { }
                 } else if !remote.isEmpty {
                     self.replaceLocalWithRemote(remote)
-                    self.hasPerformedInitialSync = true
-                    self.loadChallenges()
-                } else {
-                    self.hasPerformedInitialSync = true
                 }
             case .failure(let error):
                 logger.error("Initial sync failed: \(error.localizedDescription)")
@@ -176,24 +170,25 @@ class ChallengeStore: ObservableObject {
         }
     }
 
-    /// Uploads all local challenges to Firestore. Used when remote is empty (new account or reinstall).
+    // Uploads all local challenges to Firestore. Used when remote is empty (new account or reinstall).
     private func uploadLocalToFirestore(_ local: [Challenge], completion: @escaping () -> Void) {
         guard !local.isEmpty else {
             completion()
             return
         }
-        var remaining = local.count
+        let group = DispatchGroup()
         for challenge in local {
+            group.enter()
             firestoreRepository.saveChallenge(challenge) { _ in
-                remaining -= 1
-                if remaining == 0 {
-                    completion()
-                }
+                group.leave()
             }
+        }
+        group.notify(queue: .main) {
+            completion()
         }
     }
 
-    /// Replaces all Core Data challenges for current user with remote data.
+    // Replaces all Core Data challenges for current user with remote data.
     private func replaceLocalWithRemote(_ remote: [Challenge]) {
         deleteAllEntitiesForCurrentUser()
         for challenge in remote {
@@ -202,6 +197,7 @@ class ChallengeStore: ObservableObject {
             entity.userId = currentUserId
         }
         save()
+        loadChallenges()
     }
 
     private func deleteAllEntitiesForCurrentUser() {

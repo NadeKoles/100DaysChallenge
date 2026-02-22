@@ -212,20 +212,24 @@ struct ChallengeProgressView: View {
 
 #Preview {
     let store = ChallengeStore.previewWithSamples()
-    let appState = AppState()
+    let authViewModel = AuthViewModel()
+    let appState = AppState(authViewModel: authViewModel)
     appState.currentTab = .progress
 
     return MainTabView()
         .environmentObject(store)
         .environmentObject(appState)
+        .environmentObject(authViewModel)
 }
 
 #Preview("Empty State") {
     let store = ChallengeStore.previewEmpty()
-    let appState = AppState()
+    let authViewModel = AuthViewModel()
+    let appState = AppState(authViewModel: authViewModel)
     appState.currentTab = .progress
 
     return MainTabView()
         .environmentObject(store)
         .environmentObject(appState)
+        .environmentObject(authViewModel)
 }

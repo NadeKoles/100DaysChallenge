@@ -2,7 +2,7 @@
 //  FirestoreChallengeDTO.swift
 //  100DaysChallenge
 //
-//  DTO for Firestore documents. Uses manual encode/decode (no FirebaseFirestoreSwift).
+//  DTO for Firestore documents
 //
 
 import FirebaseFirestore

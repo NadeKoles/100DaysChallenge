@@ -190,7 +190,7 @@ class ChallengeStore: ObservableObject {
 
     // Replaces all Core Data challenges for current user with remote data.
     private func replaceLocalWithRemote(_ remote: [Challenge]) {
-        deleteAllEntitiesForCurrentUser()
+        deleteAllEntitiesForCurrentUser(andSave: false)
         for challenge in remote {
             let entity = ChallengeEntity(context: context)
             entity.update(from: challenge)
@@ -200,7 +200,7 @@ class ChallengeStore: ObservableObject {
         loadChallenges()
     }
 
-    private func deleteAllEntitiesForCurrentUser() {
+    private func deleteAllEntitiesForCurrentUser(andSave: Bool = true) {
         let request = ChallengeEntity.fetchRequest()
         if let uid = currentUserId {
             request.predicate = NSPredicate(format: "userId == %@", uid)
@@ -212,7 +212,7 @@ class ChallengeStore: ObservableObject {
             for entity in entities {
                 context.delete(entity)
             }
-            save()
+            if andSave { save() }
         } catch {
             logger.error("Failed to delete local challenges: \(error.localizedDescription)")
         }

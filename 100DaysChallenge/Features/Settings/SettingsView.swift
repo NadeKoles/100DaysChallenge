@@ -12,39 +12,37 @@ struct SettingsView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @StateObject private var viewModel = SettingsViewModel()
     @State private var challengeToDelete: Challenge? = nil
-    
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: Spacing.xl) {
-                
-                // Account section
-                SettingsSection(title: LocalizedStrings.Settings.accountSection) {
-                    SettingsRow(icon: "person", title: LocalizedStrings.Settings.profile) { }
-                    SettingsRow(icon: "bell", title: LocalizedStrings.Settings.notifications) { }
-                }
-                
-                // Challenges section
-                if !challengeStore.challenges.isEmpty {
-                    SettingsSection(title: LocalizedStrings.Settings.yourChallengesSection) {
-                        ForEach(challengeStore.challenges) { challenge in
-                            ChallengeRow(
-                                challenge: challenge,
-                                onDelete: {
-                                    challengeToDelete = challenge
-                                }
-                            )
-                        }
+
+    private var settingsContent: some View {
+        VStack(alignment: .leading, spacing: Spacing.xl) {
+            // Account section
+            SettingsSection(title: LocalizedStrings.Settings.accountSection) {
+                SettingsRow(icon: "person", title: LocalizedStrings.Settings.profile) { }
+                SettingsRow(icon: "bell", title: LocalizedStrings.Settings.notifications) { }
+            }
+
+            // Challenges section
+            if !challengeStore.challenges.isEmpty {
+                SettingsSection(title: LocalizedStrings.Settings.yourChallengesSection) {
+                    ForEach(challengeStore.challenges) { challenge in
+                        ChallengeRow(
+                            challenge: challenge,
+                            onDelete: {
+                                challengeToDelete = challenge
+                            }
+                        )
                     }
                 }
-                
-                // Support section
-                SettingsSection(title: LocalizedStrings.Settings.supportSection) {
-                    SettingsRow(icon: "questionmark.circle", title: LocalizedStrings.Settings.helpCenter) { }
-                    SettingsRow(icon: "shield", title: LocalizedStrings.Settings.privacyPolicy) { }
-                }
-                
-                // Logout button
+            }
+
+            // Support section
+            SettingsSection(title: LocalizedStrings.Settings.supportSection) {
+                SettingsRow(icon: "questionmark.circle", title: LocalizedStrings.Settings.helpCenter) { }
+                SettingsRow(icon: "shield", title: LocalizedStrings.Settings.privacyPolicy) { }
+            }
+
+            // Log out + version 
+            VStack(spacing: Spacing.xs) {
                 PrimaryButton(
                     title: LocalizedStrings.Auth.logOut,
                     action: {
@@ -53,18 +51,22 @@ struct SettingsView: View {
                     iconSystemNameLeft: "arrow.right.square",
                     style: .secondary
                 )
-                .padding(.top, Spacing.xl)
-                
-                // Version
                 Text(LocalizedStrings.Settings.version("1.0.0"))
                     .font(.caption)
                     .foregroundColor(.textTertiary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, Spacing.xl)
             }
-            .padding(.top, Spacing.lg)
-            .padding(.horizontal, Spacing.xl)
-            .padding(.bottom, Spacing.xxxl)
+            .frame(maxWidth: .infinity)
+            .padding(.top, Spacing.xl)
+        }
+        .padding(.top, Spacing.lg)
+        .padding(.horizontal, Spacing.xl)
+        .padding(.bottom, Spacing.sm)
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                settingsContent
             }
             .background(Color.background)
             .navigationTitle(LocalizedStrings.Settings.title)
@@ -181,3 +183,14 @@ struct ChallengeRow: View {
     }
 }
 
+#Preview("1 Challenge") {
+    let store = ChallengeStore.previewWithOneChallenge()
+    let authViewModel = AuthViewModel()
+    let appState = AppState(authViewModel: authViewModel)
+    appState.currentTab = .settings
+
+    return MainTabView()
+        .environmentObject(store)
+        .environmentObject(appState)
+        .environmentObject(authViewModel)
+}

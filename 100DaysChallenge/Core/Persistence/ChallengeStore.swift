@@ -50,6 +50,18 @@ class ChallengeStore: ObservableObject {
         ChallengeStore(context: PersistenceController.preview.viewContext)
     }
 
+    static func previewWithOneChallenge() -> ChallengeStore {
+        let store = ChallengeStore(context: PersistenceController.preview.viewContext)
+        let sample = Challenge(
+            title: LocalizedStrings.Preview.sampleChallenge1Title,
+            accentColor: ChallengeAccentColor.all[0].hex,
+            startDate: Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date(),
+            completedDaysSet: Set([1])
+        )
+        _ = store.addChallenge(sample)
+        return store
+    }
+
     func loadChallenges() {
         let request = ChallengeEntity.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \ChallengeEntity.startDate, ascending: true)]

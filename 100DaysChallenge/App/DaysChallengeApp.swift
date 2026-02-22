@@ -27,6 +27,12 @@ struct DaysChallengeApp: App {
                 .environmentObject(appState)
                 .environmentObject(ChallengeStore.shared)
                 .environmentObject(authVM)
+                .onAppear {
+                    ChallengeStore.shared.switchToUser(authVM.user?.uid)
+                }
+                .onChange(of: authVM.user) { _, user in
+                    ChallengeStore.shared.switchToUser(user?.uid)
+                }
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
                 }

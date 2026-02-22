@@ -29,19 +29,19 @@ final class FirestoreChallengeRepository {
     // Fetches challenges for the current user. Returns empty array if user is nil.
     func fetchChallenges(completion: @escaping (Result<[Challenge], Error>) -> Void) {
         guard let userId = currentUserId else {
-            dispatchToMain(.success([]), completion: completion)
+            Self.dispatchToMain(.success([]), completion: completion)
             return
         }
 
-        challengesCollection(for: userId).getDocuments { [weak self] snapshot, error in
+        challengesCollection(for: userId).getDocuments { snapshot, error in
             if let error {
                 logger.error("Firestore fetch failed: \(error.localizedDescription)")
-                self?.dispatchToMain(.failure(error), completion: completion)
+                Self.dispatchToMain(.failure(error), completion: completion)
                 return
             }
 
             guard let documents = snapshot?.documents else {
-                self?.dispatchToMain(.success([]), completion: completion)
+                Self.dispatchToMain(.success([]), completion: completion)
                 return
             }
 
@@ -55,7 +55,7 @@ final class FirestoreChallengeRepository {
                 challenges.append(dto.toDomain())
             }
             challenges.sort { $0.startDate < $1.startDate }
-            self?.dispatchToMain(.success(challenges), completion: completion)
+            Self.dispatchToMain(.success(challenges), completion: completion)
         }
     }
 
@@ -64,16 +64,16 @@ final class FirestoreChallengeRepository {
     // Saves a challenge. No-op if user is nil. Completion runs on main queue.
     func saveChallenge(_ challenge: Challenge, completion: ((Error?) -> Void)? = nil) {
         guard let userId = currentUserId else {
-            dispatchToMain(nil, completion: completion)
+            Self.dispatchToMain(nil, completion: completion)
             return
         }
 
         let dto = FirestoreChallengeDTO(from: challenge)
-        challengesCollection(for: userId).document(challenge.id).setData(dto.toFirestoreData()) { [weak self] error in
+        challengesCollection(for: userId).document(challenge.id).setData(dto.toFirestoreData()) { error in
             if let error {
                 logger.error("Firestore save failed: \(error.localizedDescription)")
             }
-            self?.dispatchToMain(error, completion: completion)
+            Self.dispatchToMain(error, completion: completion)
         }
     }
 
@@ -82,19 +82,19 @@ final class FirestoreChallengeRepository {
     // Deletes a challenge. No-op if user is nil. Completion runs on main queue.
     func deleteChallenge(id: String, completion: ((Error?) -> Void)? = nil) {
         guard let userId = currentUserId else {
-            dispatchToMain(nil, completion: completion)
+            Self.dispatchToMain(nil, completion: completion)
             return
         }
 
-        challengesCollection(for: userId).document(id).delete { [weak self] error in
+        challengesCollection(for: userId).document(id).delete { error in
             if let error {
                 logger.error("Firestore delete failed: \(error.localizedDescription)")
             }
-            self?.dispatchToMain(error, completion: completion)
+            Self.dispatchToMain(error, completion: completion)
         }
     }
 
-    private func dispatchToMain<T>(_ value: T, completion: ((T) -> Void)?) {
+    private static func dispatchToMain<T>(_ value: T, completion: ((T) -> Void)?) {
         guard let completion else { return }
         if Thread.isMainThread {
             completion(value)

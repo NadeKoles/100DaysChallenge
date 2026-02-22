@@ -17,6 +17,14 @@ struct FirestoreChallengeDTO {
 
     private static let maxDay = 100
 
+    // Firestore may return integer arrays as [Int], [Int64], or [NSNumber].
+    private static func parseCompletedDays(from value: Any?) -> [Int] {
+        if let arr = value as? [Int] { return arr }
+        if let arr = (value as? [Int64])?.map(Int.init) { return arr }
+        if let arr = value as? [NSNumber] { return arr.map(\.intValue) }
+        return []
+    }
+
     init(from challenge: Challenge) {
         self.id = challenge.id
         self.title = challenge.title
@@ -51,10 +59,12 @@ struct FirestoreChallengeDTO {
     // Decodes from Firestore document data. Returns nil if required fields are missing or invalid.
     static func fromFirestoreData(_ data: [String: Any], documentId: String) -> FirestoreChallengeDTO? {
         guard let title = data["title"] as? String,
-              let accentColor = data["accentColor"] as? String else {
+              !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              let accentColor = data["accentColor"] as? String,
+              !accentColor.isEmpty else {
             return nil
         }
-        let completedDays: [Int] = (data["completedDays"] as? [Int]) ?? (data["completedDays"] as? [Int64])?.map(Int.init) ?? []
+        let completedDays = Self.parseCompletedDays(from: data["completedDays"])
         let startDate: Date
         if let timestamp = data["startDate"] as? Timestamp {
             startDate = timestamp.dateValue()

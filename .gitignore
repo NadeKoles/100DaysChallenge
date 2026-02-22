@@ -21,6 +21,9 @@ Carthage/Build/
 # macOS
 .DS_Store
 
+# Editor / IDE
+.cursor/
+
 # Figma Export
 figma-export/
 

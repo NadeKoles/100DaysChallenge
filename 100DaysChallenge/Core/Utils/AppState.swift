@@ -15,7 +15,7 @@ enum MainTab {
     case settings
 }
 
-enum AuthRoute: CustomStringConvertible {
+enum AuthRoute: CustomStringConvertible, Equatable {
     case login
     case signUp
 
@@ -27,7 +27,7 @@ enum AuthRoute: CustomStringConvertible {
     }
 }
 
-enum RootRoute: CustomStringConvertible {
+enum RootRoute: CustomStringConvertible, Equatable {
     case splash
     case onboarding
     case auth(AuthRoute)
@@ -75,13 +75,13 @@ class AppState: ObservableObject {
         setUpRootRouteDerivation()
     }
 
-    /// For SwiftUI previews only; production wiring uses init(authViewModel:).
+    // For SwiftUI previews only; production wiring uses init(authViewModel:).
     convenience init() {
         self.init(authViewModel: AuthViewModel())
     }
 
     private func setUpRootRouteDerivation() {
-        Publishers.CombineLatest2(
+        Publishers.CombineLatest(
             Publishers.CombineLatest4($didFinishLaunchSplash, $hasCompletedOnboarding, authViewModel.$user, $authRoute),
             authViewModel.$hasAuthenticatedThisSession
         )
@@ -98,7 +98,7 @@ class AppState: ObservableObject {
             return .main
         }
         .receive(on: DispatchQueue.main)
-        .sink { [weak self] route in
+        .sink { [weak self] (route: RootRoute) in
             guard let self else { return }
             let previous = self.rootRoute
             self.rootRoute = route

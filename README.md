@@ -42,7 +42,7 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 - **UIKit** — `UIViewRepresentable` for `UITextField` (email field) and gradient blur; `UIApplication` for Google Sign-In presentation context
 - **Firebase** — Auth (Email/Password + Google Sign-In)
 - **Core Data** — User-scoped local persistence for challenges
-- **Combine** — Reactive root routing via CombineLatest4 (splash, onboarding, user, auth state)
+- **Combine** — Reactive root routing via CombineLatest/CombineLatest4 (splash, onboarding, user, auth route, hasAuthenticatedThisSession)
 - **Swift Concurrency** — `@MainActor` on ViewModels and stores; `async`/`await` for `reloadUser()` and email verification checks
 - **os.Logger** — Structured logging in `PersistenceController` and `ChallengeStore` for Core Data load/save
 
@@ -54,13 +54,13 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 
 | Layer | Responsibility |
 |-------|-----------------|
-| **AppState** | Single source of truth for root route (`splash` → `onboarding` → `auth` → `verifyEmail` → `main`); derives route from splash flag, onboarding completion, and Firebase `user` |
+| **AppState** | Single source of truth for root route (`splash` → `onboarding` → `auth` → `verifyEmail` → `main`); derives route from splash flag, onboarding completion, Firebase `user`, auth route, and `hasAuthenticatedThisSession` |
 | **AuthViewModel** | Login, sign-up, Google Sign-In, email verification, password reset, form validation, error mapping |
 | **ChallengeStore** | Core Data CRUD, day toggling, max 3 challenges; `@Published challenges` consumed by views |
 | **ProgressViewModel** | Current challenge index, swipe navigation, day toggle/complete with confirmation alerts |
 | **NewChallengeViewModel** | Form state, color selection, submission, max-challenges alert |
 | **OnboardingViewModel** | Slide index and content |
-| **SettingsViewModel** | Challenge deletion state |
+| **SettingsViewModel** | Minimal; reserved for future settings logic (profile, notifications, etc.) |
 
 **Persistence architecture**
 
@@ -185,7 +185,7 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 
 - **Localization** — `LocalizedStrings` enum with `NSLocalizedString`; all user-facing text centralized.
 - **Design system** — `Colors`, `Typography`, `Spacing`, `CornerRadius`; reusable `PrimaryButton`, `InputField`, `SectionHeaderStyle`, `BottomActionBar`.
-- **Logging** — `os.Logger` in `PersistenceController` and `ChallengeStore` for Core Data load/save and migration failures.
+- **Logging** — `os.Logger` in `PersistenceController` and `ChallengeStore` for Core Data load/save.
 - **Edge cases** — Duplicate challenges filtered by id; rate limiting and cooldown for email verification resend; auth error mapping for user-friendly messages.
 
 ---

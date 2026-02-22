@@ -55,11 +55,7 @@ struct PersistenceController {
         let toInsert = uniqueDecoded.filter { !existingIds.contains($0.id) }
         for challenge in toInsert {
             let entity = ChallengeEntity(context: context)
-            entity.id = challenge.id
-            entity.title = challenge.title
-            entity.accentColor = challenge.accentColor
-            entity.startDate = challenge.startDate
-            entity.completedDaysData = try? JSONEncoder().encode(Array(challenge.completedDaysSet))
+            entity.update(from: challenge)
         }
 
         do {

@@ -53,7 +53,7 @@ struct SettingsView: View {
                 )
                 Text(LocalizedStrings.Settings.version("1.0.0"))
                     .font(.footnote)
-                    .foregroundStyle(.tertiary)
+                    .foregroundColor(.textTertiary)
                     .frame(maxWidth: .infinity)
                     .padding(.top, Spacing.md)
             }

@@ -110,7 +110,7 @@ struct ChallengeProgressView: View {
         Group {
             if let challenge = currentChallenge {
                 NavigationStack {
-                    VStack(spacing: 0) {
+                    ZStack(alignment: .bottom) {
                         ScrollView {
                             VStack(spacing: Spacing.xl) {
                                 // Challenge indicator dots
@@ -164,6 +164,7 @@ struct ChallengeProgressView: View {
                                 .padding(.bottom, shouldShowButton(challenge) ? BottomActionBarLayout.scrollContentBottomMargin : Spacing.xl)
                             }
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                         if shouldShowButton(challenge) {
                             BottomActionBar {

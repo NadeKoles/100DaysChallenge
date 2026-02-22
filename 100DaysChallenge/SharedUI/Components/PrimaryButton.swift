@@ -61,6 +61,14 @@ struct PrimaryButton: View {
         self.isLoading = isLoading
     }
     
+    // Disabled accent look (0.72 opacity on white) as solid color; overlay = 1 - this.
+    private enum DisabledAppearance {
+        static let accentVisibility: Double = 0.72
+        static let overlayOpacity: Double = 1 - accentVisibility
+    }
+
+    private var isInactive: Bool { !isEnabled || isLoading }
+
     private var textColor: Color {
         switch style {
         case .filled, .solid:
@@ -71,12 +79,13 @@ struct PrimaryButton: View {
             return .textSecondary
         }
     }
-    
+
     private var buttonOpacity: Double {
-        if isEnabled && !isLoading {
-            return 1.0
-        } else {
-            return 0.72
+        switch style {
+        case .filled, .solid:
+            return 1 // Opaque; disabled look handled via background
+        case .outlined, .secondary:
+            return isInactive ? DisabledAppearance.accentVisibility : 1
         }
     }
     
@@ -127,7 +136,7 @@ struct PrimaryButton: View {
             .background(backgroundView)
             .cornerRadius(CornerRadius.xl)
         }
-        .disabled(!isEnabled || isLoading)
+        .disabled(isInactive)
         .opacity(buttonOpacity)
         .buttonStyle(PrimaryButtonPressStyle(
             shouldHaveShadow: shouldHaveShadow,
@@ -137,7 +146,7 @@ struct PrimaryButton: View {
             pressedShadowRadius: PressAnimation.pressedShadowRadius,
             pressedShadowY: PressAnimation.pressedShadowY,
             animation: PressAnimation.animation,
-            isInteractive: isEnabled && !isLoading
+            isInteractive: !isInactive
         ))
     }
     
@@ -169,9 +178,17 @@ struct PrimaryButton: View {
     private var backgroundView: some View {
         switch style {
         case .filled:
-            Color.gradientOrangePink
+            if isInactive {
+                disabledAccentBackground(Color.gradientOrangePink)
+            } else {
+                Color.gradientOrangePink
+            }
         case .solid(let color):
-            color
+            if isInactive {
+                disabledAccentBackground(color)
+            } else {
+                color
+            }
         case .outlined:
             Color.clear
                 .overlay(
@@ -186,10 +203,17 @@ struct PrimaryButton: View {
                 )
         }
     }
+
+    @ViewBuilder
+    private func disabledAccentBackground<Content: View>(_ base: Content) -> some View {
+        ZStack {
+            base
+            Color.white.opacity(DisabledAppearance.overlayOpacity)
+        }
+    }
 }
 
 // MARK: - Custom Button Style for Press Animation
-// Removes default system dimming and applies consistent press animation across all button styles
 private struct PrimaryButtonPressStyle: ButtonStyle {
     let shouldHaveShadow: Bool
     let shadowConfig: (color: Color, radius: CGFloat, x: CGFloat, y: CGFloat)

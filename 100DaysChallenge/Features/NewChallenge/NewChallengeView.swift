@@ -28,7 +28,7 @@ struct NewChallengeView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+            ZStack(alignment: .bottom) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: Spacing.xl) {
                         // Title input
@@ -105,6 +105,7 @@ struct NewChallengeView: View {
                     .padding(.bottom, BottomActionBarLayout.scrollContentBottomMargin)
                 }
                 .contentMargins(.bottom, BottomActionBarLayout.scrollContentBottomMargin, for: .scrollContent)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 BottomActionBar {
                     PrimaryButton(

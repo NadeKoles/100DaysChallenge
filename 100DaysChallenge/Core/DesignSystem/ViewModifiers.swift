@@ -6,10 +6,55 @@
 //
 
 import SwiftUI
+import UIKit
 
-// MARK: - Bottom Action Bar (sticky bar)
+// MARK: - Gradient Blur (UIKit-based, mask works reliably)
+private final class GradientBlurHostView: UIView {
+    private let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .systemThinMaterial))
+    private let maskLayer = CAGradientLayer()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+        blurView.backgroundColor = .clear
+        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        addSubview(blurView)
+
+        maskLayer.colors = [
+            UIColor.clear.cgColor,
+            UIColor.clear.cgColor,
+            UIColor.white.withAlphaComponent(BottomActionBarLayout.gradientBlurMidAlpha).cgColor,
+            UIColor.white.cgColor
+        ]
+        maskLayer.locations = BottomActionBarLayout.gradientBlurMaskLocations
+        maskLayer.startPoint = CGPoint(x: 0.5, y: 0)
+        maskLayer.endPoint = CGPoint(x: 0.5, y: 1)
+        blurView.layer.mask = maskLayer
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        blurView.frame = bounds
+        maskLayer.frame = blurView.bounds
+    }
+}
+
+private struct GradientBlurView: UIViewRepresentable {
+    func makeUIView(context: Context) -> GradientBlurHostView {
+        GradientBlurHostView()
+    }
+
+    func updateUIView(_ uiView: GradientBlurHostView, context: Context) {}
+}
+
+// MARK: - Bottom Action Bar
 enum BottomActionBarLayout {
     static let scrollContentBottomMargin: CGFloat = 80
+    static let gradientBlurHeight: CGFloat = 140
+    static let gradientBlurMaskLocations: [NSNumber] = [0, 0.5, 0.8, 1].map { NSNumber(value: $0) }
+    static let gradientBlurMidAlpha: CGFloat = 0.7
 }
 
 struct BottomActionBar<Content: View>: View {
@@ -19,10 +64,45 @@ struct BottomActionBar<Content: View>: View {
         VStack(spacing: 0) {
             content()
                 .padding(.horizontal, Spacing.xl)
-                .padding(.vertical, Spacing.md)
+                .padding(.top, Spacing.md)
+                .padding(.bottom, Spacing.md)
         }
         .frame(maxWidth: .infinity)
-        .shadow(color: .black.opacity(0.06), radius: 12, y: -2)
+        .background(alignment: .bottom) {
+            GradientBlurView()
+                .frame(height: BottomActionBarLayout.gradientBlurHeight)
+        }
+        .ignoresSafeArea(edges: .bottom)
+    }
+}
+
+#Preview("BottomActionBar") {
+    ZStack {
+        ScrollView {
+            VStack(spacing: Spacing.xl) {
+                ForEach(0..<2, id: \.self) { _ in
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: Spacing.sm), GridItem(.flexible(), spacing: Spacing.sm)], spacing: Spacing.sm) {
+                        ForEach(ChallengeAccentColor.all, id: \.name) { option in
+                            RoundedRectangle(cornerRadius: CornerRadius.lg)
+                                .fill(option.color)
+                                .frame(height: 60)
+                        }
+                    }
+                }
+            }
+            .padding(Spacing.xl)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.background)
+
+        BottomActionBar {
+            PrimaryButton(
+                title: "Mark Day 15 Complete",
+                action: {},
+                iconSystemNameLeft: "checkmark",
+                style: .solid(.accentFreshGreen)
+            )
+        }
     }
 }
 

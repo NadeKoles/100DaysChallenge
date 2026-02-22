@@ -41,8 +41,8 @@ struct SettingsView: View {
                 SettingsRow(icon: "shield", title: LocalizedStrings.Settings.privacyPolicy) { }
             }
 
-            // Log out + version 
-            VStack(spacing: Spacing.xs) {
+            // Log out + version footer
+            VStack(spacing: 0) {
                 PrimaryButton(
                     title: LocalizedStrings.Auth.logOut,
                     action: {
@@ -52,15 +52,17 @@ struct SettingsView: View {
                     style: .secondary
                 )
                 Text(LocalizedStrings.Settings.version("1.0.0"))
-                    .font(.caption)
-                    .foregroundColor(.textTertiary)
+                    .font(.footnote)
+                    .foregroundStyle(.tertiary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, Spacing.md)
             }
             .frame(maxWidth: .infinity)
             .padding(.top, Spacing.xl)
         }
         .padding(.top, Spacing.lg)
         .padding(.horizontal, Spacing.xl)
-        .padding(.bottom, Spacing.sm)
+        .padding(.bottom, Spacing.lg)
     }
 
     var body: some View {

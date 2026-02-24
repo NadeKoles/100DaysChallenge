@@ -114,6 +114,10 @@ class ChallengeStore: ObservableObject {
         entity.userId = currentUserId
         save()
         loadChallenges()
+        guard currentUserId != nil else { return true }
+        firestoreRepository.saveChallenge(challenge) { error in
+            if let error { logger.error("Firestore save failed after add: \(error.localizedDescription)") }
+        }
         return true
     }
 
@@ -122,6 +126,10 @@ class ChallengeStore: ObservableObject {
         entity.update(from: challenge)
         save()
         loadChallenges()
+        guard currentUserId != nil else { return }
+        firestoreRepository.saveChallenge(challenge) { error in
+            if let error { logger.error("Firestore save failed after update: \(error.localizedDescription)") }
+        }
     }
 
     func deleteChallenge(id: String) {
@@ -129,6 +137,10 @@ class ChallengeStore: ObservableObject {
         context.delete(entity)
         save()
         loadChallenges()
+        guard currentUserId != nil else { return }
+        firestoreRepository.deleteChallenge(id: id) { error in
+            if let error { logger.error("Firestore delete failed: \(error.localizedDescription)") }
+        }
     }
 
     func toggleDay(challengeId: String, day: Int) {

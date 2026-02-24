@@ -29,3 +29,6 @@ figma-export/
 
 # PurC files
 *.pur
+
+# Docs (internal plans - optional: remove to track in git)
+docs/

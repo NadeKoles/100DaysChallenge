@@ -29,6 +29,7 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 ## Key Features
 
 - **100-Day Habit Grid** — Visual 10×10 grid to track and toggle completed days; swipe gestures to switch between challenges
+- **Daily Affirmation** — A short motivational affirmation on the progress screen, fetched from a public REST API and refreshed every 12 hours (cached across launches, silent on failure)
 - **Multi-Challenge Support** — Run up to 3 challenges at once with custom titles, start dates, and accent colors
 - **Authentication** — Email/password sign-up and sign-in, Google Sign-In, email verification flow, and password reset
 - **Onboarding** — 3-slide intro explaining goal-setting, progress tracking, and consistency
@@ -42,9 +43,10 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 - **UIKit** — `UIViewRepresentable` for `UITextField` (email field) and gradient blur; `UIApplication` for Google Sign-In presentation context
 - **Firebase** — Auth (Email/Password + Google Sign-In)
 - **Core Data** — User-scoped local persistence for challenges
+- **URLSession** — REST fetch for the daily affirmation (affirmations.dev), decoded with `Codable`; 12-hour cache in `UserDefaults`
 - **Combine** — Reactive root routing via CombineLatest/CombineLatest4 (splash, onboarding, user, auth route, hasAuthenticatedThisSession)
-- **Swift Concurrency** — `@MainActor` on ViewModels and stores; `async`/`await` for `reloadUser()` and email verification checks
-- **os.Logger** — Structured logging in `PersistenceController` and `ChallengeStore` for Core Data load/save
+- **Swift Concurrency** — `@MainActor` on ViewModels and stores; `async`/`await` for `reloadUser()`, email verification checks, and the daily affirmation fetch
+- **os.Logger** — Structured logging in `PersistenceController` and `ChallengeStore` (Core Data) and `AffirmationService` (network errors)
 
 ---
 
@@ -58,6 +60,7 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 | **AuthViewModel** | Login, sign-up, Google Sign-In, email verification, password reset, form validation, error mapping |
 | **ChallengeStore** | Core Data CRUD, day toggling, max 3 challenges; `@Published challenges` consumed by views |
 | **ProgressViewModel** | Current challenge index, swipe navigation, day toggle/complete with confirmation alerts |
+| **AffirmationViewModel** | Fetches the daily affirmation via `AffirmationService`, caches it for 12 hours, silent fallback on failure |
 | **NewChallengeViewModel** | Form state, color selection, submission, max-challenges alert |
 | **OnboardingViewModel** | Slide index and content |
 | **SettingsViewModel** | Minimal; reserved for future settings logic (profile, notifications, etc.) |
@@ -79,7 +82,7 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 
 - **Core Data** — `ChallengeEntity` (id, title, accentColor, startDate, completedDaysData, userId). `PersistenceController` manages the container; `ChallengeStore` performs fetches and saves.
 - **Firestore** — `FirestoreChallengeRepository` and `FirestoreChallengeDTO` handle read/write for restore-only cloud backup. Path: `users/{uid}/challenges`.
-- **UserDefaults** — Only `hasCompletedOnboarding`.
+- **UserDefaults** — `hasCompletedOnboarding`; cached daily affirmation (text + fetch timestamp).
 
 ---
 
@@ -112,6 +115,8 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 │       ├── AppState.swift         # Root routing state
 │       └── LocalizedStrings.swift  # NSLocalizedString wrapper
 ├── Features/
+│   ├── Affirmation/
+│   │   └── AffirmationFeature.swift   # Service, ViewModel, and card view for the daily affirmation
 │   ├── Auth/
 │   │   ├── AuthViewModel.swift
 │   │   ├── LoginView.swift
@@ -175,7 +180,7 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 
 **Flow:** Splash (2s) → Onboarding (3 slides) → Auth (login/sign-up) → Email verification (if needed) → Main tab (Progress | New Challenge | Settings).
 
-- **Progress tab:** Empty state when no challenges; otherwise challenge switcher dots, stats (X/100 days), progress bar, 100-day grid, and “Mark Day N Complete” button when today is not done.
+- **Progress tab:** Empty state when no challenges; otherwise challenge switcher dots, a daily affirmation card, stats (X/100 days), progress bar, 100-day grid, and “Mark Day N Complete” button when today is not done.
 - **New Challenge tab:** Title input, quick-idea tags, color picker, tips card, “Start Challenge” CTA. Max 3 challenges enforced with alert.
 - **Settings:** Account (Profile, Notifications), Your Challenges (list + delete), Support (Help Center, Privacy Policy), Sign Out.
 
@@ -185,8 +190,10 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 
 - **Localization** — `LocalizedStrings` enum with `NSLocalizedString`; all user-facing text centralized.
 - **Design system** — `Colors`, `Typography`, `Spacing`, `CornerRadius`; reusable `PrimaryButton`, `InputField`, `SectionHeaderStyle`, `BottomActionBar`.
-- **Logging** — `os.Logger` in `PersistenceController` and `ChallengeStore` for Core Data load/save.
+- **Logging** — `os.Logger` in `PersistenceController` and `ChallengeStore` (Core Data load/save) and `AffirmationService` (network failures).
 - **Edge cases** — Duplicate challenges filtered by id; rate limiting and cooldown for email verification resend; auth error mapping for user-friendly messages.
+- **Graceful degradation** — The daily affirmation throttles fetches to once per 12 hours, falls back to the cached value when the network fails, hides silently if there is nothing to show, and reserves its height so the layout never shifts.
+- **Testability** — `AffirmationService` and `AffirmationViewModel` inject their dependencies (`HTTPClient`, `UserDefaults`), so networking and cache logic can be unit-tested with mocks.
 
 ---
 

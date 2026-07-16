@@ -23,32 +23,20 @@ struct DaysChallengeApp: App {
 
     var body: some Scene {
         WindowGroup {
-#if DEBUG
-            if ProcessInfo.processInfo.arguments.contains("-screenshotMode") {
-                ScreenshotRootView()
-            } else {
-                mainRoot
-            }
-#else
-            mainRoot
-#endif
+            RootView()
+                .environmentObject(appState)
+                .environmentObject(ChallengeStore.shared)
+                .environmentObject(authVM)
+                .onAppear {
+                    ChallengeStore.shared.switchToUser(authVM.user?.uid)
+                }
+                .onChange(of: authVM.user) { _, user in
+                    ChallengeStore.shared.switchToUser(user?.uid)
+                }
+                .onOpenURL { url in
+                    GIDSignIn.sharedInstance.handle(url)
+                }
         }
-    }
-
-    private var mainRoot: some View {
-        RootView()
-            .environmentObject(appState)
-            .environmentObject(ChallengeStore.shared)
-            .environmentObject(authVM)
-            .onAppear {
-                ChallengeStore.shared.switchToUser(authVM.user?.uid)
-            }
-            .onChange(of: authVM.user) { _, user in
-                ChallengeStore.shared.switchToUser(user?.uid)
-            }
-            .onOpenURL { url in
-                GIDSignIn.sharedInstance.handle(url)
-            }
     }
 }
 

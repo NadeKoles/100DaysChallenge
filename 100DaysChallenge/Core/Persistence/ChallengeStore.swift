@@ -66,22 +66,6 @@ class ChallengeStore: ObservableObject {
         return store
     }
 
-#if DEBUG
-    // Fixture for the README screenshot: green "Meditation" with days matching the reference shot.
-    static func previewScreenshot() -> ChallengeStore {
-        let store = ChallengeStore(context: PersistenceController.preview.viewContext)
-        _ = store.addChallenge(Challenge(
-            title: "Meditation",
-            accentColor: "#6BCF94",
-            startDate: Calendar.current.date(byAdding: .day, value: -24, to: Date()) ?? Date(),
-            completedDaysSet: [1, 2, 3, 4, 5, 6, 8, 9, 10, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
-        ))
-        _ = store.addChallenge(Challenge(title: "Reading", accentColor: "#5C9FFF"))
-        _ = store.addChallenge(Challenge(title: "Running", accentColor: "#F56B6B"))
-        return store
-    }
-#endif
-
     // Call when auth state changes. Loads challenges for the given user (nil = legacy/anonymous).
     // When switching to a signed-in user, runs initial cloud sync once per login session.
     func switchToUser(_ userId: String?) {

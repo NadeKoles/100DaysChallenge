@@ -11,6 +11,7 @@ struct ProgressView: View {
     @EnvironmentObject var challengeStore: ChallengeStore
     @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = ProgressViewModel()
+    @StateObject private var affirmationViewModel = AffirmationViewModel()
 
     var body: some View {
         Group {
@@ -20,6 +21,7 @@ struct ProgressView: View {
                 ChallengeProgressView(
                     challenges: challengeStore.challenges,
                     currentIndex: viewModel.currentIndex,
+                    affirmationViewModel: affirmationViewModel,
                     onSwipePrevious: { viewModel.previousChallenge() },
                     onSwipeNext: { viewModel.nextChallenge() },
                     onToggleDay: { viewModel.didTapDay($0) },
@@ -89,6 +91,7 @@ struct EmptyChallengesView: View {
 struct ChallengeProgressView: View {
     let challenges: [Challenge]
     let currentIndex: Int
+    let affirmationViewModel: AffirmationViewModel
     let onSwipePrevious: () -> Void
     let onSwipeNext: () -> Void
     let onToggleDay: (Int) -> Void
@@ -127,33 +130,40 @@ struct ChallengeProgressView: View {
                                 .padding(.horizontal, Spacing.xl)
                                 .padding(.top, Spacing.xs)
 
-                                // Challenge stats
-                                VStack(alignment: .leading, spacing: Spacing.sm) {
-                                    HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
-                                        Text("\(challenge.completedDaysSet.count)")
-                                            .font(.displayMedium)
-                                            .foregroundColor(.textPrimary)
+                                // Affirmation + summary
+                                VStack(spacing: Spacing.md) {
+                                    // Daily affirmation
+                                    DailyAffirmationView(viewModel: affirmationViewModel)
 
-                                        Text("/ 100")
-                                            .font(.heading3)
-                                            .foregroundColor(.textTertiary)
+                                    // Summary: stats + progress
+                                    VStack(spacing: Spacing.md) {
+                                        // Challenge stats
+                                        VStack(alignment: .leading, spacing: 0) {
+                                            HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
+                                                Text("\(challenge.completedDaysSet.count)")
+                                                    .font(.displayMedium)
+                                                    .foregroundColor(.textPrimary)
+
+                                                Text("/ 100")
+                                                    .font(.heading3)
+                                                    .foregroundColor(.textTertiary)
+                                            }
+
+                                            Text(LocalizedStrings.Progress.daysCompleted)
+                                                .font(.labelSmall)
+                                                .foregroundColor(.textTertiary)
+                                                .padding(.top, -Spacing.xxs)
+                                        }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                                        // Progress bar
+                                        ProgressBarView(
+                                            progress: challenge.progress,
+                                            accentColor: Color(hex: challenge.accentColor)
+                                        )
                                     }
-
-                                    Text(LocalizedStrings.Progress.daysCompleted)
-                                        .font(.body)
-                                        .foregroundColor(.textSecondary)
                                 }
-                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, Spacing.xl)
-                                .padding(.top, Spacing.lg)
-
-                                // Progress bar
-                                ProgressBarView(
-                                    progress: challenge.progress,
-                                    accentColor: Color(hex: challenge.accentColor)
-                                )
-                                .padding(.horizontal, Spacing.xl)
-                                .padding(.bottom, Spacing.lg)
 
                                 // 100-day grid
                                 ChallengeGridView(

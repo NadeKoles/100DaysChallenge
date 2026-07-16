@@ -33,6 +33,9 @@ extension Font {
     // MARK: - Caption
     static let caption = Font.system(size: 12, weight: .regular, design: .default)
     static let captionSmall = Font.system(size: 10, weight: .regular, design: .default)
+
+    // MARK: - Editorial
+    static let affirmation = Font.system(size: 17, weight: .regular, design: .serif)
 }
 
 extension UIFont {

@@ -133,6 +133,33 @@ final class AffirmationViewModel: ObservableObject {
         defaults.set(affirmation.text, forKey: affirmationTextKey)
         defaults.set(date, forKey: affirmationFetchedAtKey)
     }
+
+#if DEBUG
+    // Screenshot/debug helper: real affirmations.dev lines to pick the best one for the README.
+    static let previewAffirmations = [
+        "You'll figure it out",
+        "You're a smart cookie",
+        "I know you'll sort it out",
+        "Small progress is still progress",
+        "We are all works in progress",
+        "Struggling means you're learning",
+        "10x engineers are a myth",
+        "Don't forget to enjoy the journey",
+        "It'll feel magical when it's working",
+        "If everything was easy you'd be bored",
+        "The path to success is to take massive, determined action",
+        "People with goals succeed because they know where they're going",
+        "Sucking at something is the first step towards being good at something",
+        "Nothing is impossible. The word itself says 'I'm possible!'",
+        "Whenever we're afraid, it's because we don't know enough. If we understood enough, we would never be afraid"
+    ]
+    private var previewIndex = 0
+
+    func cyclePreviewAffirmation() {
+        affirmation = Affirmation(text: Self.previewAffirmations[previewIndex])
+        previewIndex = (previewIndex + 1) % Self.previewAffirmations.count
+    }
+#endif
 }
 
 // MARK: - View
@@ -172,5 +199,8 @@ struct DailyAffirmationView: View {
                 Task { await viewModel.load() }
             }
         }
+#if DEBUG
+        .onTapGesture { viewModel.cyclePreviewAffirmation() }
+#endif
     }
 }

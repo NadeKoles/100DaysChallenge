@@ -108,7 +108,7 @@ enum LocalizedStrings {
         static let noChallengeAvailable = NSLocalizedString("progress.noChallengeAvailable", value: "No challenge available", comment: "Content unavailable when no challenge selected")
         static let gridTitle = NSLocalizedString("progress.gridTitle", value: "100 DAYS GRID", comment: "100-day grid section header")
         static let noChallengesDescription = NSLocalizedString("progress.noChallengesDescription", value: "Start your first 100-days challenge to build a lasting habit", comment: "Empty state description")
-        static let daysCompleted = NSLocalizedString("progress.daysCompleted", value: "days completed", comment: "Days completed label")
+        static let daysCompleted = NSLocalizedString("progress.daysCompleted", value: "Days Completed", comment: "Days completed label")
         static let markDayComplete = NSLocalizedString("progress.markDayComplete", value: "Mark Day %d Complete", comment: "Mark day complete button")
         static let completeDayTitle = NSLocalizedString("progress.completeDayTitle", value: "Complete Day %d?", comment: "Complete day alert title")
         static let unmarkDayTitle = NSLocalizedString("progress.unmarkDayTitle", value: "Unmark Day %d?", comment: "Unmark day alert title")

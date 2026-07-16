@@ -76,24 +76,62 @@ final class AffirmationService {
 
 // MARK: - ViewModel
 
+private let affirmationTextKey = "affirmation.cachedText"
+private let affirmationFetchedAtKey = "affirmation.fetchedAt"
+
 @MainActor
 final class AffirmationViewModel: ObservableObject {
     @Published private(set) var affirmation: Affirmation?
     @Published private(set) var loadFailed = false
 
-    private let service: AffirmationService
+    private static let refreshInterval: TimeInterval = 12 * 60 * 60
 
-    init(service: AffirmationService = AffirmationService()) {
+    private let service: AffirmationService
+    private let defaults: UserDefaults
+    private var isFetching = false
+
+    init(service: AffirmationService = AffirmationService(),
+         defaults: UserDefaults = .standard) {
         self.service = service
+        self.defaults = defaults
     }
 
     func load() async {
+        if let cached = cachedAffirmation(),
+           Date().timeIntervalSince(cached.fetchedAt) < Self.refreshInterval {
+            affirmation = cached.affirmation
+            return
+        }
+
+        guard !isFetching else { return }
+        isFetching = true
+        defer { isFetching = false }
+
         loadFailed = false
         do {
-            affirmation = try await service.fetchAffirmation()
+            let fresh = try await service.fetchAffirmation()
+            affirmation = fresh
+            cache(fresh, at: Date())
         } catch {
-            loadFailed = true
+            if let cached = cachedAffirmation() {
+                affirmation = cached.affirmation
+            } else {
+                loadFailed = true
+            }
         }
+    }
+
+    private func cachedAffirmation() -> (affirmation: Affirmation, fetchedAt: Date)? {
+        guard let text = defaults.string(forKey: affirmationTextKey),
+              let fetchedAt = defaults.object(forKey: affirmationFetchedAtKey) as? Date else {
+            return nil
+        }
+        return (Affirmation(text: text), fetchedAt)
+    }
+
+    private func cache(_ affirmation: Affirmation, at date: Date) {
+        defaults.set(affirmation.text, forKey: affirmationTextKey)
+        defaults.set(date, forKey: affirmationFetchedAtKey)
     }
 }
 
@@ -105,6 +143,7 @@ struct DailyAffirmationView: View {
     }
 
     @ObservedObject var viewModel: AffirmationViewModel
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         Group {
@@ -127,9 +166,11 @@ struct DailyAffirmationView: View {
                 Color.clear.frame(minHeight: Metrics.reservedHeight)
             }
         }
-        .task {
-            guard viewModel.affirmation == nil, !viewModel.loadFailed else { return }
-            await viewModel.load()
+        .task { await viewModel.load() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                Task { await viewModel.load() }
+            }
         }
     }
 }

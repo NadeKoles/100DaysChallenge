@@ -4,7 +4,7 @@
 
 A focused iOS habit-tracking app designed to help users build consistency through a 100-day commitment.
 
-**Purpose.** Most habit apps overwhelm users with features or hide progress in lists. 100 Days Challenge focuses on one principle: commit to a habit for 100 days and track it visually. Built with SwiftUI, Firebase Auth, and Core Data, it combines focused UX with production-ready architecture.
+**Purpose.** Most habit apps overwhelm users with features or hide progress in lists. 100 Days Challenge focuses on one principle: commit to a habit for 100 days and track it visually. Built with SwiftUI, Firebase Auth, and Core Data, it combines focused UX with a clean, layered MVVM architecture.
 
 ### Preview
 
@@ -228,7 +228,7 @@ xcodebuild test -scheme 100DaysChallenge \
 
 ## Project Status
 
-Actively developed. App Store release planned. Persistence layer (Core Data + restore-only Firestore) is hardened and production-ready.
+Actively developed portfolio project. Core flows are functional; the persistence layer (Core Data + restore-only Firestore) is still being refined and is not yet production-ready.
 
 ---
 

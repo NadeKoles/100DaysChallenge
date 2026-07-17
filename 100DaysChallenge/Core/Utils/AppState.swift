@@ -59,6 +59,7 @@ class AppState: ObservableObject {
     }
     @Published var authRoute: AuthRoute = .login
     @Published private(set) var rootRoute: RootRoute = .splash
+    @Published private(set) var isGuest: Bool = false
 
     private let authViewModel: AuthViewModel
     private let hadCompletedOnboardingAtLaunch: Bool
@@ -81,15 +82,17 @@ class AppState: ObservableObject {
     }
 
     private func setUpRootRouteDerivation() {
-        Publishers.CombineLatest(
+        Publishers.CombineLatest3(
             Publishers.CombineLatest4($didFinishLaunchSplash, $hasCompletedOnboarding, authViewModel.$user, $authRoute),
-            authViewModel.$hasAuthenticatedThisSession
+            authViewModel.$hasAuthenticatedThisSession,
+            $isGuest
         )
-        .map { [weak self] arg, hasAuthenticated in
-            let (splashDone, onboardingDone, user, authRoute) = arg
+        .map { [weak self] core, hasAuthenticated, isGuest in
+            let (splashDone, onboardingDone, user, authRoute) = core
             guard let self = self else { return RootRoute.splash }
             if !splashDone { return .splash }
             if !onboardingDone { return .onboarding }
+            if isGuest { return .main }
             if onboardingDone && !self.hadCompletedOnboardingAtLaunch && !hasAuthenticated {
                 return .auth(authRoute)
             }
@@ -130,7 +133,16 @@ class AppState: ObservableObject {
         authViewModel.resetFormState()
     }
 
+    func continueAsGuest() {
+        currentTab = .progress
+        isGuest = true
+    }
+
     func signOut() {
-        authViewModel.signOut()
+        if isGuest {
+            isGuest = false
+        } else {
+            authViewModel.signOut()
+        }
     }
 }

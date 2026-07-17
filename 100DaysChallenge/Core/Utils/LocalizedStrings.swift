@@ -86,6 +86,8 @@ enum LocalizedStrings {
         }
         static let iVerifiedRefresh = NSLocalizedString("auth.iVerifiedRefresh", value: "I Verified, Refresh", comment: "Refresh after verification button")
         static let logOut = NSLocalizedString("auth.logOut", value: "Log Out", comment: "Log out button")
+        static let tryDemo = NSLocalizedString("auth.tryDemo", value: "Try the demo", comment: "Guest mode entry button on login")
+        static let exitDemo = NSLocalizedString("auth.exitDemo", value: "Exit demo", comment: "Exit guest mode button")
         static let verificationEmailSent = NSLocalizedString("auth.verificationEmailSent", value: "Verification email sent", comment: "Verification email sent success message")
         static let emailVerified = NSLocalizedString("auth.emailVerified", value: "Email verified successfully", comment: "Email verified success message")
     }

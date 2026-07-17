@@ -9,6 +9,8 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var challengeStore: ChallengeStore
     @Binding var showSignUp: Bool
     @State private var didSubmit = false
     @State private var resetPrompt: ResetPasswordPrompt? = nil
@@ -163,6 +165,16 @@ struct LoginView: View {
                             isLoading: authViewModel.isLoading
                         )
                         
+                        // Try the demo (guest mode)
+                        PrimaryButton(
+                            title: LocalizedStrings.Auth.tryDemo,
+                            action: {
+                                challengeStore.startDemo()
+                                appState.continueAsGuest()
+                            },
+                            style: .secondary
+                        )
+
                         // Sign up link
                         HStack {
                             Text(LocalizedStrings.Auth.dontHaveAccount)
@@ -201,5 +213,7 @@ struct LoginView: View {
 #Preview {
     LoginView(showSignUp: .constant(false))
         .environmentObject(AuthViewModel())
+        .environmentObject(AppState())
+        .environmentObject(ChallengeStore.previewEmpty())
 }
 

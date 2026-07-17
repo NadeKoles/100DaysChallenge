@@ -1,5 +1,7 @@
 # 100 Days Challenge
 
+[![CI](https://github.com/NadeKoles/100DaysChallenge/actions/workflows/ci.yml/badge.svg)](https://github.com/NadeKoles/100DaysChallenge/actions/workflows/ci.yml)
+
 A focused iOS habit-tracking app designed to help users build consistency through a 100-day commitment.
 
 **Purpose.** Most habit apps overwhelm users with features or hide progress in lists. 100 Days Challenge focuses on one principle: commit to a habit for 100 days and track it visually. Built with SwiftUI, Firebase Auth, and Core Data, it combines focused UX with production-ready architecture.

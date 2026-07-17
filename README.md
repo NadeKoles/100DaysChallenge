@@ -193,7 +193,23 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 - **Logging** — `os.Logger` in `PersistenceController` and `ChallengeStore` (Core Data load/save) and `AffirmationService` (network failures).
 - **Edge cases** — Duplicate challenges filtered by id; rate limiting and cooldown for email verification resend; auth error mapping for user-friendly messages.
 - **Graceful degradation** — The daily affirmation throttles fetches to once per 12 hours, falls back to the cached value when the network fails, hides silently if there is nothing to show, and reserves its height so the layout never shifts.
-- **Testability** — `AffirmationService` and `AffirmationViewModel` inject their dependencies (`HTTPClient`, `UserDefaults`), so networking and cache logic can be unit-tested with mocks.
+- **Testability** — `AffirmationService` and `AffirmationViewModel` inject their dependencies (`HTTPClient`, `UserDefaults`), so networking and cache logic are covered by unit tests with mocks (see [Testing](#testing)).
+
+---
+
+## Testing
+
+Unit tests (`XCTest`) cover the daily affirmation feature, using dependency injection to run without the network or shared `UserDefaults`.
+
+- **`AffirmationServiceTests`** — decoding and error mapping: success, non-2xx → `invalidResponse`, bad JSON → `decodingFailed`, transport failure → `transport`.
+- **`AffirmationViewModelTests`** — caching logic: first load fetches and caches, a fresh cache skips the network, a cache older than 12 hours refetches, a failed request falls back to the cache, and `loadFailed` is set only when no cache exists.
+
+Run in Xcode with `⌘U`, or:
+
+```bash
+xcodebuild test -scheme 100DaysChallenge \
+  -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
+```
 
 ---
 

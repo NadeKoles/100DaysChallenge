@@ -147,6 +147,38 @@ class ChallengeStore: ObservableObject {
         updateChallenge(challenge)
     }
 
+    // MARK: - Demo (guest mode)
+
+    // Seeds local-only sample challenges for guest mode (anonymous, userId == nil),
+    // replacing anything left from a previous demo session.
+    func startDemo() {
+        clearDemoData()
+        Self.demoChallenges.forEach { _ = addChallenge($0) }
+    }
+
+    // Clears all local guest data so the next demo starts from the default set.
+    func clearDemoData() {
+        deleteAllEntitiesForCurrentUser()
+        loadChallenges()
+    }
+
+    private static var demoChallenges: [Challenge] {
+        [
+            Challenge(
+                title: "Coding",
+                accentColor: "#6BCF94",
+                startDate: Calendar.current.date(byAdding: .day, value: -24, to: Date()) ?? Date(),
+                completedDaysSet: [1, 2, 3, 4, 5, 6, 8, 9, 10, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+            ),
+            Challenge(
+                title: "Reading",
+                accentColor: "#5C9FFF",
+                startDate: Calendar.current.date(byAdding: .day, value: -9, to: Date()) ?? Date(),
+                completedDaysSet: [1, 2, 3, 5, 6, 8]
+            )
+        ]
+    }
+
     // MARK: - Initial Cloud Sync
 
     // Runs once per login when switching to a signed-in user. Merges local and remote.

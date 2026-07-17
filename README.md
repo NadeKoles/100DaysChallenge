@@ -34,6 +34,7 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 - **Daily Affirmation** — A short motivational affirmation on the progress screen, fetched from a public REST API and refreshed every 12 hours (cached across launches, silent on failure)
 - **Multi-Challenge Support** — Run up to 3 challenges at once with custom titles, start dates, and accent colors
 - **Authentication** — Email/password sign-up and sign-in, Google Sign-In, email verification flow, and password reset
+- **Demo Mode** — Explore the app with sample data without signing up via *Try the demo* on the login screen; exiting resets it for the next visitor
 - **Onboarding** — 3-slide intro explaining goal-setting, progress tracking, and consistency
 - **Settings & Challenge Management** — View all challenges, delete with confirmation, account and support links, sign out
 
@@ -185,6 +186,7 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 - **Progress tab:** Empty state when no challenges; otherwise challenge switcher dots, a daily affirmation card, stats (X/100 days), progress bar, 100-day grid, and “Mark Day N Complete” button when today is not done.
 - **New Challenge tab:** Title input, quick-idea tags, color picker, tips card, “Start Challenge” CTA. Max 3 challenges enforced with alert.
 - **Settings:** Account (Profile, Notifications), Your Challenges (list + delete), Support (Help Center, Privacy Policy), Sign Out.
+- **Guest / demo mode:** *Try the demo* on the login screen loads sample challenges locally (no account); *Exit demo* in Settings clears the data so the next visitor starts fresh.
 
 ---
 

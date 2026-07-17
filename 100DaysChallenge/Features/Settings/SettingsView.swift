@@ -10,6 +10,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var challengeStore: ChallengeStore
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = SettingsViewModel()
     @State private var challengeToDelete: Challenge? = nil
 
@@ -44,9 +45,12 @@ struct SettingsView: View {
             // Log out + version footer
             VStack(spacing: 0) {
                 PrimaryButton(
-                    title: LocalizedStrings.Auth.logOut,
+                    title: appState.isGuest ? LocalizedStrings.Auth.exitDemo : LocalizedStrings.Auth.logOut,
                     action: {
-                        authViewModel.signOut()
+                        if appState.isGuest {
+                            challengeStore.clearDemoData()
+                        }
+                        appState.signOut()
                     },
                     iconSystemNameLeft: "arrow.right.square",
                     style: .secondary

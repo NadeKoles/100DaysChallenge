@@ -12,10 +12,25 @@
 		CE64AE012F181D500087033F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CE64AE002F181D500087033F /* FirebaseAuth */; };
 		CE64AE032F181D500087033F /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = CE64AE022F181D500087033F /* FirebaseCore */; };
 		CE64AE062F181DBE0087033F /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = CE64AE052F181DBE0087033F /* GoogleSignIn */; };
+		CE746A01300A9BBE005C00D1 /* AffirmationViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7469FF300A9BBE005C00D1 /* AffirmationViewModelTests.swift */; };
+		CE746A02300A9BBE005C00D1 /* AffirmationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7469FE300A9BBE005C00D1 /* AffirmationServiceTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CE7469F9300A9B4D005C00D1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CECE55252F1574E5005F3B40 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CECE552C2F1574E5005F3B40;
+			remoteInfo = 100DaysChallenge;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		CE16BD9A2F19141B00E36EAB /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		CE7469F5300A9B4D005C00D1 /* 100DaysChallengeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = 100DaysChallengeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE7469FE300A9BBE005C00D1 /* AffirmationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationServiceTests.swift; sourceTree = "<group>"; };
+		CE7469FF300A9BBE005C00D1 /* AffirmationViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationViewModelTests.swift; sourceTree = "<group>"; };
 		CECE552D2F1574E5005F3B40 /* 100DaysChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = 100DaysChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -28,6 +43,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		CE7469F2300A9B4D005C00D1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CECE552A2F1574E5005F3B40 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -49,9 +71,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		CE746A00300A9BBE005C00D1 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				CE7469FE300A9BBE005C00D1 /* AffirmationServiceTests.swift */,
+				CE7469FF300A9BBE005C00D1 /* AffirmationViewModelTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		CECE55242F1574E5005F3B40 = {
 			isa = PBXGroup;
 			children = (
+				CE746A00300A9BBE005C00D1 /* Tests */,
 				CECE552F2F1574E5005F3B40 /* 100DaysChallenge */,
 				CECE552E2F1574E5005F3B40 /* Products */,
 				CE16BD9A2F19141B00E36EAB /* GoogleService-Info.plist */,
@@ -63,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				CECE552D2F1574E5005F3B40 /* 100DaysChallenge.app */,
+				CE7469F5300A9B4D005C00D1 /* 100DaysChallengeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +103,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		CE7469F4300A9B4D005C00D1 /* 100DaysChallengeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CE7469FB300A9B4D005C00D1 /* Build configuration list for PBXNativeTarget "100DaysChallengeTests" */;
+			buildPhases = (
+				CE7469F1300A9B4D005C00D1 /* Sources */,
+				CE7469F2300A9B4D005C00D1 /* Frameworks */,
+				CE7469F3300A9B4D005C00D1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CE7469FA300A9B4D005C00D1 /* PBXTargetDependency */,
+			);
+			name = 100DaysChallengeTests;
+			packageProductDependencies = (
+			);
+			productName = 100DaysChallengeTests;
+			productReference = CE7469F5300A9B4D005C00D1 /* 100DaysChallengeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		CECE552C2F1574E5005F3B40 /* 100DaysChallenge */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CECE55382F1574E9005F3B40 /* Build configuration list for PBXNativeTarget "100DaysChallenge" */;
@@ -103,9 +156,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					CE7469F4300A9B4D005C00D1 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = CECE552C2F1574E5005F3B40;
+					};
 					CECE552C2F1574E5005F3B40 = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -130,11 +187,19 @@
 			projectRoot = "";
 			targets = (
 				CECE552C2F1574E5005F3B40 /* 100DaysChallenge */,
+				CE7469F4300A9B4D005C00D1 /* 100DaysChallengeTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		CE7469F3300A9B4D005C00D1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CECE552B2F1574E5005F3B40 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -146,6 +211,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		CE7469F1300A9B4D005C00D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE746A01300A9BBE005C00D1 /* AffirmationViewModelTests.swift in Sources */,
+				CE746A02300A9BBE005C00D1 /* AffirmationServiceTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CECE55292F1574E5005F3B40 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -155,7 +229,65 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		CE7469FA300A9B4D005C00D1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CECE552C2F1574E5005F3B40 /* 100DaysChallenge */;
+			targetProxy = CE7469F9300A9B4D005C00D1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		CE7469FC300A9B4D005C00D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R4N38846NF;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.nadekoles.-00DaysChallengeTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/100DaysChallenge.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/100DaysChallenge";
+			};
+			name = Debug;
+		};
+		CE7469FD300A9B4D005C00D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R4N38846NF;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.nadekoles.-00DaysChallengeTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/100DaysChallenge.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/100DaysChallenge";
+			};
+			name = Release;
+		};
 		CECE55362F1574E9005F3B40 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -303,6 +435,9 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.nadekoles.-00DaysChallenge";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -333,6 +468,9 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.nadekoles.-00DaysChallenge";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -342,6 +480,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		CE7469FB300A9B4D005C00D1 /* Build configuration list for PBXNativeTarget "100DaysChallengeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE7469FC300A9B4D005C00D1 /* Debug */,
+				CE7469FD300A9B4D005C00D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		CECE55282F1574E5005F3B40 /* Build configuration list for PBXProject "100DaysChallenge" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

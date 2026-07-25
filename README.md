@@ -94,6 +94,7 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 ```
 100DaysChallenge/
 ├── App/
+│   ├── AppState.swift             # Global app state + root-route source of truth
 │   ├── DaysChallengeApp.swift     # Entry point, Firebase init, env objects
 │   └── Root/
 │       └── RootView.swift         # Root routing (splash / onboarding / auth / main)
@@ -115,7 +116,6 @@ A focused iOS habit-tracking app designed to help users build consistency throug
 │   │   │   └── FirestoreChallengeDTO.swift
 │   │   └── ChallengeStore.swift          # Single persistence facade
 │   └── Utils/
-│       ├── AppState.swift         # Root routing state
 │       └── LocalizedStrings.swift  # NSLocalizedString wrapper
 ├── Features/
 │   ├── Affirmation/
